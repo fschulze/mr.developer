@@ -5,33 +5,39 @@ from optparse import OptionParser
 from pprint import pformat, pprint
 
 
+FAKE_PART_ID = '_mr.developer'
+
+
 def extension(buildout=None):
     buildout_dir = buildout['buildout']['directory']
+
     sources_dir = buildout['buildout'].get('sources-dir', 'src')
     if not os.path.isabs(sources_dir):
         sources_dir = os.path.join(buildout_dir, sources_dir)
+
     sources = {}
-    svn_sources = buildout['buildout'].get('sources-svn')
-    if svn_sources is not None:
-        section = buildout[svn_sources]
-        for name, url in section.iteritems():
-            sources[name] = ('svn', url)
-    if '_mr.developer' in buildout._raw:
-        raise ValueError("mr.developer: The buildout already has a '_mr.developer' section, this shouldn't happen")
-    buildout._raw['_mr.developer'] = dict(
+    section = buildout.get(buildout['buildout'].get('sources-svn'), {})
+    for name, url in section.iteritems():
+        if name in sources:
+            raise ValueError("The source for '%s' is already set." % name)
+        sources[name] = ('svn', url)
+
+    # build the fake part to install the checkout script
+    if FAKE_PART_ID in buildout._raw:
+        raise ValueError("mr.developer: The buildout already has a '%s' section, this shouldn't happen" % FAKE_PART_ID)
+    buildout._raw[FAKE_PART_ID] = dict(
         recipe='zc.recipe.egg',
         eggs='mr.developer',
         arguments='sources=%s,\nsources_dir="%s"' % (pformat(sources), sources_dir),
     )
+    # append the fake part
     parts = buildout['buildout']['parts'].split()
-    parts.append('_mr.developer')
+    parts.append(FAKE_PART_ID)
     buildout['buildout']['parts'] = " ".join(parts)
+
+    # make the develop eggs if the package is checked out and fixup versions
     develop = buildout['buildout'].get('develop', '')
-    versions = buildout['buildout'].get('versions')
-    if versions is None:
-        versions = {}
-    else:
-        versions = buildout[versions]
+    versions = buildout.get(buildout['buildout'].get('versions'), {})
     develeggs = {}
     for path in develop.split():
         head, tail = os.path.split(path)
@@ -42,7 +48,7 @@ def extension(buildout=None):
             if os.path.exists(path):
                 develeggs[name] = path
                 if name in versions:
-                    versions[name] = ''
+                    del versions[name]
     buildout['buildout']['develop'] = "\n".join(develeggs.itervalues())
 
 
