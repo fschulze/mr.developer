@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.2 - Unreleased
+0.2 - 2009-03-22
 ----------------
 
 * Added ``auto-checkout`` option (only works with subversion at the moment).
