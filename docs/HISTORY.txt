@@ -4,6 +4,9 @@ Changelog
 0.2 - Unreleased
 ----------------
 
+* Throw error when trying to checkout unknown package.
+  [fschulze]
+
 * Fixed target directory for checkouts.
   [fschulze]
 

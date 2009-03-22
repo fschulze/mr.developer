@@ -80,6 +80,9 @@ def checkout(sources, sources_dir):
         if name in sources:
             kind, url = sources[name]
             packages.setdefault(kind, {})[name] = url
+        else:
+            logging.error("There is no package named '%s'." % name)
+            sys.exit(1)
     for kind in packages:
         if kind == 'svn':
             do_svn_checkout(sorted(packages[kind].iteritems()), sources_dir)
