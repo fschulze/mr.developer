@@ -19,8 +19,16 @@ section:
     to ``src``.
 
   ``sources-svn``
-    This specifies a section which list the subversion repository URLs of
+    This specifies a section which lists the subversion repository URLs of
     your packages.
+
+  ``sources-git``
+    This specifies a section which lists the git repository URLs of your
+    packages.
+
+  ``auto-checkout``
+    This specifies the names of packages which should be checked out during
+    buildout (only works with subversion repositories at the moment).
 
 The following is an example of how your ``buildout.cfg`` may look like::
 
@@ -28,9 +36,14 @@ The following is an example of how your ``buildout.cfg`` may look like::
   ...
   extensions = mr.developer
   sources-svn = sources-svn
+  sources-git = sources-git
+  auto-checkout = my.package
 
   [sources-svn]
   my.package = http://example.com/svn/my.package/trunk
+
+  [sources-svn]
+  some.other.package = git://example.com/git/some.other.package.git
 
 When you run buildout, you will get a script at ``bin/checkout`` in your
 buildout directory. With that script you can checkout the source from the
