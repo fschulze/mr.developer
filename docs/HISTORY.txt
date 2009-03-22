@@ -1,8 +1,11 @@
 Changelog
 =========
 
-0.3 - Unreleased
+0.3 - 2009-03-22
 ----------------
+
+* Fixed source distribution by adding a MANIFEST.in.
+  [fschulze]
 
 * Added -e and -l options to checkout script.
   [fschulze]
