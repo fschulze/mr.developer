@@ -4,6 +4,8 @@ Changelog
 0.3 - Unreleased
 ----------------
 
+* Added -e and -l options to checkout script.
+  [fschulze]
 
 0.2 - 2009-03-22
 ----------------

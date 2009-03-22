@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, re
 import logging
 import subprocess
 from optparse import OptionParser
@@ -105,22 +105,57 @@ def do_checkout(packages, sources_dir):
 
 def checkout(sources, sources_dir):
     parser=OptionParser(
-            usage="%s [<packages>]" % sys.argv[0],
-            description="Make a checkout of the given packages.")
-    (options, args)=parser.parse_args()
+            usage="%s <options> [<packages>]" % sys.argv[0],
+            description="Make a checkout of the given packages or show info about packages.")
+    parser.add_option("-e", "--regexp", dest="regexp",
+                      action="store_true",
+                      help="Use regular expression to check for package matches.")
+    parser.add_option("-l", "--list", dest="list",
+                      action="store_true",
+                      help="List info about package(s), all packages will be listed if none are specified.")
+    options, args = parser.parse_args()
+
+    if options.regexp:
+        if len(args) > 1:
+            logging.error("When using regular expression matching, then you can only specifiy one argument.")
+            sys.exit(1)
+        regexp = re.compile(args[0])
+
+    if options.list:
+        for name in sorted(sources):
+            if args:
+                if options.regexp:
+                    if not regexp.search(name):
+                        continue
+                elif name not in args:
+                    continue
+            kind, url = sources[name]
+            print name, url, "(%s)" % kind
+        sys.exit(0)
 
     if not args:
         parser.print_help()
         sys.exit(0)
 
     packages = {}
-    for name in args:
-        if name in sources:
+    if options.regexp:
+        for name in sorted(sources):
+            if not regexp.search(name):
+                continue
             kind, url = sources[name]
             packages.setdefault(kind, {})[name] = url
-        else:
-            logging.error("There is no package named '%s'." % name)
+        if len(packages) == 0:
+            logging.error("No package matched '%s'." % args[0])
             sys.exit(1)
+    else:
+        for name in args:
+            if name in sources:
+                kind, url = sources[name]
+                packages.setdefault(kind, {})[name] = url
+            else:
+                logging.error("There is no package named '%s'." % name)
+                sys.exit(1)
+
     try:
         do_checkout(packages, sources_dir)
     except ValueError, e:
