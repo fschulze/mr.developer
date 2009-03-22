@@ -4,6 +4,9 @@ Changelog
 0.2 - Unreleased
 ----------------
 
+* Added ``auto-checkout`` option (only works with subversion at the moment).
+  [fschulze]
+
 * Added support for git.
   [fschulze]
 

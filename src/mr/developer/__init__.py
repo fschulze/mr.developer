@@ -27,6 +27,16 @@ def extension(buildout=None):
             raise ValueError("The source for '%s' is already set." % name)
         sources[name] = ('git', url)
 
+    # do automatic checkout of specified packages
+    packages = {}
+    for name in buildout['buildout'].get('auto-checkout', '').split():
+        if name in sources:
+            kind, url = sources[name]
+            packages.setdefault(kind, {})[name] = url
+        else:
+            raise ValueError("Automatic checkout failed. No source defined for '%s'." % name)
+    do_checkout(packages, sources_dir)
+
     # build the fake part to install the checkout script
     if FAKE_PART_ID in buildout._raw:
         raise ValueError("mr.developer: The buildout already has a '%s' section, this shouldn't happen" % FAKE_PART_ID)
@@ -83,6 +93,16 @@ def do_git_checkout(packages, sources_dir):
             sys.exit(1)
 
 
+def do_checkout(packages, sources_dir):
+    for kind in packages:
+        if kind == 'svn':
+            do_svn_checkout(sorted(packages[kind].iteritems()), sources_dir)
+        elif kind == 'git':
+            do_git_checkout(sorted(packages[kind].iteritems()), sources_dir)
+        else:
+            raise ValueError("Unknown repository type '%s'." % kind)
+
+
 def checkout(sources, sources_dir):
     parser=OptionParser(
             usage="%s [<packages>]" % sys.argv[0],
@@ -101,10 +121,8 @@ def checkout(sources, sources_dir):
         else:
             logging.error("There is no package named '%s'." % name)
             sys.exit(1)
-    for kind in packages:
-        if kind == 'svn':
-            do_svn_checkout(sorted(packages[kind].iteritems()), sources_dir)
-        elif kind == 'git':
-            do_git_checkout(sorted(packages[kind].iteritems()), sources_dir)
-        else:
-            raise ValueError("Unknown repository type '%s'." % kind)
+    try:
+        do_checkout(packages, sources_dir)
+    except ValueError, e:
+        logging.error(e)
+        sys.exit(1)
