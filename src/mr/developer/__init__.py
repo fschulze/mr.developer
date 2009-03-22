@@ -68,7 +68,7 @@ def checkout(sources, sources_dir):
             if kind == 'svn':
                 logging.info("Checking out '%s'" % name)
                 cmd = subprocess.Popen(["svn", "checkout", "--quiet",
-                                        url, sources_dir],
+                                        url, os.path.join(sources_dir, name)],
                                        stderr=subprocess.PIPE)
                 stdout, stderr = cmd.communicate()
                 if cmd.returncode != 0:

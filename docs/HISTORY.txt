@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.2 - Unreleased
+----------------
+
+* Fixed target directory for checkouts.
+  [fschulze]
+
 0.1 - 2009-03-19
 ----------------
 
