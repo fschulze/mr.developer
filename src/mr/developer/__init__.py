@@ -21,6 +21,11 @@ def extension(buildout=None):
         if name in sources:
             raise ValueError("The source for '%s' is already set." % name)
         sources[name] = ('svn', url)
+    section = buildout.get(buildout['buildout'].get('sources-git'), {})
+    for name, url in section.iteritems():
+        if name in sources:
+            raise ValueError("The source for '%s' is already set." % name)
+        sources[name] = ('git', url)
 
     # build the fake part to install the checkout script
     if FAKE_PART_ID in buildout._raw:
@@ -65,6 +70,19 @@ def do_svn_checkout(packages, sources_dir):
             sys.exit(1)
 
 
+def do_git_checkout(packages, sources_dir):
+    for name, url in packages:
+        logging.info("Cloning '%s' with git." % name)
+        cmd = subprocess.Popen(["git", "clone", "--quiet",
+                                url, os.path.join(sources_dir, name)],
+                               stderr=subprocess.PIPE)
+        stdout, stderr = cmd.communicate()
+        if cmd.returncode != 0:
+            logging.error("Git cloning for '%s' failed." % name)
+            logging.error(stderr)
+            sys.exit(1)
+
+
 def checkout(sources, sources_dir):
     parser=OptionParser(
             usage="%s [<packages>]" % sys.argv[0],
@@ -86,5 +104,7 @@ def checkout(sources, sources_dir):
     for kind in packages:
         if kind == 'svn':
             do_svn_checkout(sorted(packages[kind].iteritems()), sources_dir)
+        elif kind == 'git':
+            do_git_checkout(sorted(packages[kind].iteritems()), sources_dir)
         else:
             raise ValueError("Unknown repository type '%s'." % kind)

@@ -4,6 +4,9 @@ Changelog
 0.2 - Unreleased
 ----------------
 
+* Added support for git.
+  [fschulze]
+
 * Throw error when trying to checkout unknown package.
   [fschulze]
 
