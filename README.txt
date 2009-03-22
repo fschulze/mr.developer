@@ -28,7 +28,7 @@ section:
 
   ``auto-checkout``
     This specifies the names of packages which should be checked out during
-    buildout (only works with subversion repositories at the moment).
+    buildout, packages already checked out are skipped.
 
 The following is an example of how your ``buildout.cfg`` may look like::
 

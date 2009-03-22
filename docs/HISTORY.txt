@@ -4,6 +4,8 @@ Changelog
 0.4 - Unreleased
 ----------------
 
+* Skip checkout of existing packages.
+  [fschulze]
 
 0.3 - 2009-03-22
 ----------------

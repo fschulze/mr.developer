@@ -69,9 +69,13 @@ def extension(buildout=None):
 
 def do_svn_checkout(packages, sources_dir):
     for name, url in packages:
+        path = os.path.join(sources_dir, name)
+        if os.path.exists(path):
+            logging.info("Skipped checkout of existing package '%s'." % name)
+            continue
         logging.info("Checking out '%s' with subversion." % name)
         cmd = subprocess.Popen(["svn", "checkout", "--quiet",
-                                url, os.path.join(sources_dir, name)],
+                                url, path],
                                stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
@@ -82,9 +86,13 @@ def do_svn_checkout(packages, sources_dir):
 
 def do_git_checkout(packages, sources_dir):
     for name, url in packages:
+        path = os.path.join(sources_dir, name)
+        if os.path.exists(path):
+            logging.info("Skipped cloning of existing package '%s'." % name)
+            continue
         logging.info("Cloning '%s' with git." % name)
         cmd = subprocess.Popen(["git", "clone", "--quiet",
-                                url, os.path.join(sources_dir, name)],
+                                url, path],
                                stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
