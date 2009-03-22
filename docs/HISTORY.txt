@@ -4,6 +4,9 @@ Changelog
 0.4 - Unreleased
 ----------------
 
+* Fixed logging, which fixes the info message output.
+  [fschulze]
+
 * Skip checkout of existing packages.
   [fschulze]
 

@@ -5,6 +5,8 @@ from optparse import OptionParser
 from pprint import pformat, pprint
 
 
+logger = logging.getLogger("mr.developer")
+
 FAKE_PART_ID = '_mr.developer'
 
 
@@ -71,16 +73,16 @@ def do_svn_checkout(packages, sources_dir):
     for name, url in packages:
         path = os.path.join(sources_dir, name)
         if os.path.exists(path):
-            logging.info("Skipped checkout of existing package '%s'." % name)
+            logger.info("Skipped checkout of existing package '%s'." % name)
             continue
-        logging.info("Checking out '%s' with subversion." % name)
+        logger.info("Checking out '%s' with subversion." % name)
         cmd = subprocess.Popen(["svn", "checkout", "--quiet",
                                 url, path],
                                stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            logging.error("Subversion checkout for '%s' failed." % name)
-            logging.error(stderr)
+            logger.error("Subversion checkout for '%s' failed." % name)
+            logger.error(stderr)
             sys.exit(1)
 
 
@@ -88,16 +90,16 @@ def do_git_checkout(packages, sources_dir):
     for name, url in packages:
         path = os.path.join(sources_dir, name)
         if os.path.exists(path):
-            logging.info("Skipped cloning of existing package '%s'." % name)
+            logger.info("Skipped cloning of existing package '%s'." % name)
             continue
-        logging.info("Cloning '%s' with git." % name)
+        logger.info("Cloning '%s' with git." % name)
         cmd = subprocess.Popen(["git", "clone", "--quiet",
                                 url, path],
                                stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            logging.error("Git cloning for '%s' failed." % name)
-            logging.error(stderr)
+            logger.error("Git cloning for '%s' failed." % name)
+            logger.error(stderr)
             sys.exit(1)
 
 
@@ -112,6 +114,7 @@ def do_checkout(packages, sources_dir):
 
 
 def checkout(sources, sources_dir):
+    logging.basicConfig(level=logging.INFO)
     parser=OptionParser(
             usage="%s <options> [<packages>]" % sys.argv[0],
             description="Make a checkout of the given packages or show info about packages.")
@@ -125,7 +128,7 @@ def checkout(sources, sources_dir):
 
     if options.regexp:
         if len(args) > 1:
-            logging.error("When using regular expression matching, then you can only specifiy one argument.")
+            logger.error("When using regular expression matching, then you can only specifiy one argument.")
             sys.exit(1)
         regexp = re.compile(args[0])
 
@@ -153,7 +156,7 @@ def checkout(sources, sources_dir):
             kind, url = sources[name]
             packages.setdefault(kind, {})[name] = url
         if len(packages) == 0:
-            logging.error("No package matched '%s'." % args[0])
+            logger.error("No package matched '%s'." % args[0])
             sys.exit(1)
     else:
         for name in args:
@@ -161,11 +164,11 @@ def checkout(sources, sources_dir):
                 kind, url = sources[name]
                 packages.setdefault(kind, {})[name] = url
             else:
-                logging.error("There is no package named '%s'." % name)
+                logger.error("There is no package named '%s'." % name)
                 sys.exit(1)
 
     try:
         do_checkout(packages, sources_dir)
     except ValueError, e:
-        logging.error(e)
+        logger.error(e)
         sys.exit(1)
