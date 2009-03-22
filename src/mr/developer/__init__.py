@@ -52,6 +52,19 @@ def extension(buildout=None):
     buildout['buildout']['develop'] = "\n".join(develeggs.itervalues())
 
 
+def do_svn_checkout(packages, sources_dir):
+    for name, url in packages:
+        logging.info("Checking out '%s' with subversion." % name)
+        cmd = subprocess.Popen(["svn", "checkout", "--quiet",
+                                url, os.path.join(sources_dir, name)],
+                               stderr=subprocess.PIPE)
+        stdout, stderr = cmd.communicate()
+        if cmd.returncode != 0:
+            logging.error("Subversion checkout for '%s' failed." % name)
+            logging.error(stderr)
+            sys.exit(1)
+
+
 def checkout(sources, sources_dir):
     parser=OptionParser(
             usage="%s [<packages>]" % sys.argv[0],
@@ -62,18 +75,13 @@ def checkout(sources, sources_dir):
         parser.print_help()
         sys.exit(0)
 
+    packages = {}
     for name in args:
         if name in sources:
             kind, url = sources[name]
-            if kind == 'svn':
-                logging.info("Checking out '%s'" % name)
-                cmd = subprocess.Popen(["svn", "checkout", "--quiet",
-                                        url, os.path.join(sources_dir, name)],
-                                       stderr=subprocess.PIPE)
-                stdout, stderr = cmd.communicate()
-                if cmd.returncode != 0:
-                    logging.error("Subversion checkout for '%s' failed" % name)
-                    logging.error(stderr)
-                    sys.exit(1)
-            else:
-                raise ValueError("Unknown repository type '%s'." % kind)
+            packages.setdefault(kind, {})[name] = url
+    for kind in packages:
+        if kind == 'svn':
+            do_svn_checkout(sorted(packages[kind].iteritems()), sources_dir)
+        else:
+            raise ValueError("Unknown repository type '%s'." % kind)
