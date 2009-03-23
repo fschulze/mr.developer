@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.5 - 2009-03-23
+----------------
+
+* Make sure that the updated versions are actually used.
+  [fschulze]
+
 0.4 - 2009-03-22
 ----------------
 

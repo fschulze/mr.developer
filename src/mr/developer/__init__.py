@@ -3,6 +3,7 @@ import logging
 import subprocess
 from optparse import OptionParser
 from pprint import pformat, pprint
+import zc.buildout.easy_install
 
 
 logger = logging.getLogger("mr.developer")
@@ -66,6 +67,8 @@ def extension(buildout=None):
                 develeggs[name] = path
                 if name in versions:
                     del versions[name]
+    if versions:
+        zc.buildout.easy_install.default_versions(dict(versions))
     buildout['buildout']['develop'] = "\n".join(develeggs.itervalues())
 
 
