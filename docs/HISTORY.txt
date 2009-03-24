@@ -4,6 +4,10 @@ Changelog
 0.7 - Unreleased
 ----------------
 
+* If the working copy is clean, then checkout automatically switches svn
+  packages.
+  [fschulze]
+
 * Skip on checkout errors during buildout, so the develop script is generated
   and you get a chance to inspect and fix the problems.
   [fschulze]

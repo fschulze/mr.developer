@@ -40,6 +40,38 @@ class WorkingCopies(object):
         info = etree.fromstring(stdout)
         return (info.find('entry').find('url').text == url)
 
+    def svn_status(self, name):
+        path = os.path.join(self.sources_dir, name)
+        cmd = subprocess.Popen(["svn", "status", "--xml", path],
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
+        stdout, stderr = cmd.communicate()
+        if cmd.returncode != 0:
+            logger.error("Subversion status for '%s' failed." % name)
+            logger.error(stderr)
+            sys.exit(1)
+        info = etree.fromstring(stdout)
+        clean = True
+        for target in info.findall('target'):
+            if len(target.findall('entry')) > 0:
+                clean = False
+                break
+        if clean:
+            return 'clean'
+        else:
+            return 'dirty'
+
+    def svn_switch(self, name, url):
+        path = os.path.join(self.sources_dir, name)
+        logger.info("Switching '%s' with subversion." % name)
+        cmd = subprocess.Popen(["svn", "switch", "--quiet", url, path],
+                               stderr=subprocess.PIPE)
+        stdout, stderr = cmd.communicate()
+        if cmd.returncode != 0:
+            logger.error("Subversion switch for '%s' failed." % name)
+            logger.error(stderr)
+            sys.exit(1)
+
     def git_checkout(self, name, url):
         path = os.path.join(self.sources_dir, name)
         if os.path.exists(path):
@@ -80,9 +112,12 @@ class WorkingCopies(object):
                     if self.svn_matches(name, url):
                         logger.info("Skipped checkout of existing package '%s'." % name)
                     else:
-                        logger.error("Checkout URL for existing package '%s' differs. Expected '%s'." % (name, url))
-                        if not skip_errors:
-                            sys.exit(1)
+                        if self.svn_status(name) == 'clean':
+                            self.svn_switch(name, url)
+                        else:
+                            logger.error("Can't switch package '%s', because it's dirty." % (name, url))
+                            if not skip_errors:
+                                sys.exit(1)
                 else:
                     self.svn_checkout(name, url)
             elif kind=='git':
