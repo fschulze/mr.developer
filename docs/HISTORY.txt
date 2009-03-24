@@ -4,6 +4,9 @@ Changelog
 0.7 - Unreleased
 ----------------
 
+* Added ``update`` command to ``checkout`` script.
+  [fschulze]
+
 * Added ``status`` command to ``checkout`` script.
   [fschulze]
 

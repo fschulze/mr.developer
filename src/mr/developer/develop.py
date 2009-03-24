@@ -188,6 +188,24 @@ class CmdStatus(Command):
             print name
 
 
+class CmdUpdate(Command):
+    def __init__(self, develop):
+        super(CmdUpdate, self).__init__(develop)
+        self.parser = OptionParser(
+            usage="%prog update",
+            description="Updates all known packages currently checked out.",
+            add_help_option=False)
+
+    def __call__(self):
+        options, args = self.parser.parse_args(sys.argv[2:])
+        sources = self.develop.sources
+        sources_dir = self.develop.sources_dir
+        auto_checkout = self.develop.auto_checkout
+        packages = set(self.get_packages(args))
+        workingcopies = WorkingCopies(sources, sources_dir)
+        workingcopies.update(os.listdir(sources_dir))
+
+
 class Develop(object):
     def __call__(self, sources, sources_dir, auto_checkout):
         self.sources = sources
@@ -203,6 +221,7 @@ class Develop(object):
         self.cmd_help = CmdHelp(self)
         self.cmd_list = CmdList(self)
         self.cmd_status = CmdStatus(self)
+        self.cmd_update = CmdUpdate(self)
 
         self.commands = dict(
             help=self.cmd_help,
@@ -212,6 +231,8 @@ class Develop(object):
             ls=self.cmd_list,
             status=self.cmd_status,
             st=self.cmd_status,
+            update=self.cmd_update,
+            up=self.cmd_update,
         )
 
         if len(sys.argv) < 2:

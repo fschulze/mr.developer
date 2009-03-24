@@ -72,6 +72,17 @@ class WorkingCopies(object):
             logger.error(stderr)
             sys.exit(1)
 
+    def svn_update(self, name):
+        path = os.path.join(self.sources_dir, name)
+        logger.info("Updating '%s' with subversion." % name)
+        cmd = subprocess.Popen(["svn", "update", "--quiet", path],
+                               stderr=subprocess.PIPE)
+        stdout, stderr = cmd.communicate()
+        if cmd.returncode != 0:
+            logger.error("Subversion update for '%s' failed." % name)
+            logger.error(stderr)
+            sys.exit(1)
+
     def git_checkout(self, name, url):
         path = os.path.join(self.sources_dir, name)
         if os.path.exists(path):
@@ -111,6 +122,19 @@ class WorkingCopies(object):
             return 'clean'
         else:
             return 'dirty'
+
+    def git_update(self, name):
+        path = os.path.join(self.sources_dir, name)
+        logger.info("Updating '%s' with git." % name)
+        cmd = subprocess.Popen(["git", "pull"],
+                               cwd=path,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
+        stdout, stderr = cmd.communicate()
+        if cmd.returncode != 0:
+            logger.error("Git pull for '%s' failed." % name)
+            logger.error(stderr)
+            sys.exit(1)
 
     def checkout(self, packages, skip_errors=False):
         for name in packages:
@@ -174,3 +198,33 @@ class WorkingCopies(object):
         else:
             logger.error("Unknown repository type '%s'." % kind)
             sys.exit(1)
+
+    def update(self, packages):
+        for name in os.listdir(self.sources_dir):
+            if name not in self.sources:
+                continue
+            kind, url = self.sources[name]
+            if kind=='svn':
+                path = os.path.join(self.sources_dir, name)
+                if not self.svn_matches(name, url):
+                    if self.svn_status(name) == 'clean':
+                        self.svn_switch(name, url)
+                    else:
+                        logger.error("Can't switch package '%s', because it's dirty." % name)
+                        continue
+                if self.svn_status(name) != 'clean':
+                    logger.error("Can't update package '%s', because it's dirty." % name)
+                    continue
+                self.svn_update(name)
+            elif kind=='git':
+                path = os.path.join(self.sources_dir, name)
+                if not self.git_matches(name, url):
+                    logger.info("Skipped update of existing package '%s', because it's URL doesn't match." % name)
+                    continue
+                if self.git_status(name) != 'clean':
+                    logger.error("Can't update package '%s', because it's dirty." % name)
+                    continue
+                self.git_update(name)
+            else:
+                logger.error("Unknown repository type '%s'." % kind)
+                continue
