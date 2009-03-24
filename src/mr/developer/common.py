@@ -19,8 +19,7 @@ class WorkingCopies(object):
             logger.info("Skipped checkout of existing package '%s'." % name)
             return
         logger.info("Checking out '%s' with subversion." % name)
-        cmd = subprocess.Popen(["svn", "checkout", "--quiet",
-                                url, path],
+        cmd = subprocess.Popen(["svn", "checkout", "--quiet", url, path],
                                stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
@@ -47,8 +46,7 @@ class WorkingCopies(object):
             logger.info("Skipped cloning of existing package '%s'." % name)
             return
         logger.info("Cloning '%s' with git." % name)
-        cmd = subprocess.Popen(["git", "clone", "--quiet",
-                                url, path],
+        cmd = subprocess.Popen(["git", "clone", "--quiet", url, path],
                                stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
