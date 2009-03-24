@@ -119,29 +119,19 @@ def do_checkout(packages, sources_dir):
 def checkout(sources, sources_dir):
     logging.basicConfig(level=logging.INFO)
     parser=OptionParser(
-            usage="%s <options> [<packages>]" % sys.argv[0],
-            description="Make a checkout of the given packages or show info about packages.")
-    parser.add_option("-e", "--regexp", dest="regexp",
-                      action="store_true",
-                      help="Use regular expression to check for package matches.")
+            usage="%s <options> [<package-regexps>]" % sys.argv[0],
+            description="Make a checkout of the packages matching the regular expressions or show info about them.")
     parser.add_option("-l", "--list", dest="list",
                       action="store_true",
                       help="List info about package(s), all packages will be listed if none are specified.")
     options, args = parser.parse_args()
 
-    if options.regexp:
-        if len(args) > 1:
-            logger.error("When using regular expression matching, then you can only specifiy one argument.")
-            sys.exit(1)
-        regexp = re.compile(args[0])
+    regexp = re.compile("|".join("(%s)" % x for x in args))
 
     if options.list:
         for name in sorted(sources):
             if args:
-                if options.regexp:
-                    if not regexp.search(name):
-                        continue
-                elif name not in args:
+                if not regexp.search(name):
                     continue
             kind, url = sources[name]
             print name, url, "(%s)" % kind
@@ -152,23 +142,18 @@ def checkout(sources, sources_dir):
         sys.exit(0)
 
     packages = {}
-    if options.regexp:
-        for name in sorted(sources):
-            if not regexp.search(name):
-                continue
-            kind, url = sources[name]
-            packages.setdefault(kind, {})[name] = url
-        if len(packages) == 0:
-            logger.error("No package matched '%s'." % args[0])
-            sys.exit(1)
-    else:
-        for name in args:
-            if name in sources:
-                kind, url = sources[name]
-                packages.setdefault(kind, {})[name] = url
-            else:
-                logger.error("There is no package named '%s'." % name)
-                sys.exit(1)
+    for name in sorted(sources):
+        if not regexp.search(name):
+            continue
+        kind, url = sources[name]
+        packages.setdefault(kind, {})[name] = url
+    if len(packages) == 0:
+        if len(args) > 1:
+            regexps = "%s or '%s'" % (", ".join("'%s'" % x for x in args[:-1]), args[-1])
+        else:
+            regexps = "'%s'" % args[0]
+        logger.error("No package matched %s." % regexps)
+        sys.exit(1)
 
     try:
         do_checkout(packages, sources_dir)

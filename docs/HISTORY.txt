@@ -4,6 +4,13 @@ Changelog
 0.6 - Unreleased
 ----------------
 
+* Removed the '-e' option, regular expression matching is the default now.
+  [fschulze]
+
+* Made it possible to specify more than one regular expression without the
+  need to use a pipe symbol and quotes.
+  [fschulze]
+
 * Added help text for the checkout script to pypi page.
   [fschulze]
 
