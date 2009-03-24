@@ -10,23 +10,36 @@ class Command(object):
     def __init__(self, develop):
         self.develop = develop
 
+    def get_packages(self, args):
+        packages = getattr(self, '_packages', None)
+        if packages is not None:
+            return packages
+        packages = self._packages = []
+        if not args:
+            return packages
+        regexp = re.compile("|".join("(%s)" % x for x in args))
+        for name in sorted(self.develop.sources):
+            if not regexp.search(name):
+                continue
+            packages.append(name)
+        return packages
+
 
 class CmdCheckout(Command):
     def __init__(self, develop):
         super(CmdCheckout, self).__init__(develop)
         self.parser=OptionParser(
-            usage="%prog <options> [<package-regexps>]",
+            usage="%prog <package-regexps>",
             description="Make a checkout of the packages matching the regular expressions.",
             add_help_option=False)
 
     def __call__(self):
         options, args = self.parser.parse_args(sys.argv[2:])
-
-        regexp = re.compile("|".join("(%s)" % x for x in args))
+        if len(args) == 0:
+            print self.parser.format_help()
+            sys.exit(0)
         packages = {}
-        for name in sorted(self.develop.sources):
-            if not regexp.search(name):
-                continue
+        for name in self.get_packages(args):
             kind, url = self.develop.sources[name]
             packages.setdefault(kind, {})[name] = url
         if len(packages) == 0:
@@ -38,11 +51,12 @@ class CmdCheckout(Command):
             sys.exit(1)
 
         try:
-            do_checkout(packages, self.sources_dir)
+            do_checkout(packages, self.develop.sources_dir)
             logger.warn("Don't forget to run buildout again, so the checked out packages are used as develop eggs.")
         except ValueError, e:
             logger.error(e)
             sys.exit(1)
+
 
 class CmdHelp(Command):
     def __init__(self, develop):
@@ -97,15 +111,13 @@ class CmdList(Command):
 
     def __call__(self):
         options, args = self.parser.parse_args(sys.argv[2:])
-
-        regexp = re.compile("|".join("(%s)" % x for x in args))
         sources = self.develop.sources
         sources_dir = self.develop.sources_dir
         auto_checkout = self.develop.auto_checkout
+        packages = set(self.get_packages(args))
         for name in sorted(sources):
-            if args:
-                if not regexp.search(name):
-                    continue
+            if args and name not in packages:
+                continue
             if options.auto_checkout and name not in auto_checkout:
                 continue
             kind, url = sources[name]
