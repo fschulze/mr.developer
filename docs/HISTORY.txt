@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.7 - Unreleased
+0.7 - 2009-03-24
 ----------------
 
 * Added ``update`` command to ``checkout`` script.
