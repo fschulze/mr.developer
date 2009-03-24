@@ -56,7 +56,8 @@ class WorkingCopies(object):
 
     def git_matches(self, name, url):
         path = os.path.join(self.sources_dir, name)
-        cmd = subprocess.Popen(["git", "remote", "-v", path],
+        cmd = subprocess.Popen(["git", "remote", "-v"],
+                               cwd=path,
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
@@ -64,7 +65,7 @@ class WorkingCopies(object):
             logger.error("Getting remote for '%s' failed." % name)
             logger.error(stderr)
             sys.exit(1)
-        return (url in stdout)
+        return (url in stdout.split())
 
     def checkout(self, packages):
         for name in packages:
