@@ -106,7 +106,8 @@ class CmdList(Command):
                                        ' ' available for checkout
                                        'A' in auto-checkout list and checked out
                                        'C' not in auto-checkout list, but checked out
-                                       '!' in auto-checkout list, but not checked out""")
+                                       '!' in auto-checkout list, but not checked out
+                                       '~' the repository URL doesn't match""")
 
     def __call__(self):
         options, args = self.parser.parse_args(sys.argv[2:])
@@ -114,6 +115,7 @@ class CmdList(Command):
         sources_dir = self.develop.sources_dir
         auto_checkout = self.develop.auto_checkout
         packages = set(self.get_packages(args))
+        workingcopies = WorkingCopies(sources, sources_dir)
         for name in sorted(sources):
             if args and name not in packages:
                 continue
@@ -122,10 +124,13 @@ class CmdList(Command):
             kind, url = sources[name]
             if options.status:
                 if os.path.exists(os.path.join(sources_dir, name)):
-                    if name in auto_checkout:
-                        print "A",
+                    if not workingcopies.matches(name):
+                        print "~",
                     else:
-                        print "C",
+                        if name in auto_checkout:
+                            print "A",
+                        else:
+                            print "C",
                 else:
                     if name in auto_checkout:
                         print "!",

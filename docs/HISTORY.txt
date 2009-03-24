@@ -4,6 +4,9 @@ Changelog
 0.7 - Unreleased
 ----------------
 
+* Added status flag to ``list`` command to indicate packages with wrong URL.
+  [fschulze]
+
 * If the working copy is clean, then checkout automatically switches svn
   packages.
   [fschulze]

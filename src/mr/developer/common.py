@@ -99,6 +99,19 @@ class WorkingCopies(object):
             sys.exit(1)
         return (url in stdout.split())
 
+    def matches(self, name):
+        if name not in self.sources:
+            logger.error("Checkout failed. No source defined for '%s'." % name)
+            sys.exit(1)
+        kind, url = self.sources[name]
+        if kind=='svn':
+            return self.svn_matches(name, url)
+        elif kind=='git':
+            return self.git_matches(name, url)
+        else:
+            logger.error("Unknown repository type '%s'." % kind)
+            sys.exit(1)
+
     def checkout(self, packages, skip_errors=False):
         for name in packages:
             if name not in self.sources:
