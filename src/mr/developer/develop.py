@@ -1,4 +1,4 @@
-from mr.developer.common import logger, do_checkout
+from mr.developer.common import logger, WorkingCopies
 from optparse import OptionParser
 import logging
 import os
@@ -38,10 +38,7 @@ class CmdCheckout(Command):
         if len(args) == 0:
             print self.parser.format_help()
             sys.exit(0)
-        packages = {}
-        for name in self.get_packages(args):
-            kind, url = self.develop.sources[name]
-            packages.setdefault(kind, {})[name] = url
+        packages = self.get_packages(args)
         if len(packages) == 0:
             if len(args) > 1:
                 regexps = "%s or '%s'" % (", ".join("'%s'" % x for x in args[:-1]), args[-1])
@@ -51,9 +48,11 @@ class CmdCheckout(Command):
             sys.exit(1)
 
         try:
-            do_checkout(packages, self.develop.sources_dir)
+            workingcopies = WorkingCopies(self.develop.sources,
+                                          self.develop.sources_dir)
+            workingcopies.checkout(packages)
             logger.warn("Don't forget to run buildout again, so the checked out packages are used as develop eggs.")
-        except ValueError, e:
+        except (ValueError, KeyError), e:
             logger.error(e)
             sys.exit(1)
 

@@ -1,4 +1,4 @@
-from mr.developer.common import do_checkout
+from mr.developer.common import WorkingCopies
 from pprint import pformat
 import os
 import zc.buildout.easy_install
@@ -27,15 +27,9 @@ def extension(buildout=None):
         sources[name] = ('git', url)
 
     # do automatic checkout of specified packages
-    packages = {}
     auto_checkout = buildout['buildout'].get('auto-checkout', '').split()
-    for name in auto_checkout:
-        if name in sources:
-            kind, url = sources[name]
-            packages.setdefault(kind, {})[name] = url
-        else:
-            raise ValueError("Automatic checkout failed. No source defined for '%s'." % name)
-    do_checkout(packages, sources_dir)
+    workingcopies = WorkingCopies(sources, sources_dir)
+    workingcopies.checkout(auto_checkout)
 
     # build the fake part to install the checkout script
     if FAKE_PART_ID in buildout._raw:
