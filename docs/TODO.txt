@@ -1,0 +1,3 @@
+* list status of packages (checked out vs available)
+* support branches in git
+* add '-u' option to update all checked out packages
