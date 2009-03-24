@@ -172,6 +172,7 @@ def checkout(sources, sources_dir):
 
     try:
         do_checkout(packages, sources_dir)
+        logger.warn("Don't forget to run buildout again, so the checked out packages are used as develop eggs.")
     except ValueError, e:
         logger.error(e)
         sys.exit(1)

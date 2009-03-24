@@ -4,6 +4,8 @@ Changelog
 0.6 - Unreleased
 ----------------
 
+* Add a warning to rerun buildout after checkout.
+  [fschulze]
 
 0.5 - 2009-03-23
 ----------------
