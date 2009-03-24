@@ -117,7 +117,10 @@ def do_checkout(packages, sources_dir):
 
 
 def checkout(sources, sources_dir):
-    logging.basicConfig(level=logging.INFO)
+    logger.setLevel(logging.INFO)
+    ch = logging.StreamHandler()
+    ch.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
+    logger.addHandler(ch)
     parser=OptionParser(
             usage="%s <options> [<package-regexps>]" % sys.argv[0],
             description="Make a checkout of the packages matching the regular expressions or show info about them.")

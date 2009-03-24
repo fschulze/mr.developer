@@ -4,6 +4,9 @@ Changelog
 0.6 - Unreleased
 ----------------
 
+* Added custom logging formatter for nicer output in the checkout script.
+  [fschulze]
+
 * Removed the '-e' option, regular expression matching is the default now.
   [fschulze]
 
