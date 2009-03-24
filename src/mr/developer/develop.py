@@ -225,11 +225,13 @@ class Develop(object):
 
         self.commands = dict(
             help=self.cmd_help,
+            h=self.cmd_help,
             checkout=self.cmd_checkout,
             co=self.cmd_checkout,
             list=self.cmd_list,
             ls=self.cmd_list,
             status=self.cmd_status,
+            stat=self.cmd_status,
             st=self.cmd_status,
             update=self.cmd_update,
             up=self.cmd_update,
