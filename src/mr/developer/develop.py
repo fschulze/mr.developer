@@ -238,7 +238,7 @@ class Develop(object):
         )
 
         if len(sys.argv) < 2:
-            logger.info("Type '%s help' for usage." % os.path.basename(sys.argv[0]))
+            print "Type '%s help' for usage." % os.path.basename(sys.argv[0])
         else:
             self.commands.get(sys.argv[1], self.unknown)()
 
