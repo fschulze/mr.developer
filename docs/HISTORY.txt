@@ -4,6 +4,9 @@ Changelog
 0.7 - Unreleased
 ----------------
 
+* Added various options to the ``list`` command.
+  [fschulze]
+
 * Instead of the ``checkout`` script, there is now a ``develop`` script with
   various commands.
   [fschulze]

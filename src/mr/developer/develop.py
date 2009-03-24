@@ -80,24 +80,57 @@ class CmdList(Command):
             usage="%prog list [<package-regexps>]",
             description="List the available packages, filtered if <package-regexps> is given.",
             add_help_option=False)
+        self.parser.add_option("-a", "--auto-checkout", dest="auto_checkout",
+                               action="store_true", default=False,
+                               help="""Only show packages in auto-checkout list.""")
+        self.parser.add_option("-l", "--long", dest="long",
+                               action="store_true", default=False,
+                               help="""Show URL and kind of package.""")
+        self.parser.add_option("-s", "--status", dest="status",
+                               action="store_true", default=False,
+                               help="""Show checkout status.
+                                       The first column in the output shows the checkout status:
+                                       ' ' available for checkout
+                                       'A' in auto-checkout list and checked out
+                                       'C' not in auto-checkout list, but checked out
+                                       '!' in auto-checkout list, but not checked out""")
 
     def __call__(self):
         options, args = self.parser.parse_args(sys.argv[2:])
 
         regexp = re.compile("|".join("(%s)" % x for x in args))
-        for name in sorted(self.develop.sources):
+        sources = self.develop.sources
+        sources_dir = self.develop.sources_dir
+        auto_checkout = self.develop.auto_checkout
+        for name in sorted(sources):
             if args:
                 if not regexp.search(name):
                     continue
-            kind, url = self.develop.sources[name]
-            print name, url, "(%s)" % kind
+            if options.auto_checkout and name not in auto_checkout:
+                continue
+            kind, url = sources[name]
+            if options.status:
+                if os.path.exists(os.path.join(sources_dir, name)):
+                    if name in auto_checkout:
+                        print "A",
+                    else:
+                        print "C",
+                else:
+                    if name in auto_checkout:
+                        print "!",
+                    else:
+                        print " ",
+            if options.long:
+                print "(%s)" % kind, name, url
+            else:
+                print name
 
 
 class Develop(object):
     def __call__(self, sources, sources_dir, auto_checkout):
         self.sources = sources
         self.sources_dir = sources_dir
-        self.auto_checkout = auto_checkout
+        self.auto_checkout = set(auto_checkout)
 
         logger.setLevel(logging.INFO)
         ch = logging.StreamHandler()
