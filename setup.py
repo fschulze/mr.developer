@@ -25,6 +25,7 @@ setup(name='mr.developer',
       zip_safe=False,
       install_requires=[
           'setuptools',
+          'elementtree',
           # -*- Extra requirements: -*-
       ],
       entry_points="""

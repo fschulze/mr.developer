@@ -1,6 +1,7 @@
 from mr.developer.common import WorkingCopies
 from pprint import pformat
 import os
+import sys
 import zc.buildout.easy_install
 
 
@@ -18,12 +19,14 @@ def extension(buildout=None):
     section = buildout.get(buildout['buildout'].get('sources-svn'), {})
     for name, url in section.iteritems():
         if name in sources:
-            raise ValueError("The source for '%s' is already set." % name)
+            logger.error("The source for '%s' is already set." % name)
+            sys.exit(1)
         sources[name] = ('svn', url)
     section = buildout.get(buildout['buildout'].get('sources-git'), {})
     for name, url in section.iteritems():
         if name in sources:
-            raise ValueError("The source for '%s' is already set." % name)
+            logger.error("The source for '%s' is already set." % name)
+            sys.exit(1)
         sources[name] = ('git', url)
 
     # do automatic checkout of specified packages
@@ -33,7 +36,8 @@ def extension(buildout=None):
 
     # build the fake part to install the checkout script
     if FAKE_PART_ID in buildout._raw:
-        raise ValueError("mr.developer: The buildout already has a '%s' section, this shouldn't happen" % FAKE_PART_ID)
+        logger.error("mr.developer: The buildout already has a '%s' section, this shouldn't happen" % FAKE_PART_ID)
+        sys.exit(1)
     buildout._raw[FAKE_PART_ID] = dict(
         recipe='zc.recipe.egg',
         eggs='mr.developer',

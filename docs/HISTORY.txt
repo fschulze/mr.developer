@@ -4,6 +4,9 @@ Changelog
 0.7 - Unreleased
 ----------------
 
+* Check remote url and stop checkout if it differs.
+  [fschulze]
+
 * Added various options to the ``list`` command.
   [fschulze]
 
