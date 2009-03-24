@@ -28,7 +28,8 @@ def extension(buildout=None):
 
     # do automatic checkout of specified packages
     packages = {}
-    for name in buildout['buildout'].get('auto-checkout', '').split():
+    auto_checkout = buildout['buildout'].get('auto-checkout', '').split()
+    for name in auto_checkout:
         if name in sources:
             kind, url = sources[name]
             packages.setdefault(kind, {})[name] = url
@@ -42,7 +43,7 @@ def extension(buildout=None):
     buildout._raw[FAKE_PART_ID] = dict(
         recipe='zc.recipe.egg',
         eggs='mr.developer',
-        arguments='sources=%s,\nsources_dir="%s"' % (pformat(sources), sources_dir),
+        arguments='\n%s,\n"%s",\n%s' % (pformat(sources), sources_dir, auto_checkout),
     )
     # append the fake part
     parts = buildout['buildout']['parts'].split()

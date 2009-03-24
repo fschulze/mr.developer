@@ -94,9 +94,10 @@ class CmdList(Command):
 
 
 class Develop(object):
-    def __call__(self, sources, sources_dir):
+    def __call__(self, sources, sources_dir, auto_checkout):
         self.sources = sources
         self.sources_dir = sources_dir
+        self.auto_checkout = auto_checkout
 
         logger.setLevel(logging.INFO)
         ch = logging.StreamHandler()
