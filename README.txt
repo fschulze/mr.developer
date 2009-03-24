@@ -42,7 +42,7 @@ The following is an example of how your ``buildout.cfg`` may look like::
   [sources-svn]
   my.package = http://example.com/svn/my.package/trunk
 
-  [sources-svn]
+  [sources-git]
   some.other.package = git://example.com/git/some.other.package.git
 
 When you run buildout, you will get a script at ``bin/checkout`` in your
