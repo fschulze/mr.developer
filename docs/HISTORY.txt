@@ -4,6 +4,9 @@ Changelog
 0.7 - Unreleased
 ----------------
 
+* Added ``status`` command to ``checkout`` script.
+  [fschulze]
+
 * Added status flag to ``list`` command to indicate packages with wrong URL.
   [fschulze]
 

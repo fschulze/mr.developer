@@ -142,6 +142,52 @@ class CmdList(Command):
                 print name
 
 
+class CmdStatus(Command):
+    def __init__(self, develop):
+        super(CmdStatus, self).__init__(develop)
+        self.parser = OptionParser(
+            usage="%prog status",
+            description="""Shows the status of the sources directory. Only directories are checked, files are skipped.
+
+                           The first column in the output shows the checkout status:
+                               ' ' in auto-checkout list
+                               'C' not in auto-checkout list
+                               '?' directory which is not in sources list
+                               '~' the repository URL doesn't match
+                           The second column shows the working copy status:
+                               ' ' no changes
+                               'M' local modifications or untracked files""",
+            add_help_option=False)
+
+    def __call__(self):
+        options, args = self.parser.parse_args(sys.argv[2:])
+        sources = self.develop.sources
+        sources_dir = self.develop.sources_dir
+        auto_checkout = self.develop.auto_checkout
+        packages = set(self.get_packages(args))
+        workingcopies = WorkingCopies(sources, sources_dir)
+        for name in os.listdir(sources_dir):
+            path = os.path.join(sources_dir, name)
+            if os.path.isfile(path):
+                continue
+            if name not in sources:
+                print "?", " ", name
+                continue
+            kind, url = sources[name]
+            if not workingcopies.matches(name):
+                print "~",
+            else:
+                if name in auto_checkout:
+                    print " ",
+                else:
+                    print "C",
+            if workingcopies.status(name) == 'clean':
+                print " ",
+            else:
+                print "M",
+            print name
+
+
 class Develop(object):
     def __call__(self, sources, sources_dir, auto_checkout):
         self.sources = sources
@@ -156,6 +202,7 @@ class Develop(object):
         self.cmd_checkout = CmdCheckout(self)
         self.cmd_help = CmdHelp(self)
         self.cmd_list = CmdList(self)
+        self.cmd_status = CmdStatus(self)
 
         self.commands = dict(
             help=self.cmd_help,
@@ -163,6 +210,8 @@ class Develop(object):
             co=self.cmd_checkout,
             list=self.cmd_list,
             ls=self.cmd_list,
+            status=self.cmd_status,
+            st=self.cmd_status,
         )
 
         if len(sys.argv) < 2:

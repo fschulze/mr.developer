@@ -99,6 +99,19 @@ class WorkingCopies(object):
             sys.exit(1)
         return (url in stdout.split())
 
+    def git_status(self, name):
+        path = os.path.join(self.sources_dir, name)
+        cmd = subprocess.Popen(["git", "status"],
+                               cwd=path,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
+        stdout, stderr = cmd.communicate()
+        lines = stdout.strip().split('\n')
+        if 'nothing to commit (working directory clean)' in lines[-1]:
+            return 'clean'
+        else:
+            return 'dirty'
+
     def matches(self, name):
         if name not in self.sources:
             logger.error("Checkout failed. No source defined for '%s'." % name)
@@ -108,6 +121,19 @@ class WorkingCopies(object):
             return self.svn_matches(name, url)
         elif kind=='git':
             return self.git_matches(name, url)
+        else:
+            logger.error("Unknown repository type '%s'." % kind)
+            sys.exit(1)
+
+    def status(self, name):
+        if name not in self.sources:
+            logger.error("Status failed. No source defined for '%s'." % name)
+            sys.exit(1)
+        kind, url = self.sources[name]
+        if kind=='svn':
+            return self.svn_status(name)
+        elif kind=='git':
+            return self.git_status(name)
         else:
             logger.error("Unknown repository type '%s'." % kind)
             sys.exit(1)
