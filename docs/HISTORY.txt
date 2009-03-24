@@ -4,6 +4,9 @@ Changelog
 0.6 - Unreleased
 ----------------
 
+* Added help text for the checkout script to pypi page.
+  [fschulze]
+
 * Add a warning to rerun buildout after checkout.
   [fschulze]
 

@@ -55,3 +55,7 @@ develop egg and, if it's listed in the section specified by the ``versions``
 option in the ``[buildout]`` section, the version will be set to an empty
 string, so the develop egg will actually be used.
 
+Help text of checkout script
+----------------------------
+
+.. include:: docs/CHECKOUT.txt
