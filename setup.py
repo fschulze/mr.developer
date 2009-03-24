@@ -29,7 +29,7 @@ setup(name='mr.developer',
       ],
       entry_points="""
       [console_scripts]
-      checkout = mr.developer.checkout:checkout
+      develop = mr.developer.develop:develop
       [zc.buildout.extension]
       default = mr.developer.extension:extension
       """,

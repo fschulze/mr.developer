@@ -45,25 +45,15 @@ The following is an example of how your ``buildout.cfg`` may look like::
   [sources-git]
   some.other.package = git://example.com/git/some.other.package.git
 
-When you run buildout, you will get a script at ``bin/checkout`` in your
-buildout directory. With that script you can checkout the source from the
-specified repository, without the need to know where the repository is
-located.
+When you run buildout, you will get a script at ``bin/develop`` in your
+buildout directory. With that script you can perform various actions on the
+packages, like checking out the source code, without the need to know where
+the repository is located.
 
-Now if you run buildout again, the package is automatically marked as an
-develop egg and, if it's listed in the section specified by the ``versions``
-option in the ``[buildout]`` section, the version will be set to an empty
-string, so the develop egg will actually be used.
+For help on what the script can do, run ``bin/develop help``.
 
-Help text of checkout script
-----------------------------
-
-usage: ./bin/checkout <options> [<package-regexps>]
-
-Make a checkout of the packages matching the regular expressions or show info
-about them.
-
-options:
-  -h, --help  show this help message and exit
-  -l, --list  List info about package(s), all packages will be listed if none
-              are specified.
+If you checked out the source code of a package, you need run buildout again.
+The package will automatically be marked as an develop egg and, if it's listed
+in the section specified by the ``versions`` option in the ``[buildout]``
+section, the version will be cleared, so the develop egg will actually be
+used.

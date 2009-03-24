@@ -4,8 +4,8 @@ Changelog
 0.7 - Unreleased
 ----------------
 
-* Help text of checkout script needs to be inside the readme, include doesn't
-  work.
+* Instead of the ``checkout`` script, there is now a ``develop`` script with
+  various commands.
   [fschulze]
 
 0.6 - 2009-03-24
