@@ -32,7 +32,7 @@ def extension(buildout=None):
     # do automatic checkout of specified packages
     auto_checkout = buildout['buildout'].get('auto-checkout', '').split()
     workingcopies = WorkingCopies(sources, sources_dir)
-    workingcopies.checkout(auto_checkout)
+    workingcopies.checkout(auto_checkout, skip_errors=True)
 
     # build the fake part to install the checkout script
     if FAKE_PART_ID in buildout._raw:

@@ -67,11 +67,12 @@ class WorkingCopies(object):
             sys.exit(1)
         return (url in stdout.split())
 
-    def checkout(self, packages):
+    def checkout(self, packages, skip_errors=False):
         for name in packages:
             if name not in self.sources:
                 logger.error("Checkout failed. No source defined for '%s'." % name)
-                sys.exit(1)
+                if not skip_errors:
+                    sys.exit(1)
             kind, url = self.sources[name]
             if kind=='svn':
                 path = os.path.join(self.sources_dir, name)
@@ -80,7 +81,8 @@ class WorkingCopies(object):
                         logger.info("Skipped checkout of existing package '%s'." % name)
                     else:
                         logger.error("Checkout URL for existing package '%s' differs. Expected '%s'." % (name, url))
-                        sys.exit(1)
+                        if not skip_errors:
+                            sys.exit(1)
                 else:
                     self.svn_checkout(name, url)
             elif kind=='git':
@@ -90,9 +92,11 @@ class WorkingCopies(object):
                         logger.info("Skipped checkout of existing package '%s'." % name)
                     else:
                         logger.error("Checkout URL for existing package '%s' differs. Expected '%s'." % (name, url))
-                        sys.exit(1)
+                        if not skip_errors:
+                            sys.exit(1)
                 else:
                     self.git_checkout(name, url)
             else:
                 logger.error("Unknown repository type '%s'." % kind)
-                sys.exit(1)
+                if not skip_errors:
+                    sys.exit(1)

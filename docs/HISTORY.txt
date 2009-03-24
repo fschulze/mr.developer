@@ -4,6 +4,10 @@ Changelog
 0.7 - Unreleased
 ----------------
 
+* Skip on checkout errors during buildout, so the develop script is generated
+  and you get a chance to inspect and fix the problems.
+  [fschulze]
+
 * Check remote url and stop checkout if it differs.
   [fschulze]
 
