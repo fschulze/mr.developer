@@ -1,9 +1,0 @@
-usage: ./bin/checkout <options> [<packages>]
-
-Make a checkout of the given packages or show info about packages.
-
-options:
-  -h, --help    show this help message and exit
-  -e, --regexp  Use regular expression to check for package matches.
-  -l, --list    List info about package(s), all packages will be listed if
-                none are specified.

@@ -58,4 +58,12 @@ string, so the develop egg will actually be used.
 Help text of checkout script
 ----------------------------
 
-.. include:: docs/CHECKOUT.txt
+usage: ./bin/checkout <options> [<package-regexps>]
+
+Make a checkout of the packages matching the regular expressions or show info
+about them.
+
+options:
+  -h, --help  show this help message and exit
+  -l, --list  List info about package(s), all packages will be listed if none
+              are specified.
