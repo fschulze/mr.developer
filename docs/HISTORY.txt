@@ -4,6 +4,9 @@ Changelog
 0.8 - Unreleased
 ----------------
 
+* Added authentication support to subversion commands.
+  [fschulze]
+
 * Added ``-a`` option to ``checkout`` command to limit matching to the
   packages declared by the ``auto-checkout`` option. If no further argument
   is given, then all the packages from ``auto-checkout`` are processed.
