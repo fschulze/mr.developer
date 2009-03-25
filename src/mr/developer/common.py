@@ -17,6 +17,10 @@ class SVNAuthorizationError(SVNError):
     pass
 
 
+class SVNCertificateError(SVNError):
+    pass
+
+
 class GitError(Exception):
     pass
 
@@ -27,55 +31,81 @@ class WorkingCopies(object):
         self.sources_dir = sources_dir
         self._svn_info_cache = {}
         self._svn_auth_cache = {}
+        self.accept_invalid_certs = True
 
     def _svn_auth_get(self, url):
         for root in self._svn_auth_cache:
             if url.startswith(root):
                 return self._svn_auth_cache[root]
 
-    def _svn_auth_wrapper(self, f, name, url):
-        count = 3
+    def _svn_error_wrapper(self, f, name, url):
+        count = 4
+        accept_invalid_cert = False
         while count:
             count = count - 1
             try:
-                return f(name, url)
+                if accept_invalid_cert:
+                    accept_invalid_cert = False
+                    return f(name, url, accept_invalid_cert=True)
+                else:
+                    return f(name, url)
             except SVNAuthorizationError, e:
+                lines = e.args[0].split('\n')
+                root = lines[-1].split('(')[-1].strip(')')
                 print "Authorization needed for '%s'" % url
-                root = str(e)
                 user = raw_input("Username: ")
                 passwd = getpass.getpass("Password: ")
                 self._svn_auth_cache[root] = dict(
                     user=user,
                     passwd=passwd,
                 )
+            except SVNCertificateError, e:
+                if self.accept_invalid_certs:
+                    lines = e.args[0].split('\n')
+                    root = lines[-1].split('(')[-1].strip(')')
+                    accept_invalid_cert = True
+                    # sadly this is not possible without pexpect
+                    raise
+                else:
+                    raise
 
-    def _svn_check_std(self, stdout, stderr):
-        lines = stderr.strip().split('\n')
-        if 'authorization failed' in lines[-1]:
-            root = lines[-1].split('(')[-1].strip(')')
-            raise SVNAuthorizationError(root)
-
-    def _svn_checkout(self, name, url):
+    def _svn_checkout(self, name, url, accept_invalid_cert=False):
         path = os.path.join(self.sources_dir, name)
         if os.path.exists(path):
             logger.info("Skipped checkout of existing package '%s'." % name)
             return
         logger.info("Checking out '%s' with subversion." % name)
-        args = ["svn", "checkout", "--quiet", "--non-interactive",
-                "--no-auth-cache"]
+        args = ["svn", "checkout", url, path]
+        stdout, stderr, returncode = self._svn_communicate(args, url, accept_invalid_cert)
+        if returncode != 0:
+            raise SVNError("Subversion checkout for '%s' failed.\n%s" % (name, stderr))
+
+    def _svn_communicate(self, args, url, accept_invalid_cert):
         auth = self._svn_auth_get(url)
         if auth is not None:
-            args.extend(["--username", auth['user'],
-                         "--password", auth['passwd']])
-        args.extend([url, path])
+            args[2:2] = ["--username", auth['user'],
+                         "--password", auth['passwd']]
+        args[2:2] = ["--quiet", "--no-auth-cache", "--non-interactive"]
+        if accept_invalid_cert:
+            raise NotImplementedError
         env = dict(os.environ)
         env['LC_ALL'] = 'C'
-        cmd = subprocess.Popen(args, env=env,
-                               stderr=subprocess.PIPE)
-        stdout, stderr = cmd.communicate()
+        if accept_invalid_cert:
+            cmd = subprocess.Popen(args, env=env,
+                                   stdin=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+            stdout, stderr = cmd.communicate('t')
+        else:
+            cmd = subprocess.Popen(args, env=env,
+                                   stderr=subprocess.PIPE)
+            stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            self._svn_check_std(stdout, stderr)
-            raise SVNError("Subversion checkout for '%s' failed.\n%s" % (name, stderr))
+            lines = stderr.strip().split('\n')
+            if 'authorization failed' in lines[-1]:
+                raise SVNAuthorizationError(stderr.strip())
+            if 'Server certificate verification failed: issuer is not trusted' in lines[-1]:
+                raise SVNCertificateError(stderr.strip())
+        return stdout, stderr, cmd.returncode
 
     def _svn_info(self, name):
         if name in self._svn_info_cache:
@@ -103,46 +133,24 @@ class WorkingCopies(object):
         self._svn_info_cache[name] = result
         return result
 
-    def _svn_switch(self, name, url):
+    def _svn_switch(self, name, url, accept_invalid_cert=False):
         path = os.path.join(self.sources_dir, name)
         logger.info("Switching '%s' with subversion." % name)
-        args = ["svn", "switch", "--quiet", "--non-interactive",
-                "--no-auth-cache"]
-        auth = self._svn_auth_get(url)
-        if auth is not None:
-            args.extend(["--username", auth['user'],
-                         "--password", auth['passwd']])
-        args.extend([url, path])
-        env = dict(os.environ)
-        env['LC_ALL'] = 'C'
-        cmd = subprocess.Popen(args, env=env,
-                               stderr=subprocess.PIPE)
-        stdout, stderr = cmd.communicate()
-        if cmd.returncode != 0:
-            self._svn_check_std(stdout, stderr)
+        args = ["svn", "switch", url, path]
+        stdout, stderr, returncode = self._svn_communicate(args, url, accept_invalid_cert)
+        if returncode != 0:
             raise SVNError("Subversion switch for '%s' failed.\n%s" % (name, stderr))
 
-    def _svn_update(self, name, url=None):
+    def _svn_update(self, name, url=None, accept_invalid_cert=False):
         path = os.path.join(self.sources_dir, name)
         logger.info("Updating '%s' with subversion." % name)
-        args = ["svn", "update", "--quiet", "--non-interactive",
-                "--no-auth-cache"]
-        auth = self._svn_auth_get(url)
-        if auth is not None:
-            args.extend(["--username", auth['user'],
-                         "--password", auth['passwd']])
-        args.extend([path])
-        env = dict(os.environ)
-        env['LC_ALL'] = 'C'
-        cmd = subprocess.Popen(args, env=env,
-                               stderr=subprocess.PIPE)
-        stdout, stderr = cmd.communicate()
-        if cmd.returncode != 0:
-            self._svn_check_std(stdout, stderr)
+        args = ["svn", "update", path]
+        stdout, stderr, returncode = self._svn_communicate(args, url, accept_invalid_cert)
+        if returncode != 0:
             raise SVNError("Subversion update for '%s' failed.\n%s" % (name, stderr))
 
     def svn_checkout(self, name, url):
-        return self._svn_auth_wrapper(self._svn_checkout, name, url)
+        return self._svn_error_wrapper(self._svn_checkout, name, url)
 
     def svn_matches(self, name, url):
         info = self._svn_info(name)
@@ -168,12 +176,12 @@ class WorkingCopies(object):
             return 'dirty'
 
     def svn_switch(self, name, url):
-        return self._svn_auth_wrapper(self._svn_switch, name, url)
+        return self._svn_error_wrapper(self._svn_switch, name, url)
 
     def svn_update(self, name):
         info = self._svn_info(name)
         url = info.get('url')
-        return self._svn_auth_wrapper(self._svn_update, name, url)
+        return self._svn_error_wrapper(self._svn_update, name, url)
 
     def git_checkout(self, name, url):
         path = os.path.join(self.sources_dir, name)
@@ -260,7 +268,7 @@ class WorkingCopies(object):
                     if not skip_errors:
                         sys.exit(1)
             except (SVNError, GitError), e:
-                for l in str(e).split('\n'):
+                for l in e.args[0].split('\n'):
                     logger.error(l)
                 if not skip_errors:
                     sys.exit(1)
@@ -279,7 +287,7 @@ class WorkingCopies(object):
                 logger.error("Unknown repository type '%s'." % kind)
                 sys.exit(1)
         except (SVNError, GitError), e:
-            for l in str(e).split('\n'):
+            for l in e.args[0].split('\n'):
                 logger.error(l)
             sys.exit(1)
 
@@ -297,7 +305,7 @@ class WorkingCopies(object):
                 logger.error("Unknown repository type '%s'." % kind)
                 sys.exit(1)
         except (SVNError, GitError), e:
-            for l in str(e).split('\n'):
+            for l in e.args[0].split('\n'):
                 logger.error(l)
             sys.exit(1)
 
@@ -332,6 +340,6 @@ class WorkingCopies(object):
                     logger.error("Unknown repository type '%s'." % kind)
                     continue
             except (SVNError, GitError), e:
-                for l in str(e).split('\n'):
+                for l in e.args[0].split('\n'):
                     logger.error(l)
                 sys.exit(1)
