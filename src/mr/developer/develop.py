@@ -29,16 +29,26 @@ class CmdCheckout(Command):
     def __init__(self, develop):
         super(CmdCheckout, self).__init__(develop)
         self.parser=OptionParser(
-            usage="%prog <package-regexps>",
+            usage="%prog <options> <package-regexps>",
             description="Make a checkout of the packages matching the regular expressions.",
             add_help_option=False)
+        self.parser.add_option("-a", "--auto-checkout", dest="auto_checkout",
+                               action="store_true", default=False,
+                               help="""Only considers packages declared by auto-checkout. If you don't specify a <package-regexps> then all declared packages are processed.""")
 
     def __call__(self):
         options, args = self.parser.parse_args(sys.argv[2:])
         if len(args) == 0:
-            print self.parser.format_help()
-            sys.exit(0)
-        packages = self.get_packages(args)
+            if options.auto_checkout:
+                packages = self.develop.auto_checkout
+            else:
+                print self.parser.format_help()
+                sys.exit(0)
+        else:
+            packages = self.get_packages(args)
+            if options.auto_checkout:
+                packages = [x for x in packages
+                            if x in self.develop.auto_checkout]
         if len(packages) == 0:
             if len(args) > 1:
                 regexps = "%s or '%s'" % (", ".join("'%s'" % x for x in args[:-1]), args[-1])
