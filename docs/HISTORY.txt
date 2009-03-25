@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.8 - Unreleased
+0.8 - 2009-03-25
 ----------------
 
 * Added authentication support to subversion commands.
