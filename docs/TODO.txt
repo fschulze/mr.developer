@@ -1,3 +1,4 @@
-* list status of packages (checked out vs available)
 * support branches in git
-* add '-u' option to update all checked out packages
+* add 'rm' command
+* use pexpect for better interaction with the called processes
+* show "develop" state
