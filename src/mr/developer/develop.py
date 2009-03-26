@@ -1,8 +1,11 @@
 from mr.developer.common import logger, WorkingCopies
+from mr.developer.extension import FAKE_PART_ID
+import ConfigParser
 import logging
 import optparse
 import os
 import re
+import subprocess
 import sys
 import textwrap
 
@@ -273,15 +276,41 @@ class CmdUpdate(Command):
 
 
 class Develop(object):
-    def __call__(self, sources, sources_dir, auto_checkout):
-        self.sources = sources
-        self.sources_dir = sources_dir
-        self.auto_checkout = set(auto_checkout)
-
+    def __call__(self, *kwargs):
         logger.setLevel(logging.INFO)
         ch = logging.StreamHandler()
         ch.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
         logger.addHandler(ch)
+
+        if len(kwargs) == 0:
+            path = os.getcwd()
+            while path:
+                installed = os.path.join(path, '.installed.cfg')
+                if os.path.exists(installed):
+                    parser = ConfigParser.RawConfigParser()
+                    parser.optionxform = lambda s: s
+                    f = open(installed)
+                    parser.readfp(f)
+                    f.close()
+                    sections = parser.sections()
+                    if FAKE_PART_ID not in sections:
+                        break
+                    options = dict(parser.items(FAKE_PART_ID))
+                    if '__buildout_installed__' not in options:
+                        break
+                    args = [options['__buildout_installed__']] + sys.argv[1:]
+                    subprocess.call(args)
+                    return
+                old_path = path
+                path = os.path.dirname(path)
+                if old_path == path:
+                    break
+            logger.error("You are not in a path which has mr.developer installed.")
+            return
+
+        self.sources = kwargs['sources']
+        self.sources_dir = kwargs['sources_dir']
+        self.auto_checkout = set(kwargs['auto_checkout'])
 
         self.cmd_checkout = CmdCheckout(self)
         self.cmd_help = CmdHelp(self)

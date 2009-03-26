@@ -2,13 +2,14 @@ from mr.developer.common import WorkingCopies
 from pprint import pformat
 import os
 import sys
-import zc.buildout.easy_install
 
 
 FAKE_PART_ID = '_mr.developer'
 
 
 def extension(buildout=None):
+    import zc.buildout.easy_install
+
     buildout_dir = buildout['buildout']['directory']
 
     sources_dir = buildout['buildout'].get('sources-dir', 'src')
@@ -41,7 +42,8 @@ def extension(buildout=None):
     buildout._raw[FAKE_PART_ID] = dict(
         recipe='zc.recipe.egg',
         eggs='mr.developer',
-        arguments='\n%s,\n"%s",\n%s' % (pformat(sources), sources_dir, auto_checkout),
+        arguments='\nsources=%s,\nsources_dir="%s",\nauto_checkout=%s' % (
+            pformat(sources), sources_dir, auto_checkout),
     )
     # append the fake part
     parts = buildout['buildout']['parts'].split()

@@ -4,6 +4,11 @@ Changelog
 0.9 - Unreleased
 ----------------
 
+* When installed as just an egg, then the resulting ``develop`` script can be
+  called from anywhere and will try to find the correct ``develop`` script
+  from the current working directory and execute it.
+  [fschulze]
+
 * Fixed help text formatting.
   [fschulze]
 
