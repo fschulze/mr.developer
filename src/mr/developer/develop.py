@@ -1,10 +1,60 @@
 from mr.developer.common import logger, WorkingCopies
-from optparse import OptionParser
 import logging
+import optparse
 import os
 import re
 import sys
+import textwrap
 
+
+class HelpFormatter(optparse.IndentedHelpFormatter):
+    def _lineswrap(self, text, width, indent=0):
+        result = []
+        for line in text.split("\n"):
+            result.append("%*s%s" % (indent, "", textwrap.fill(line, width)))
+        return "\n".join(result)
+
+    def format_description(self, description):
+        if not description:
+            return ""
+        desc_width = self.width - self.current_indent
+        return self._lineswrap(description, desc_width,
+                               indent=self.current_indent)
+
+    def format_option(self, option):
+        # The help for each option consists of two parts:
+        #   * the opt strings and metavars
+        #     eg. ("-x", or "-fFILENAME, --file=FILENAME")
+        #   * the user-supplied help string
+        #     eg. ("turn on expert mode", "read data from FILENAME")
+        #
+        # If possible, we write both of these on the same line:
+        #   -x      turn on expert mode
+        #
+        # But if the opt string list is too long, we put the help
+        # string on a second line, indented to the same column it would
+        # start in if it fit on the first line.
+        #   -fFILENAME, --file=FILENAME
+        #           read data from FILENAME
+        result = []
+        opts = self.option_strings[option]
+        opt_width = self.help_position - self.current_indent - 2
+        if len(opts) > opt_width:
+            opts = "%*s%s\n" % (self.current_indent, "", opts)
+            indent_first = self.help_position
+        else:                       # start help on same line as opts
+            opts = "%*s%-*s  " % (self.current_indent, "", opt_width, opts)
+            indent_first = 0
+        result.append(opts)
+        if option.help:
+            help_text = self.expand_default(option)
+            help_lines = self._lineswrap(help_text, self.help_width).split('\n')
+            result.append("%*s%s\n" % (indent_first, "", help_lines[0]))
+            result.extend(["%*s%s\n" % (self.help_position, "", line)
+                           for line in help_lines[1:]])
+        elif opts[-1] != "\n":
+            result.append("\n")
+        return "".join(result)
 
 class Command(object):
     def __init__(self, develop):
@@ -28,9 +78,10 @@ class Command(object):
 class CmdCheckout(Command):
     def __init__(self, develop):
         super(CmdCheckout, self).__init__(develop)
-        self.parser=OptionParser(
+        self.parser=optparse.OptionParser(
             usage="%prog <options> <package-regexps>",
             description="Make a checkout of the packages matching the regular expressions.",
+            formatter=HelpFormatter(),
             add_help_option=False)
         self.parser.add_option("-a", "--auto-checkout", dest="auto_checkout",
                                action="store_true", default=False,
@@ -70,9 +121,10 @@ class CmdCheckout(Command):
 class CmdHelp(Command):
     def __init__(self, develop):
         super(CmdHelp, self).__init__(develop)
-        self.parser = OptionParser(
+        self.parser = optparse.OptionParser(
             usage="%prog help [<command>]",
             description="Show help on the given command or about the whole script if none given.",
+            formatter=HelpFormatter(),
             add_help_option=False)
 
     def __call__(self):
@@ -99,9 +151,10 @@ class CmdHelp(Command):
 class CmdList(Command):
     def __init__(self, develop):
         super(CmdList, self).__init__(develop)
-        self.parser = OptionParser(
+        self.parser = optparse.OptionParser(
             usage="%prog list [<package-regexps>]",
             description="List the available packages, filtered if <package-regexps> is given.",
+            formatter=HelpFormatter(),
             add_help_option=False)
         self.parser.add_option("-a", "--auto-checkout", dest="auto_checkout",
                                action="store_true", default=False,
@@ -111,13 +164,14 @@ class CmdList(Command):
                                help="""Show URL and kind of package.""")
         self.parser.add_option("-s", "--status", dest="status",
                                action="store_true", default=False,
-                               help="""Show checkout status.
-                                       The first column in the output shows the checkout status:
+                               help=textwrap.dedent("""\
+                                   Show checkout status.
+                                   The first column in the output shows the checkout status:
                                        ' ' available for checkout
                                        'A' in auto-checkout list and checked out
                                        'C' not in auto-checkout list, but checked out
                                        '!' in auto-checkout list, but not checked out
-                                       '~' the repository URL doesn't match""")
+                                       '~' the repository URL doesn't match"""))
 
     def __call__(self):
         options, args = self.parser.parse_args(sys.argv[2:])
@@ -155,18 +209,19 @@ class CmdList(Command):
 class CmdStatus(Command):
     def __init__(self, develop):
         super(CmdStatus, self).__init__(develop)
-        self.parser = OptionParser(
+        self.parser = optparse.OptionParser(
             usage="%prog status",
-            description="""Shows the status of the sources directory. Only directories are checked, files are skipped.
-
-                           The first column in the output shows the checkout status:
-                               ' ' in auto-checkout list
-                               'C' not in auto-checkout list
-                               '?' directory which is not in sources list
-                               '~' the repository URL doesn't match
-                           The second column shows the working copy status:
-                               ' ' no changes
-                               'M' local modifications or untracked files""",
+            description=textwrap.dedent("""\
+                Shows the status of the sources directory. Only directories are checked, files are skipped.
+                The first column in the output shows the checkout status:
+                    ' ' in auto-checkout list
+                    'C' not in auto-checkout list
+                    '?' directory which is not in sources list
+                    '~' the repository URL doesn't match
+                The second column shows the working copy status:
+                    ' ' no changes
+                    'M' local modifications or untracked files"""),
+            formatter=HelpFormatter(),
             add_help_option=False)
 
     def __call__(self):
@@ -201,9 +256,10 @@ class CmdStatus(Command):
 class CmdUpdate(Command):
     def __init__(self, develop):
         super(CmdUpdate, self).__init__(develop)
-        self.parser = OptionParser(
+        self.parser = optparse.OptionParser(
             usage="%prog update",
             description="Updates all known packages currently checked out.",
+            formatter=HelpFormatter(),
             add_help_option=False)
 
     def __call__(self):

@@ -4,6 +4,8 @@ Changelog
 0.9 - Unreleased
 ----------------
 
+* Fixed help text formatting.
+  [fschulze]
 
 0.8 - 2009-03-25
 ----------------
