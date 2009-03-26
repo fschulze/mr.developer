@@ -276,7 +276,7 @@ class CmdUpdate(Command):
 
 
 class Develop(object):
-    def __call__(self, *kwargs):
+    def __call__(self, **kwargs):
         logger.setLevel(logging.INFO)
         ch = logging.StreamHandler()
         ch.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
