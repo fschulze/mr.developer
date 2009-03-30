@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.9 - Unreleased
+0.9 - 2009-03-30
 ----------------
 
 * When installed as just an egg, then the resulting ``develop`` script can be
