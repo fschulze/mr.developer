@@ -235,6 +235,8 @@ class CmdStatus(Command):
         packages = set(self.get_packages(args))
         workingcopies = WorkingCopies(sources, sources_dir)
         for name in os.listdir(sources_dir):
+            if name == '.svn':
+                continue
             path = os.path.join(sources_dir, name)
             if os.path.isfile(path):
                 continue

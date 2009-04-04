@@ -4,6 +4,9 @@ Changelog
 0.10 - Unreleased
 -----------------
 
+* Ignore '.svn' in ``status`` command.
+  [fschulze]
+
 * Tell the user at the end of the buildout run whether there have been any
   errors during automatic checkout.
   [fschulze]
