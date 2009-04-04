@@ -262,8 +262,8 @@ class CmdUpdate(Command):
     def __init__(self, develop):
         super(CmdUpdate, self).__init__(develop)
         self.parser = optparse.OptionParser(
-            usage="%prog update",
-            description="Updates all known packages currently checked out.",
+            usage="%prog update [<package-regexps>]",
+            description="Updates all known packages currently checked out. If <package-regexps> are given, then the set is limited to the matching packages.",
             formatter=HelpFormatter(),
             add_help_option=False)
 
@@ -271,10 +271,12 @@ class CmdUpdate(Command):
         options, args = self.parser.parse_args(sys.argv[2:])
         sources = self.develop.sources
         sources_dir = self.develop.sources_dir
-        auto_checkout = self.develop.auto_checkout
         packages = set(self.get_packages(args))
         workingcopies = WorkingCopies(sources, sources_dir)
-        workingcopies.update(os.listdir(sources_dir))
+        toupdate = set(os.listdir(sources_dir))
+        if len(packages) > 0:
+            toupdate = toupdate.intersection(packages)
+        workingcopies.update(sorted(toupdate))
 
 
 class Develop(object):

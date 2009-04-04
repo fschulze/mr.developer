@@ -322,7 +322,7 @@ class WorkingCopies(object):
             sys.exit(1)
 
     def update(self, packages):
-        for name in os.listdir(self.sources_dir):
+        for name in packages:
             if name not in self.sources:
                 continue
             kind, url = self.sources[name]

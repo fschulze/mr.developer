@@ -4,6 +4,9 @@ Changelog
 0.10 - Unreleased
 -----------------
 
+* Add possibility to specify packages for ``update`` command.
+  [fschulze]
+
 * Ignore '.svn' in ``status`` command.
   [fschulze]
 
