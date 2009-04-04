@@ -247,7 +247,7 @@ class WorkingCopies(object):
                             if self.svn_status(name) == 'clean':
                                 self.svn_switch(name, url)
                             else:
-                                logger.error("Can't switch package '%s', because it's dirty." % (name, url))
+                                logger.error("Can't switch package '%s', because it's dirty." % name)
                                 if not skip_errors:
                                     sys.exit(1)
                     else:
