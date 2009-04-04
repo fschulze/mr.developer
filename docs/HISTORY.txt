@@ -4,6 +4,10 @@ Changelog
 0.10 - Unreleased
 -----------------
 
+* Tell the user at the end of the buildout run whether there have been any
+  errors during automatic checkout.
+  [fschulze]
+
 * Install the ``develop`` script as the first part instead of the last, so it
   can be used to fix problems.
   [fschulze]

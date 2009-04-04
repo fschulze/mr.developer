@@ -1,11 +1,20 @@
 from mr.developer.common import WorkingCopies
 from pprint import pformat
+import atexit
+import logging
 import os
 import sys
 
 
 FAKE_PART_ID = '_mr.developer'
 
+logger = logging.getLogger("mr.developer")
+
+
+def report_error():
+    logger.error("*"*40)
+    logger.error("There have been errors during checkout, check the output above or use 'develop status'.")
+    logger.error("*"*40)
 
 def extension(buildout=None):
     import zc.buildout.easy_install
@@ -33,7 +42,8 @@ def extension(buildout=None):
     # do automatic checkout of specified packages
     auto_checkout = buildout['buildout'].get('auto-checkout', '').split()
     workingcopies = WorkingCopies(sources, sources_dir)
-    workingcopies.checkout(auto_checkout, skip_errors=True)
+    if workingcopies.checkout(auto_checkout, skip_errors=True):
+        atexit.register(report_error)
 
     # build the fake part to install the checkout script
     if FAKE_PART_ID in buildout._raw:

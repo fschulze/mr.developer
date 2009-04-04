@@ -231,11 +231,14 @@ class WorkingCopies(object):
             raise GitError("git pull for '%s' failed.\n%s" % (name, stderr))
 
     def checkout(self, packages, skip_errors=False):
+        errors = False
         for name in packages:
             if name not in self.sources:
                 logger.error("Checkout failed. No source defined for '%s'." % name)
                 if not skip_errors:
                     sys.exit(1)
+                else:
+                    errors = True
             kind, url = self.sources[name]
             try:
                 if kind=='svn':
@@ -250,6 +253,8 @@ class WorkingCopies(object):
                                 logger.error("Can't switch package '%s', because it's dirty." % name)
                                 if not skip_errors:
                                     sys.exit(1)
+                                else:
+                                    errors = True
                     else:
                         self.svn_checkout(name, url)
                 elif kind=='git':
@@ -261,17 +266,24 @@ class WorkingCopies(object):
                             logger.error("Checkout URL for existing package '%s' differs. Expected '%s'." % (name, url))
                             if not skip_errors:
                                 sys.exit(1)
+                            else:
+                                errors = True
                     else:
                         self.git_checkout(name, url)
                 else:
                     logger.error("Unknown repository type '%s'." % kind)
                     if not skip_errors:
                         sys.exit(1)
+                    else:
+                        errors = True
             except (SVNError, GitError), e:
                 for l in e.args[0].split('\n'):
                     logger.error(l)
                 if not skip_errors:
                     sys.exit(1)
+                else:
+                    errors = True
+        return errors
 
     def matches(self, name):
         if name not in self.sources:
