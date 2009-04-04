@@ -4,6 +4,9 @@ Changelog
 0.10 - Unreleased
 -----------------
 
+* Install the ``develop`` script as the first part instead of the last, so it
+  can be used to fix problems.
+  [fschulze]
 
 0.9 - 2009-03-30
 ----------------

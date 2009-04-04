@@ -47,7 +47,7 @@ def extension(buildout=None):
     )
     # append the fake part
     parts = buildout['buildout']['parts'].split()
-    parts.append(FAKE_PART_ID)
+    parts.insert(0, FAKE_PART_ID)
     buildout['buildout']['parts'] = " ".join(parts)
 
     # make the develop eggs if the package is checked out and fixup versions
