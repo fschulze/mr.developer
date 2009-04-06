@@ -162,7 +162,7 @@ class WorkingCopies(object):
         info = self._svn_info(source)
         return (info.get('url') == source['url'])
 
-    def svn_status(self, source):
+    def svn_status(self, source, verbose=False):
         name = source['name']
         path = source['path']
         cmd = subprocess.Popen(["svn", "status", "--xml", path],
@@ -178,9 +178,19 @@ class WorkingCopies(object):
                 clean = False
                 break
         if clean:
-            return 'clean'
+            status = 'clean'
         else:
-            return 'dirty'
+            status = 'dirty'
+        if verbose:
+            cmd = subprocess.Popen(["svn", "status", path],
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+            stdout, stderr = cmd.communicate()
+            if cmd.returncode != 0:
+                raise SVNError("Subversion status for '%s' failed.\n%s" % (name, stderr))
+            return status, stdout
+        else:
+            return status
 
     def svn_switch(self, source):
         return self._svn_error_wrapper(self._svn_switch, source)
@@ -216,7 +226,7 @@ class WorkingCopies(object):
             raise GitError("git remote for '%s' failed.\n%s" % (name, stderr))
         return (source['url'] in stdout.split())
 
-    def git_status(self, source):
+    def git_status(self, source, verbose=False):
         name = source['name']
         path = source['path']
         cmd = subprocess.Popen(["git", "status"],
@@ -226,9 +236,13 @@ class WorkingCopies(object):
         stdout, stderr = cmd.communicate()
         lines = stdout.strip().split('\n')
         if 'nothing to commit (working directory clean)' in lines[-1]:
-            return 'clean'
+            status = 'clean'
         else:
-            return 'dirty'
+            status = 'dirty'
+        if verbose:
+            return status, stdout
+        else:
+            return status
 
     def git_update(self, source):
         name = source['name']
@@ -316,7 +330,7 @@ class WorkingCopies(object):
                 logger.error(l)
             sys.exit(1)
 
-    def status(self, source):
+    def status(self, source, verbose=False):
         name = source['name']
         if name not in self.sources:
             logger.error("Status failed. No source defined for '%s'." % name)
@@ -324,9 +338,9 @@ class WorkingCopies(object):
         source = self.sources[name]
         try:
             if source['kind']=='svn':
-                return self.svn_status(source)
+                return self.svn_status(source, verbose=verbose)
             elif source['kind']=='git':
-                return self.git_status(source)
+                return self.git_status(source, verbose=verbose)
             else:
                 logger.error("Unknown repository type '%s'." % kind)
                 sys.exit(1)

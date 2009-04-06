@@ -224,6 +224,9 @@ class CmdStatus(Command):
                     'M' local modifications or untracked files"""),
             formatter=HelpFormatter(),
             add_help_option=False)
+        self.parser.add_option("-v", "--verbose", dest="verbose",
+                               action="store_true", default=False,
+                               help="""Show output of VCS command.""")
 
     def __call__(self):
         options, args = self.parser.parse_args(sys.argv[2:])
@@ -247,11 +250,21 @@ class CmdStatus(Command):
                     print " ",
                 else:
                     print "C",
-            if workingcopies.status(source) == 'clean':
+            if options.verbose:
+                status, output = workingcopies.status(source, verbose=True)
+            else:
+                status = workingcopies.status(source)
+            if status == 'clean':
                 print " ",
             else:
                 print "M",
             print os.path.relpath(path)
+            if options.verbose:
+                output = output.strip()
+                if output:
+                    for line in output.split('\n'):
+                        print "   ", line
+                    print
 
 
 class CmdUpdate(Command):

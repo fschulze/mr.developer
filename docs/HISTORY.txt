@@ -4,6 +4,9 @@ Changelog
 0.10 - Unreleased
 -----------------
 
+* Added verbose flag to ``status`` command.
+  [fschulze]
+
 * Deprecated ``sources-svn`` and ``sources-git`` in favour of just ``sources``
   which allows more flexibility.
   [fschulze]
