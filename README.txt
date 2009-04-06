@@ -1,6 +1,12 @@
 Introduction
 ============
 
+.. figure:: http://www.netsight.co.uk/junk/xkcd-buildout.png
+    :figwidth: image
+
+    Let Mr. Developer help you win the everlasting buildout battle!
+
+    (Remixed by Matt Hamilton, original from http://xkcd.com/303)
 
 ``mr.developer`` is a ``zc.buildout`` extension which makes it easier to work with
 buildouts containing lots of packages of which you only want to develop some.
