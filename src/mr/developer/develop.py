@@ -268,7 +268,15 @@ class CmdUpdate(Command):
         sources = self.develop.sources
         packages = set(self.get_packages(args))
         workingcopies = WorkingCopies(sources)
-        workingcopies.update(packages)
+        toupdate = []
+        for name in sorted(sources):
+            source = sources[name]
+            if args and name not in packages:
+                continue
+            if not os.path.exists(source['path']):
+                continue
+            toupdate.append(name)
+        workingcopies.update(toupdate)
 
 
 class Develop(object):
