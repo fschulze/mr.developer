@@ -68,6 +68,14 @@ def extension(buildout=None):
     # do automatic checkout of specified packages
     auto_checkout = buildout['buildout'].get('auto-checkout', '').split()
     workingcopies = WorkingCopies(sources)
+    if not set(auto_checkout).issubset(set(sources.keys())):
+        diff = list(sorted(set(auto_checkout).difference(set(sources.keys()))))
+        if len(diff) > 1:
+            pkgs = "%s and '%s'" % (", ".join("'%s'" % x for x in diff[:-1]), diff[-1])
+            logger.error("The packages %s from auto-checkout have no source information." % pkgs)
+        else:
+            logger.error("The package '%s' from auto-checkout has no source information." % diff[0])
+        sys.exit(1)
     if workingcopies.checkout(auto_checkout, skip_errors=True):
         atexit.register(report_error)
 
