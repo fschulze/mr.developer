@@ -358,6 +358,7 @@ class WorkingCopies(object):
                     if not self.svn_matches(source):
                         if self.svn_status(source) == 'clean':
                             self.svn_switch(source)
+                            continue
                         else:
                             logger.error("Can't switch package '%s', because it's dirty." % name)
                             continue
