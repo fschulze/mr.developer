@@ -112,8 +112,7 @@ class CmdCheckout(Command):
             sys.exit(1)
 
         try:
-            workingcopies = WorkingCopies(self.develop.sources,
-                                          self.develop.sources_dir)
+            workingcopies = WorkingCopies(self.develop.sources)
             workingcopies.checkout(packages)
             logger.warn("Don't forget to run buildout again, so the checked out packages are used as develop eggs.")
         except (ValueError, KeyError), e:
@@ -156,7 +155,7 @@ class CmdList(Command):
         super(CmdList, self).__init__(develop)
         self.parser = optparse.OptionParser(
             usage="%prog list [<package-regexps>]",
-            description="List the available packages, filtered if <package-regexps> is given.",
+            description="Lists tracked packages, filtered if <package-regexps> is given.",
             formatter=HelpFormatter(),
             add_help_option=False)
         self.parser.add_option("-a", "--auto-checkout", dest="auto_checkout",
@@ -179,19 +178,18 @@ class CmdList(Command):
     def __call__(self):
         options, args = self.parser.parse_args(sys.argv[2:])
         sources = self.develop.sources
-        sources_dir = self.develop.sources_dir
         auto_checkout = self.develop.auto_checkout
         packages = set(self.get_packages(args))
-        workingcopies = WorkingCopies(sources, sources_dir)
+        workingcopies = WorkingCopies(sources)
         for name in sorted(sources):
             if args and name not in packages:
                 continue
             if options.auto_checkout and name not in auto_checkout:
                 continue
-            kind, url = sources[name]
+            source = sources[name]
             if options.status:
-                if os.path.exists(os.path.join(sources_dir, name)):
-                    if not workingcopies.matches(name):
+                if os.path.exists(source['path']):
+                    if not workingcopies.matches(source):
                         print "~",
                     else:
                         if name in auto_checkout:
@@ -204,7 +202,7 @@ class CmdList(Command):
                     else:
                         print " ",
             if options.long:
-                print "(%s)" % kind, name, url
+                print "(%s)" % source['kind'], name, source['url']
             else:
                 print name
 
@@ -213,13 +211,13 @@ class CmdStatus(Command):
     def __init__(self, develop):
         super(CmdStatus, self).__init__(develop)
         self.parser = optparse.OptionParser(
-            usage="%prog status",
+            usage="%prog status [<package-regexps>]",
             description=textwrap.dedent("""\
-                Shows the status of the sources directory. Only directories are checked, files are skipped.
+                Shows the status of tracked packages, filtered if <package-regexps> is given.
                 The first column in the output shows the checkout status:
                     ' ' in auto-checkout list
                     'C' not in auto-checkout list
-                    '?' directory which is not in sources list
+                    '!' in auto-checkout list, but not checked out
                     '~' the repository URL doesn't match
                 The second column shows the working copy status:
                     ' ' no changes
@@ -230,32 +228,30 @@ class CmdStatus(Command):
     def __call__(self):
         options, args = self.parser.parse_args(sys.argv[2:])
         sources = self.develop.sources
-        sources_dir = self.develop.sources_dir
         auto_checkout = self.develop.auto_checkout
         packages = set(self.get_packages(args))
-        workingcopies = WorkingCopies(sources, sources_dir)
-        for name in os.listdir(sources_dir):
-            if name == '.svn':
+        workingcopies = WorkingCopies(sources)
+        for name in sorted(sources):
+            if args and name not in packages:
                 continue
-            path = os.path.join(sources_dir, name)
-            if os.path.isfile(path):
+            source = sources[name]
+            path = source['path']
+            if not os.path.exists(path):
+                if name in auto_checkout:
+                    print "!", " ", os.path.relpath(path)
                 continue
-            if name not in sources:
-                print "?", " ", name
-                continue
-            kind, url = sources[name]
-            if not workingcopies.matches(name):
+            if not workingcopies.matches(source):
                 print "~",
             else:
                 if name in auto_checkout:
                     print " ",
                 else:
                     print "C",
-            if workingcopies.status(name) == 'clean':
+            if workingcopies.status(source) == 'clean':
                 print " ",
             else:
                 print "M",
-            print name
+            print os.path.relpath(path)
 
 
 class CmdUpdate(Command):
@@ -270,13 +266,9 @@ class CmdUpdate(Command):
     def __call__(self):
         options, args = self.parser.parse_args(sys.argv[2:])
         sources = self.develop.sources
-        sources_dir = self.develop.sources_dir
         packages = set(self.get_packages(args))
-        workingcopies = WorkingCopies(sources, sources_dir)
-        toupdate = set(os.listdir(sources_dir))
-        if len(packages) > 0:
-            toupdate = toupdate.intersection(packages)
-        workingcopies.update(sorted(toupdate))
+        workingcopies = WorkingCopies(sources)
+        workingcopies.update(packages)
 
 
 class Develop(object):
@@ -313,7 +305,6 @@ class Develop(object):
             return
 
         self.sources = kwargs['sources']
-        self.sources_dir = kwargs['sources_dir']
         self.auto_checkout = set(kwargs['auto_checkout'])
 
         self.cmd_checkout = CmdCheckout(self)

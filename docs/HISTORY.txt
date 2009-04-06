@@ -4,10 +4,11 @@ Changelog
 0.10 - Unreleased
 -----------------
 
-* Add possibility to specify packages for ``update`` command.
+* Changed ``status`` command to only check known paths and not the whole
+  ``sources-dir`` path.
   [fschulze]
 
-* Ignore '.svn' in ``status`` command.
+* Add possibility to filter packages in ``update`` and ``status`` commands.
   [fschulze]
 
 * Tell the user at the end of the buildout run whether there have been any

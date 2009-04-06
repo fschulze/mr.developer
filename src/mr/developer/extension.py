@@ -31,17 +31,25 @@ def extension(buildout=None):
         if name in sources:
             logger.error("The source for '%s' is already set." % name)
             sys.exit(1)
-        sources[name] = ('svn', url)
+        sources[name] = dict(
+            kind='svn',
+            name=name,
+            url=url,
+            path=os.path.join(sources_dir, name))
     section = buildout.get(buildout['buildout'].get('sources-git'), {})
     for name, url in section.iteritems():
         if name in sources:
             logger.error("The source for '%s' is already set." % name)
             sys.exit(1)
-        sources[name] = ('git', url)
+        sources[name] = dict(
+            kind='git',
+            name=name,
+            url=url,
+            path=os.path.join(sources_dir, name))
 
     # do automatic checkout of specified packages
     auto_checkout = buildout['buildout'].get('auto-checkout', '').split()
-    workingcopies = WorkingCopies(sources, sources_dir)
+    workingcopies = WorkingCopies(sources)
     if workingcopies.checkout(auto_checkout, skip_errors=True):
         atexit.register(report_error)
 
@@ -52,8 +60,8 @@ def extension(buildout=None):
     buildout._raw[FAKE_PART_ID] = dict(
         recipe='zc.recipe.egg',
         eggs='mr.developer',
-        arguments='\nsources=%s,\nsources_dir="%s",\nauto_checkout=%s' % (
-            pformat(sources), sources_dir, auto_checkout),
+        arguments='\nsources=%s,\nauto_checkout=%s' % (
+            pformat(sources), auto_checkout),
     )
     # insert the fake part
     parts = buildout['buildout']['parts'].split()
@@ -69,7 +77,7 @@ def extension(buildout=None):
         develeggs[tail] = path
     for name in sources:
         if name not in develeggs:
-            path = os.path.join(sources_dir, name)
+            path = sources[name]['path']
             if os.path.exists(path):
                 develeggs[name] = path
                 if name in versions:
