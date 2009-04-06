@@ -4,6 +4,10 @@ Changelog
 0.10 - Unreleased
 -----------------
 
+* Deprecated ``sources-svn`` and ``sources-git`` in favour of just ``sources``
+  which allows more flexibility.
+  [fschulze]
+
 * Changed ``status`` command to only check known paths and not the whole
   ``sources-dir`` path.
   [fschulze]

@@ -26,6 +26,22 @@ def extension(buildout=None):
         sources_dir = os.path.join(buildout_dir, sources_dir)
 
     sources = {}
+    section = buildout.get(buildout['buildout'].get('sources'), {})
+    for name, info in section.iteritems():
+        info = info.split()
+        kind = info[0]
+        url = info[1]
+        if len(info) > 2:
+            path = os.path.join(info[2], name)
+            if not os.path.isabs(path):
+                path = os.path.join(buildout_dir, path)
+        else:
+            path = os.path.join(sources_dir, name)
+        sources[name] = dict(kind=kind, name=name, url=url, path=path)
+
+    # deprecated way of specifing sources
+    if 'sources-svn' in buildout['buildout']:
+        logger.warn("'sources-svn' is deprecated, use 'sources' instead (see README for usage).")
     section = buildout.get(buildout['buildout'].get('sources-svn'), {})
     for name, url in section.iteritems():
         if name in sources:
@@ -36,6 +52,8 @@ def extension(buildout=None):
             name=name,
             url=url,
             path=os.path.join(sources_dir, name))
+    if 'sources-git' in buildout['buildout']:
+        logger.warn("'sources-git' is deprecated, use 'sources' instead (see README for usage).")
     section = buildout.get(buildout['buildout'].get('sources-git'), {})
     for name, url in section.iteritems():
         if name in sources:

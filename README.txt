@@ -15,16 +15,16 @@ section. Then you can add the following options to your ``[buildout]``
 section:
 
   ``sources-dir``
-    This specifies where your development packages should be placed. Defaults
-    to ``src``.
+    This specifies the default directory where your development packages will
+    be placed. Defaults to ``src``.
 
-  ``sources-svn``
-    This specifies a section which lists the subversion repository URLs of
-    your packages.
-
-  ``sources-git``
-    This specifies a section which lists the git repository URLs of your
-    packages.
+  ``sources``
+    This specifies a section which lists the repository information of your
+    packages. The format is "<kind> <url> [path]". Where <kind> is either
+    ``svn`` or ``git``, <url> is the location of the repository and the
+    optional [path] is the base directory where the package will be checked
+    out (the name of the package will be appended), if it's missing, then
+    ``sources-dir`` will be used.
 
   ``auto-checkout``
     This specifies the names of packages which should be checked out during
@@ -35,15 +35,12 @@ The following is an example of how your ``buildout.cfg`` may look like::
   [buildout]
   ...
   extensions = mr.developer
-  sources-svn = sources-svn
-  sources-git = sources-git
+  sources = sources
   auto-checkout = my.package
 
-  [sources-svn]
-  my.package = http://example.com/svn/my.package/trunk
-
-  [sources-git]
-  some.other.package = git://example.com/git/some.other.package.git
+  [sources]
+  my.package = svn http://example.com/svn/my.package/trunk
+  some.other.package = git git://example.com/git/some.other.package.git
 
 When you run buildout, you will get a script at ``bin/develop`` in your
 buildout directory. With that script you can perform various actions on the
