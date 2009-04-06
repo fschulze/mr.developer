@@ -55,7 +55,7 @@ def extension(buildout=None):
         arguments='\nsources=%s,\nsources_dir="%s",\nauto_checkout=%s' % (
             pformat(sources), sources_dir, auto_checkout),
     )
-    # append the fake part
+    # insert the fake part
     parts = buildout['buildout']['parts'].split()
     parts.insert(0, FAKE_PART_ID)
     buildout['buildout']['parts'] = " ".join(parts)
