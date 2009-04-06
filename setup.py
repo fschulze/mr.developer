@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import os
 
-version = '0.10'
+version = '0.11'
 
 setup(name='mr.developer',
       version=version,

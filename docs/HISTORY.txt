@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.11 - 2009-04-06
+-----------------
+
+* Removed the nice os.path.relpath usage, because it's only been introduced
+  with Python 2.6.
+  [fschulze]
+
 0.10 - 2009-04-06
 -----------------
 

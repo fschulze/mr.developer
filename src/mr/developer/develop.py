@@ -241,7 +241,7 @@ class CmdStatus(Command):
             path = source['path']
             if not os.path.exists(path):
                 if name in auto_checkout:
-                    print "!", " ", os.path.relpath(path)
+                    print "!", " ", name
                 continue
             if not workingcopies.matches(source):
                 print "~",
@@ -258,7 +258,7 @@ class CmdStatus(Command):
                 print " ",
             else:
                 print "M",
-            print os.path.relpath(path)
+            print name
             if options.verbose:
                 output = output.strip()
                 if output:
