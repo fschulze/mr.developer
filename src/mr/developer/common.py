@@ -37,7 +37,7 @@ class WorkingCopies(object):
             if url.startswith(root):
                 return self._svn_auth_cache[root]
 
-    def _svn_error_wrapper(self, f, source):
+    def _svn_error_wrapper(self, f, source, **kwargs):
         count = 4
         accept_invalid_cert = False
         while count:
@@ -45,9 +45,9 @@ class WorkingCopies(object):
             try:
                 if accept_invalid_cert:
                     accept_invalid_cert = False
-                    return f(source, accept_invalid_cert=True)
+                    return f(source, accept_invalid_cert=True, **kwargs)
                 else:
-                    return f(source)
+                    return f(source, **kwargs)
             except SVNAuthorizationError, e:
                 lines = e.args[0].split('\n')
                 root = lines[-1].split('(')[-1].strip(')')
@@ -68,7 +68,7 @@ class WorkingCopies(object):
                 else:
                     raise
 
-    def _svn_checkout(self, source, accept_invalid_cert=False):
+    def _svn_checkout(self, source, **kwargs):
         name = source['name']
         path = source['path']
         url = source['url']
@@ -77,16 +77,22 @@ class WorkingCopies(object):
             return
         logger.info("Checking out '%s' with subversion." % name)
         args = ["svn", "checkout", url, path]
-        stdout, stderr, returncode = self._svn_communicate(args, url, accept_invalid_cert)
+        stdout, stderr, returncode = self._svn_communicate(args, url, **kwargs)
         if returncode != 0:
             raise SVNError("Subversion checkout for '%s' failed.\n%s" % (name, stderr))
+        if kwargs.get('verbose', False):
+            return stdout
 
-    def _svn_communicate(self, args, url, accept_invalid_cert):
+    def _svn_communicate(self, args, url, **kwargs):
+        accept_invalid_cert = kwargs.get('accept_invalid_cert', False)
         auth = self._svn_auth_get(url)
         if auth is not None:
             args[2:2] = ["--username", auth['user'],
                          "--password", auth['passwd']]
-        args[2:2] = ["--quiet", "--no-auth-cache", "--non-interactive"]
+        if kwargs.get('verbose', False):
+            args[2:2] = ["--no-auth-cache", "--non-interactive"]
+        else:
+            args[2:2] = ["--quiet", "--no-auth-cache", "--non-interactive"]
         if accept_invalid_cert:
             raise NotImplementedError
         env = dict(os.environ)
@@ -94,10 +100,12 @@ class WorkingCopies(object):
         if accept_invalid_cert:
             cmd = subprocess.Popen(args, env=env,
                                    stdin=subprocess.PIPE,
+                                   stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
             stdout, stderr = cmd.communicate('t')
         else:
             cmd = subprocess.Popen(args, env=env,
+                                   stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
             stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
@@ -135,28 +143,32 @@ class WorkingCopies(object):
         self._svn_info_cache[name] = result
         return result
 
-    def _svn_switch(self, source, accept_invalid_cert=False):
+    def _svn_switch(self, source, **kwargs):
         name = source['name']
         path = source['path']
         url = source['url']
         logger.info("Switching '%s' with subversion." % name)
         args = ["svn", "switch", url, path]
-        stdout, stderr, returncode = self._svn_communicate(args, url, accept_invalid_cert)
+        stdout, stderr, returncode = self._svn_communicate(args, url, **kwargs)
         if returncode != 0:
             raise SVNError("Subversion switch for '%s' failed.\n%s" % (name, stderr))
+        if kwargs.get('verbose', False):
+            return stdout
 
-    def _svn_update(self, source, accept_invalid_cert=False):
+    def _svn_update(self, source, **kwargs):
         name = source['name']
         path = source['path']
         url = source['url']
         logger.info("Updating '%s' with subversion." % name)
         args = ["svn", "update", path]
-        stdout, stderr, returncode = self._svn_communicate(args, url, accept_invalid_cert)
+        stdout, stderr, returncode = self._svn_communicate(args, url, **kwargs)
         if returncode != 0:
             raise SVNError("Subversion update for '%s' failed.\n%s" % (name, stderr))
+        if kwargs.get('verbose', False):
+            return stdout
 
-    def svn_checkout(self, source):
-        return self._svn_error_wrapper(self._svn_checkout, source)
+    def svn_checkout(self, source, verbose=False):
+        return self._svn_error_wrapper(self._svn_checkout, source, verbose=verbose)
 
     def svn_matches(self, source):
         info = self._svn_info(source)
@@ -192,13 +204,13 @@ class WorkingCopies(object):
         else:
             return status
 
-    def svn_switch(self, source):
-        return self._svn_error_wrapper(self._svn_switch, source)
+    def svn_switch(self, source, verbose=False):
+        return self._svn_error_wrapper(self._svn_switch, source, verbose=verbose)
 
-    def svn_update(self, source):
-        return self._svn_error_wrapper(self._svn_update, source)
+    def svn_update(self, source, verbose=False):
+        return self._svn_error_wrapper(self._svn_update, source, verbose=verbose)
 
-    def git_checkout(self, source):
+    def git_checkout(self, source, verbose=False):
         name = source['name']
         path = source['path']
         url = source['url']
@@ -207,10 +219,13 @@ class WorkingCopies(object):
             return
         logger.info("Cloning '%s' with git." % name)
         cmd = subprocess.Popen(["git", "clone", "--quiet", url, path],
+                               stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise GitError("git cloning for '%s' failed.\n%s" % (name, stderr))
+        if verbose:
+            return stdout
 
     def git_matches(self, source):
         name = source['name']
@@ -242,7 +257,7 @@ class WorkingCopies(object):
         else:
             return status
 
-    def git_update(self, source):
+    def git_update(self, source, verbose=False):
         name = source['name']
         path = source['path']
         logger.info("Updating '%s' with git." % name)
@@ -253,8 +268,10 @@ class WorkingCopies(object):
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise GitError("git pull for '%s' failed.\n%s" % (name, stderr))
+        if verbose:
+            return stdout
 
-    def checkout(self, packages, skip_errors=False):
+    def checkout(self, packages, skip_errors=False, verbose=False):
         errors = False
         for name in packages:
             if name not in self.sources:
@@ -272,7 +289,9 @@ class WorkingCopies(object):
                             logger.info("Skipped checkout of existing package '%s'." % name)
                         else:
                             if self.svn_status(source) == 'clean':
-                                self.svn_switch(source)
+                                output = self.svn_switch(source, verbose=verbose)
+                                if verbose:
+                                    print output
                             else:
                                 logger.error("Can't switch package '%s' from '%s', because it's dirty." % (name, source['url']))
                                 if not skip_errors:
@@ -280,7 +299,9 @@ class WorkingCopies(object):
                                 else:
                                     errors = True
                     else:
-                        self.svn_checkout(source)
+                        output = self.svn_checkout(source, verbose=verbose)
+                        if verbose:
+                            print output
                 elif source['kind']=='git':
                     path = source['path']
                     if os.path.exists(path):
@@ -293,7 +314,9 @@ class WorkingCopies(object):
                             else:
                                 errors = True
                     else:
-                        self.git_checkout(source)
+                        output = self.git_checkout(source, verbose=verbose)
+                        if verbose:
+                            print output
                 else:
                     logger.error("Unknown repository type '%s'." % kind)
                     if not skip_errors:
@@ -347,7 +370,7 @@ class WorkingCopies(object):
                 logger.error(l)
             sys.exit(1)
 
-    def update(self, packages):
+    def update(self, packages, verbose=False):
         for name in packages:
             if name not in self.sources:
                 continue
@@ -357,7 +380,9 @@ class WorkingCopies(object):
                     path = source['path']
                     if not self.svn_matches(source):
                         if self.svn_status(source) == 'clean':
-                            self.svn_switch(source)
+                            output = self.svn_switch(source, verbose=verbose)
+                            if verbose:
+                                print output
                             continue
                         else:
                             logger.error("Can't switch package '%s', because it's dirty." % name)
@@ -365,7 +390,9 @@ class WorkingCopies(object):
                     if self.svn_status(source) != 'clean':
                         logger.error("Can't update package '%s', because it's dirty." % name)
                         continue
-                    self.svn_update(source)
+                    output = self.svn_update(source, verbose=verbose)
+                    if verbose:
+                        print output
                 elif source['kind']=='git':
                     path = source['path']
                     if not self.git_matches(source):
@@ -374,7 +401,9 @@ class WorkingCopies(object):
                     if self.git_status(source) != 'clean':
                         logger.error("Can't update package '%s', because it's dirty." % name)
                         continue
-                    self.git_update(source)
+                    output = self.git_update(source, verbose=verbose)
+                    if verbose:
+                        print output
                 else:
                     logger.error("Unknown repository type '%s'." % kind)
                     continue

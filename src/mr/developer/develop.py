@@ -89,6 +89,9 @@ class CmdCheckout(Command):
         self.parser.add_option("-a", "--auto-checkout", dest="auto_checkout",
                                action="store_true", default=False,
                                help="""Only considers packages declared by auto-checkout. If you don't specify a <package-regexps> then all declared packages are processed.""")
+        self.parser.add_option("-v", "--verbose", dest="verbose",
+                               action="store_true", default=False,
+                               help="""Show output of VCS command.""")
 
     def __call__(self):
         options, args = self.parser.parse_args(sys.argv[2:])
@@ -113,7 +116,7 @@ class CmdCheckout(Command):
 
         try:
             workingcopies = WorkingCopies(self.develop.sources)
-            workingcopies.checkout(packages)
+            workingcopies.checkout(packages, verbose=options.verbose)
             logger.warn("Don't forget to run buildout again, so the checked out packages are used as develop eggs.")
         except (ValueError, KeyError), e:
             logger.error(e)
@@ -275,6 +278,9 @@ class CmdUpdate(Command):
             description="Updates all known packages currently checked out. If <package-regexps> are given, then the set is limited to the matching packages.",
             formatter=HelpFormatter(),
             add_help_option=False)
+        self.parser.add_option("-v", "--verbose", dest="verbose",
+                               action="store_true", default=False,
+                               help="""Show output of VCS command.""")
 
     def __call__(self):
         options, args = self.parser.parse_args(sys.argv[2:])
@@ -289,7 +295,7 @@ class CmdUpdate(Command):
             if not os.path.exists(source['path']):
                 continue
             toupdate.append(name)
-        workingcopies.update(toupdate)
+        workingcopies.update(toupdate, verbose=options.verbose)
 
 
 class Develop(object):
