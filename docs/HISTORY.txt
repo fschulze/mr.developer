@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.10 - Unreleased
+0.10 - 2009-04-06
 -----------------
 
 * Added verbose flag to ``status`` command.
