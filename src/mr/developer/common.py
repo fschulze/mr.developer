@@ -196,8 +196,6 @@ class WorkingCopies(object):
         return self._svn_error_wrapper(self._svn_switch, source)
 
     def svn_update(self, source):
-        info = self._svn_info(source)
-        url = info.get('url')
         return self._svn_error_wrapper(self._svn_update, source)
 
     def git_checkout(self, source):
