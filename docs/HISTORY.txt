@@ -4,6 +4,10 @@ Changelog
 0.12 - Unreleased
 -----------------
 
+* Refactored working copy logic, so it's easier to add support for other
+  version control systems.
+  [fschulze]
+
 * Added verbose flag to ``checkout`` and ``update`` commands.
   [fschulze]
 
