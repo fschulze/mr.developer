@@ -21,6 +21,9 @@ def extension(buildout=None):
 
     buildout_dir = buildout['buildout']['directory']
     config = Config(buildout_dir)
+    if not config._config.has_section('buildout'):
+        config._config.add_section('buildout')
+    config._config.set('buildout', 'args', " ".join(sys.argv))
 
     sources_dir = buildout['buildout'].get('sources-dir', 'src')
     if not os.path.isabs(sources_dir):
