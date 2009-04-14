@@ -356,6 +356,9 @@ class CmdUpdate(Command):
             description="Updates all known packages currently checked out. If <package-regexps> are given, then the set is limited to the matching packages.",
             formatter=HelpFormatter(),
             add_help_option=False)
+        self.parser.add_option("-a", "--auto-checkout", dest="auto_checkout",
+                               action="store_true", default=False,
+                               help="""Only considers packages declared by auto-checkout. If you don't specify a <package-regexps> then all declared packages are processed.""")
         self.parser.add_option("-v", "--verbose", dest="verbose",
                                action="store_true", default=False,
                                help="""Show output of VCS command.""")
@@ -363,10 +366,13 @@ class CmdUpdate(Command):
     def __call__(self):
         options, args = self.parser.parse_args(sys.argv[2:])
         sources = self.develop.sources
+        auto_checkout = self.develop.auto_checkout
         packages = set(self.get_packages(args))
         workingcopies = WorkingCopies(sources)
         toupdate = []
         for name in sorted(sources):
+            if options.auto_checkout and name not in auto_checkout:
+                continue
             source = sources[name]
             if args and name not in packages:
                 continue

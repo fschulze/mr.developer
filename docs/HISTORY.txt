@@ -4,6 +4,10 @@ Changelog
 0.13 - Unreleased
 -----------------
 
+* Added ``-a`` option to ``update`` command to only update the packages
+  declared in the ``auto-checkout`` list.
+  [fschulze]
+
 * Added ``activate`` and ``deactivate`` commands. This allows to select which
   packages are added to the ``develop`` option of zc.buildout. Enhanced the
   ``status`` command to show the additional informations.
