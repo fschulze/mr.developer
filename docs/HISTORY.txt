@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.12 - Unreleased
+0.12 - 2009-04-14
 -----------------
 
 * Added support for Mercurial (hg).
