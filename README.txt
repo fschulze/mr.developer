@@ -27,10 +27,10 @@ section:
   ``sources``
     This specifies a section which lists the repository information of your
     packages. The format is "<kind> <url> [path]". Where <kind> is either
-    ``svn`` or ``git``, <url> is the location of the repository and the
-    optional [path] is the base directory where the package will be checked
-    out (the name of the package will be appended), if it's missing, then
-    ``sources-dir`` will be used.
+    ``svn``, ``hg`` or ``git``, <url> is the location of the repository and
+    the optional [path] is the base directory where the package will be
+    checked out (the name of the package will be appended), if it's missing,
+    then ``sources-dir`` will be used.
 
   ``auto-checkout``
     This specifies the names of packages which should be checked out during

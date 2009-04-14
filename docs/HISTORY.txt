@@ -4,6 +4,9 @@ Changelog
 0.12 - Unreleased
 -----------------
 
+* Added support for Mercurial (hg).
+  [mj]
+
 * Refactored working copy logic, so it's easier to add support for other
   version control systems.
   [fschulze]
