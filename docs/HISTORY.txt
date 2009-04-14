@@ -4,6 +4,8 @@ Changelog
 0.13 - Unreleased
 -----------------
 
+* Switched the meaning of ``~`` and ``C`` in status command.
+  [fschulze]
 
 0.12 - 2009-04-14
 -----------------

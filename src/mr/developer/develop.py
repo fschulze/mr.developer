@@ -219,9 +219,9 @@ class CmdStatus(Command):
                 Shows the status of tracked packages, filtered if <package-regexps> is given.
                 The first column in the output shows the checkout status:
                     ' ' in auto-checkout list
-                    'C' not in auto-checkout list
+                    '~' not in auto-checkout list
                     '!' in auto-checkout list, but not checked out
-                    '~' the repository URL doesn't match
+                    'C' the repository URL doesn't match
                 The second column shows the working copy status:
                     ' ' no changes
                     'M' local modifications or untracked files"""),
@@ -247,12 +247,12 @@ class CmdStatus(Command):
                     print "!", " ", name
                 continue
             if not workingcopies.matches(source):
-                print "~",
+                print "C",
             else:
                 if name in auto_checkout:
                     print " ",
                 else:
-                    print "C",
+                    print "~",
             if options.verbose:
                 status, output = workingcopies.status(source, verbose=True)
             else:
