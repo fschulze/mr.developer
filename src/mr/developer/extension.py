@@ -1,4 +1,4 @@
-from mr.developer.common import WorkingCopies
+from mr.developer.common import WorkingCopies, Config
 from pprint import pformat
 import atexit
 import logging
@@ -20,6 +20,7 @@ def extension(buildout=None):
     import zc.buildout.easy_install
 
     buildout_dir = buildout['buildout']['directory']
+    config = Config(buildout_dir)
 
     sources_dir = buildout['buildout'].get('sources-dir', 'src')
     if not os.path.isabs(sources_dir):
@@ -79,21 +80,6 @@ def extension(buildout=None):
     if workingcopies.checkout(auto_checkout, skip_errors=True):
         atexit.register(report_error)
 
-    # build the fake part to install the checkout script
-    if FAKE_PART_ID in buildout._raw:
-        logger.error("mr.developer: The buildout already has a '%s' section, this shouldn't happen" % FAKE_PART_ID)
-        sys.exit(1)
-    buildout._raw[FAKE_PART_ID] = dict(
-        recipe='zc.recipe.egg',
-        eggs='mr.developer',
-        arguments='\nsources=%s,\nauto_checkout=%s' % (
-            pformat(sources), auto_checkout),
-    )
-    # insert the fake part
-    parts = buildout['buildout']['parts'].split()
-    parts.insert(0, FAKE_PART_ID)
-    buildout['buildout']['parts'] = " ".join(parts)
-
     # make the develop eggs if the package is checked out and fixup versions
     develop = buildout['buildout'].get('develop', '')
     versions = buildout.get(buildout['buildout'].get('versions'), {})
@@ -104,10 +90,33 @@ def extension(buildout=None):
     for name in sources:
         if name not in develeggs:
             path = sources[name]['path']
-            if os.path.exists(path):
+            if os.path.exists(path) and config.develop.get(name, True):
+                config.develop.setdefault(name, True)
                 develeggs[name] = path
                 if name in versions:
                     del versions[name]
     if versions:
         zc.buildout.easy_install.default_versions(dict(versions))
     buildout['buildout']['develop'] = "\n".join(develeggs.itervalues())
+
+    # build the fake part to install the checkout script
+    if FAKE_PART_ID in buildout._raw:
+        logger.error("mr.developer: The buildout already has a '%s' section, this shouldn't happen" % FAKE_PART_ID)
+        sys.exit(1)
+    args = dict(
+        sources = pformat(sources),
+        auto_checkout = pformat(auto_checkout),
+        buildout_dir = '"%s"' % buildout_dir,
+        develeggs = pformat(develeggs),
+    )
+    buildout._raw[FAKE_PART_ID] = dict(
+        recipe='zc.recipe.egg',
+        eggs='mr.developer',
+        arguments=',\n'.join("=".join(x) for x in args.items()),
+    )
+    # insert the fake part
+    parts = buildout['buildout']['parts'].split()
+    parts.insert(0, FAKE_PART_ID)
+    buildout['buildout']['parts'] = " ".join(parts)
+
+    config.save()

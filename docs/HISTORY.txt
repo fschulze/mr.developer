@@ -4,6 +4,11 @@ Changelog
 0.13 - Unreleased
 -----------------
 
+* Added ``activate`` and ``deactivate`` commands. This allows to select which
+  packages are added to the ``develop`` option of zc.buildout. Enhanced the
+  ``status`` command to show the additional informations.
+  [fschulze]
+
 * Switched the meaning of ``~`` and ``C`` in status command.
   [fschulze]
 

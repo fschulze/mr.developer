@@ -1,4 +1,6 @@
+from ConfigParser import RawConfigParser
 import logging
+import os
 import sys
 
 
@@ -105,3 +107,31 @@ class WorkingCopies(object):
                 for l in e.args[0].split('\n'):
                     logger.error(l)
                 sys.exit(1)
+
+
+class Config(object):
+    def __init__(self, buildout_dir):
+        self.cfg_path = os.path.join(buildout_dir, '.mr.developer.cfg')
+        self._config = RawConfigParser()
+        self._config.read(self.cfg_path)
+        self.develop = {}
+        if self._config.has_section('develop'):
+            for package, value in self._config.items('develop'):
+                value = value.lower()
+                if value == 'true':
+                    self.develop[package] = True
+                elif value == 'false':
+                    self.develop[package] = False
+                else:
+                    raise ValueError("Invalid value in 'develop' section of '%s'" % self.cfg_path)
+
+    def save(self):
+        self._config.remove_section('develop')
+        self._config.add_section('develop')
+        for package in sorted(self.develop):
+            active = self.develop[package]
+            if active is True:
+                self._config.set('develop', package, 'true')
+            elif active is False:
+                self._config.set('develop', package, 'false')
+        self._config.write(open(self.cfg_path, "w"))

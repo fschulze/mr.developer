@@ -1,4 +1,4 @@
-from mr.developer.common import logger, WorkingCopies
+from mr.developer.common import logger, WorkingCopies, Config
 from mr.developer.extension import FAKE_PART_ID
 import ConfigParser
 import logging
@@ -78,6 +78,38 @@ class Command(object):
         return packages
 
 
+class CmdActivate(Command):
+    def __init__(self, develop):
+        super(CmdActivate, self).__init__(develop)
+        self.parser=optparse.OptionParser(
+            usage="%prog <package-regexps>",
+            description="Add package to the list of development packages.",
+            formatter=HelpFormatter(),
+            add_help_option=False)
+        self.parser.add_option("-a", "--auto-checkout", dest="auto_checkout",
+                               action="store_true", default=False,
+                               help="""Only considers packages declared by auto-checkout. If you don't specify a <package-regexps> then all declared packages are processed.""")
+
+    def __call__(self):
+        options, args = self.parser.parse_args(sys.argv[2:])
+        sources = self.develop.sources
+        auto_checkout = self.develop.auto_checkout
+        config = self.develop.config
+        packages = set(self.get_packages(args))
+        workingcopies = WorkingCopies(sources)
+        for name in sorted(sources):
+            if options.auto_checkout and name not in auto_checkout:
+                continue
+            source = sources[name]
+            if args and name not in packages:
+                continue
+            if not os.path.exists(source['path']):
+                continue
+            config.develop[name] = True
+            logger.info("Activated '%s'." % name)
+        config.save()
+
+
 class CmdCheckout(Command):
     def __init__(self, develop):
         super(CmdCheckout, self).__init__(develop)
@@ -121,6 +153,32 @@ class CmdCheckout(Command):
         except (ValueError, KeyError), e:
             logger.error(e)
             sys.exit(1)
+
+
+class CmdDeactivate(Command):
+    def __init__(self, develop):
+        super(CmdDeactivate, self).__init__(develop)
+        self.parser=optparse.OptionParser(
+            usage="%prog <package-regexps>",
+            description="Remove package from the list of development packages.",
+            formatter=HelpFormatter(),
+            add_help_option=False)
+
+    def __call__(self):
+        options, args = self.parser.parse_args(sys.argv[2:])
+        sources = self.develop.sources
+        config = self.develop.config
+        packages = set(self.get_packages(args))
+        workingcopies = WorkingCopies(sources)
+        for name in sorted(sources):
+            source = sources[name]
+            if args and name not in packages:
+                continue
+            if not os.path.exists(source['path']):
+                continue
+            config.develop[name] = False
+            logger.info("Deactivated '%s'." % name)
+        config.save()
 
 
 class CmdHelp(Command):
@@ -224,7 +282,13 @@ class CmdStatus(Command):
                     'C' the repository URL doesn't match
                 The second column shows the working copy status:
                     ' ' no changes
-                    'M' local modifications or untracked files"""),
+                    'M' local modifications or untracked files
+                The third column shows the development status:
+                    ' ' activated
+                    '-' deactivated
+                    '!' deactivated, but the package is in the auto-checkout list
+                    'A' activated, but not in list of development packages (run buildout)
+                    'D' deactivated, but still in list of development packages (run buildout)"""),
             formatter=HelpFormatter(),
             add_help_option=False)
         self.parser.add_option("-v", "--verbose", dest="verbose",
@@ -235,6 +299,7 @@ class CmdStatus(Command):
         options, args = self.parser.parse_args(sys.argv[2:])
         sources = self.develop.sources
         auto_checkout = self.develop.auto_checkout
+        develeggs = self.develop.develeggs
         packages = set(self.get_packages(args))
         workingcopies = WorkingCopies(sources)
         for name in sorted(sources):
@@ -261,6 +326,19 @@ class CmdStatus(Command):
                 print " ",
             else:
                 print "M",
+            if self.develop.config.develop.get(name, True):
+                if name in develeggs:
+                    print " ",
+                else:
+                    print "A",
+            else:
+                if name not in develeggs:
+                    if name in auto_checkout:
+                        print "!",
+                    else:
+                        print "-",
+                else:
+                    print "D",
             print name
             if options.verbose:
                 output = output.strip()
@@ -333,8 +411,12 @@ class Develop(object):
 
         self.sources = kwargs['sources']
         self.auto_checkout = set(kwargs['auto_checkout'])
+        self.config = Config(kwargs['buildout_dir'])
+        self.develeggs = kwargs['develeggs']
 
+        self.cmd_activate = CmdActivate(self)
         self.cmd_checkout = CmdCheckout(self)
+        self.cmd_deactivate = CmdDeactivate(self)
         self.cmd_help = CmdHelp(self)
         self.cmd_list = CmdList(self)
         self.cmd_status = CmdStatus(self)
@@ -343,8 +425,12 @@ class Develop(object):
         self.commands = dict(
             help=self.cmd_help,
             h=self.cmd_help,
+            a=self.cmd_activate,
+            activate=self.cmd_activate,
             checkout=self.cmd_checkout,
             co=self.cmd_checkout,
+            d=self.cmd_deactivate,
+            deactivate=self.cmd_deactivate,
             list=self.cmd_list,
             ls=self.cmd_list,
             status=self.cmd_status,

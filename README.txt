@@ -59,4 +59,5 @@ If you checked out the source code of a package, you need run buildout again.
 The package will automatically be marked as an develop egg and, if it's listed
 in the section specified by the ``versions`` option in the ``[buildout]``
 section, the version will be cleared, so the develop egg will actually be
-used.
+used. You can control the list of develop eggs explicitely with the
+``activate`` and ``deactivate`` commands of ``bin/develop``.
