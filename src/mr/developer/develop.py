@@ -201,6 +201,8 @@ class CmdHelp(Command):
                 f_to_name.setdefault(f, []).append(name)
             for cmd in sorted(x for x in dir(develop) if x.startswith('cmd_')):
                 name = cmd[4:]
+                if name == 'pony':
+                    continue
                 f = getattr(develop, cmd)
                 aliases = [x for x in f_to_name[f] if x != name]
                 if len(aliases):
@@ -266,6 +268,45 @@ class CmdList(Command):
                 print "(%s)" % source['kind'], name, source['url']
             else:
                 print name
+
+
+class CmdPony(Command):
+    def __init__(self, develop):
+        super(CmdPony, self).__init__(develop)
+        self.parser = optparse.OptionParser(
+            usage="%prog pony",
+            description="It should be easy to develop a pony!",
+            formatter=HelpFormatter(),
+            add_help_option=False)
+
+    def __call__(self):
+        options, args = self.parser.parse_args(sys.argv[2:])
+        pony = '''
+            .,,.
+         ,;;*;;;;,
+        .-'``;-');;.
+       /'  .-.  /*;;
+     .'    \d    \;;               .;;;,
+    / o      `    \;    ,__.     ,;*;;;*;,
+    \__, _.__,'   \_.-') __)--.;;;;;*;;;;,
+     `""`;;;\       /-')_) __)  `\' ';;;;;;
+        ;*;;;        -') `)_)  |\ |  ;;;;*;
+        ;;;;|        `---`    O | | ;;*;;;
+        *;*;\|                 O  / ;;;;;*
+       ;;;;;/|    .-------\      / ;*;;;;;
+      ;;;*;/ \    |        '.   (`. ;;;*;;;
+      ;;;;;'. ;   |          )   \ | ;;;;;;
+      ,;*;;;;\/   |.        /   /` | ';;;*;
+       ;;;;;;/    |/       /   /__/   ';;;
+       '*jgs/     |       /    |      ;*;
+            `""""`        `""""`     ;'
+'''
+        import time
+        logger.info("Starting to develop a pony.")
+        for line in pony.split("\n"):
+            time.sleep(0.25)
+            print line
+        logger.info("Done.")
 
 
 class CmdStatus(Command):
@@ -425,6 +466,7 @@ class Develop(object):
         self.cmd_deactivate = CmdDeactivate(self)
         self.cmd_help = CmdHelp(self)
         self.cmd_list = CmdList(self)
+        self.cmd_pony = CmdPony(self)
         self.cmd_status = CmdStatus(self)
         self.cmd_update = CmdUpdate(self)
 
@@ -439,6 +481,7 @@ class Develop(object):
             deactivate=self.cmd_deactivate,
             list=self.cmd_list,
             ls=self.cmd_list,
+            pony=self.cmd_pony,
             status=self.cmd_status,
             stat=self.cmd_status,
             st=self.cmd_status,
