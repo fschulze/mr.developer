@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.14 - Unreleased
+0.14 - 2009-04-16
 -----------------
 
 * Fixed verbose output of ``checkout`` command.
