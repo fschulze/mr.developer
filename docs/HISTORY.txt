@@ -4,6 +4,12 @@ Changelog
 0.14 - Unreleased
 -----------------
 
+* Fixed verbose output of ``checkout`` command.
+  [fschulze]
+
+* Added ``-f`` option to ``update`` command to force updates even if the
+  working copy is dirty.
+  [fschulze]
 
 0.13 - 2009-04-14
 -----------------

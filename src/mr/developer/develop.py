@@ -400,6 +400,9 @@ class CmdUpdate(Command):
         self.parser.add_option("-a", "--auto-checkout", dest="auto_checkout",
                                action="store_true", default=False,
                                help="""Only considers packages declared by auto-checkout. If you don't specify a <package-regexps> then all declared packages are processed.""")
+        self.parser.add_option("-f", "--force", dest="force",
+                               action="store_true", default=False,
+                               help="""Force update even if the working copy is dirty.""")
         self.parser.add_option("-v", "--verbose", dest="verbose",
                                action="store_true", default=False,
                                help="""Show output of VCS command.""")
@@ -420,7 +423,9 @@ class CmdUpdate(Command):
             if not os.path.exists(source['path']):
                 continue
             toupdate.append(name)
-        workingcopies.update(toupdate, verbose=options.verbose)
+        workingcopies.update(toupdate,
+                             force=options.force,
+                             verbose=options.verbose)
 
 
 class Develop(object):

@@ -162,16 +162,16 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
         if kwargs.get('verbose', False):
             return stdout
 
-    def svn_checkout(self, source, verbose=False):
-        return self._svn_error_wrapper(self._svn_checkout, source, verbose=verbose)
+    def svn_checkout(self, source, **kwargs):
+        return self._svn_error_wrapper(self._svn_checkout, source, **kwargs)
 
-    def svn_switch(self, source, verbose=False):
-        return self._svn_error_wrapper(self._svn_switch, source, verbose=verbose)
+    def svn_switch(self, source, **kwargs):
+        return self._svn_error_wrapper(self._svn_switch, source, **kwargs)
 
-    def svn_update(self, source, verbose=False):
-        return self._svn_error_wrapper(self._svn_update, source, verbose=verbose)
+    def svn_update(self, source, **kwargs):
+        return self._svn_error_wrapper(self._svn_update, source, **kwargs)
 
-    def checkout(self, source, verbose=False):
+    def checkout(self, source, **kwargs):
         name = source['name']
         path = source['path']
         if os.path.exists(path):
@@ -179,17 +179,17 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
                 logger.info("Skipped checkout of existing package '%s'." % name)
             else:
                 if self.status(source) == 'clean':
-                    return self.svn_switch(source, verbose=verbose)
+                    return self.svn_switch(source, **kwargs)
                 else:
                     raise SVNError("Can't switch package '%s' from '%s', because it's dirty." % (name, source['url']))
         else:
-            return self.svn_checkout(source, verbose=verbose)
+            return self.svn_checkout(source, **kwargs)
 
     def matches(self, source):
         info = self._svn_info(source)
         return (info.get('url') == source['url'])
 
-    def status(self, source, verbose=False):
+    def status(self, source, **kwargs):
         name = source['name']
         path = source['path']
         cmd = subprocess.Popen(["svn", "status", "--xml", path],
@@ -208,7 +208,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
             status = 'clean'
         else:
             status = 'dirty'
-        if verbose:
+        if kwargs.get('verbose', False):
             cmd = subprocess.Popen(["svn", "status", path],
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
@@ -219,16 +219,17 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
         else:
             return status
 
-    def update(self, source, verbose=False):
+    def update(self, source, **kwargs):
         name = source['name']
         path = source['path']
+        force = kwargs.get('force', False)
         if not self.matches(source):
-            if self.status(source) == 'clean':
-                return self.svn_switch(source, verbose=verbose)
+            if force or self.status(source) == 'clean':
+                return self.svn_switch(source, **kwargs)
             else:
                 raise SVNError("Can't switch package '%s', because it's dirty." % name)
-        if self.status(source) != 'clean':
+        if self.status(source) != 'clean' and not force:
             raise SVNError("Can't update package '%s', because it's dirty." % name)
-        return self.svn_update(source, verbose=verbose)
+        return self.svn_update(source, **kwargs)
 
 wc = SVNWorkingCopy('svn')

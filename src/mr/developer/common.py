@@ -24,8 +24,9 @@ class WorkingCopies(object):
     def __init__(self, sources):
         self.sources = sources
 
-    def checkout(self, packages, skip_errors=False, verbose=False):
+    def checkout(self, packages, **kwargs):
         errors = False
+        skip_errors = kwargs.get('skip_errors', False)
         for name in packages:
             if name not in self.sources:
                 logger.error("Checkout failed. No source defined for '%s'." % name)
@@ -43,7 +44,9 @@ class WorkingCopies(object):
                         sys.exit(1)
                     else:
                         errors = True
-                wc.checkout(source, verbose=False)
+                output = wc.checkout(source, **kwargs)
+                if kwargs.get('verbose', False):
+                    print output
             except WCError, e:
                 for l in e.args[0].split('\n'):
                     logger.error(l)
@@ -71,7 +74,7 @@ class WorkingCopies(object):
                 logger.error(l)
             sys.exit(1)
 
-    def status(self, source, verbose=False):
+    def status(self, source, **kwargs):
         name = source['name']
         if name not in self.sources:
             logger.error("Status failed. No source defined for '%s'." % name)
@@ -83,13 +86,13 @@ class WorkingCopies(object):
             if wc is None:
                 logger.error("Unknown repository type '%s'." % kind)
                 sys.exit(1)
-            return wc.status(source, verbose=verbose)
+            return wc.status(source, **kwargs)
         except WCError, e:
             for l in e.args[0].split('\n'):
                 logger.error(l)
             sys.exit(1)
 
-    def update(self, packages, verbose=False):
+    def update(self, packages, **kwargs):
         for name in packages:
             if name not in self.sources:
                 continue
@@ -100,8 +103,8 @@ class WorkingCopies(object):
                 if wc is None:
                     logger.error("Unknown repository type '%s'." % kind)
                     sys.exit(1)
-                output = wc.update(source, verbose=verbose)
-                if verbose:
+                output = wc.update(source, **kwargs)
+                if kwargs.get('verbose', False):
                     print output
             except WCError, e:
                 for l in e.args[0].split('\n'):
