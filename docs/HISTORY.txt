@@ -4,6 +4,9 @@ Changelog
 0.15 - Unreleased
 -----------------
 
+* Added reminder to run buildout after activating or deactivating packages.
+  [fschulze]
+
 * Added ``rebuild`` command to rerun buildout with the last used arguments.
   [fschulze]
 

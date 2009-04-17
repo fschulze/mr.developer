@@ -118,6 +118,7 @@ class CmdActivate(Command):
         config = self.develop.config
         packages = set(self.get_packages(args))
         workingcopies = WorkingCopies(sources)
+        changed = False
         for name in sorted(sources):
             if options.auto_checkout and name not in auto_checkout:
                 continue
@@ -128,6 +129,9 @@ class CmdActivate(Command):
                 continue
             config.develop[name] = True
             logger.info("Activated '%s'." % name)
+            changed = True
+        if changed:
+            logger.warn("Don't forget to run buildout again, so the actived packages are actually used.")
         config.save()
 
 
@@ -191,6 +195,7 @@ class CmdDeactivate(Command):
         config = self.develop.config
         packages = set(self.get_packages(args))
         workingcopies = WorkingCopies(sources)
+        changed = False
         for name in sorted(sources):
             source = sources[name]
             if args and name not in packages:
@@ -199,6 +204,9 @@ class CmdDeactivate(Command):
                 continue
             config.develop[name] = False
             logger.info("Deactivated '%s'." % name)
+            changed = True
+        if changed:
+            logger.warn("Don't forget to run buildout again, so the deactived packages are actually not used anymore.")
         config.save()
 
 
