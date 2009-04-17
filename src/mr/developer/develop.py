@@ -10,6 +10,27 @@ import sys
 import textwrap
 
 
+def load_installed_cfg(path=None):
+    if path is None:
+        path = os.getcwd()
+        while path:
+            if os.path.exists(os.path.join(path, '.installed.cfg')):
+                break
+            old_path = path
+            path = os.path.dirname(path)
+            if old_path == path:
+                path = None
+                break
+    if path is None:
+        raise IOError(".installed.cfg not found")
+
+    config = ConfigParser.RawConfigParser()
+    config.optionxform = lambda s: s
+    config.read(os.path.join(path, '.installed.cfg'))
+
+    return config
+
+
 class HelpFormatter(optparse.IndentedHelpFormatter):
     def _lineswrap(self, text, width, indent=0):
         result = []
@@ -463,29 +484,16 @@ class Develop(object):
         logger.addHandler(ch)
 
         if len(kwargs) == 0:
-            path = os.getcwd()
-            while path:
-                installed = os.path.join(path, '.installed.cfg')
-                if os.path.exists(installed):
-                    parser = ConfigParser.RawConfigParser()
-                    parser.optionxform = lambda s: s
-                    f = open(installed)
-                    parser.readfp(f)
-                    f.close()
-                    sections = parser.sections()
-                    if FAKE_PART_ID not in sections:
-                        break
-                    options = dict(parser.items(FAKE_PART_ID))
-                    if '__buildout_installed__' not in options:
-                        break
-                    args = [options['__buildout_installed__']] + sys.argv[1:]
-                    subprocess.call(args)
-                    return
-                old_path = path
-                path = os.path.dirname(path)
-                if old_path == path:
-                    break
-            logger.error("You are not in a path which has mr.developer installed.")
+            try:
+                installed = load_installed_cfg()
+            except IOError, e:
+                logger.error("You are not in a path which has mr.developer installed (%s)." % e)
+                return
+            if not installed.has_option(FAKE_PART_ID, '__buildout_installed__'):
+                logger.error("You are not in a path which has mr.developer installed (mr.developer not in buildout).")
+                return
+            develop = installed.get(FAKE_PART_ID, '__buildout_installed__')
+            subprocess.call([develop] + sys.argv[1:])
             return
 
         self.sources = kwargs['sources']
