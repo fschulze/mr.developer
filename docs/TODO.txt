@@ -1,4 +1,2 @@
 * support branches in git
-* add 'rm' command
 * use pexpect for better interaction with the called processes
-* show "develop" state
