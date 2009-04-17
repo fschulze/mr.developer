@@ -309,6 +309,33 @@ class CmdPony(Command):
         logger.info("Done.")
 
 
+class CmdRebuild(Command):
+    def __init__(self, develop):
+        super(CmdRebuild, self).__init__(develop)
+        self.parser=optparse.OptionParser(
+            usage="%prog",
+            description="Run buildout with the last used arguments.",
+            formatter=HelpFormatter(),
+            add_help_option=False)
+        self.parser.add_option("-n", "--dry-run", dest="dry_run",
+                               action="store_true", default=False,
+                               help="""Don't actually run buildout, just show the last used arguments.""")
+
+    def __call__(self):
+        options, args = self.parser.parse_args(sys.argv[2:])
+        buildout_dir = self.develop.buildout_dir
+        buildout_args = self.develop.config.buildout_args
+        print "Last used buildout arguments:",
+        print " ".join(buildout_args[1:])
+        if options.dry_run:
+            logger.warning("Dry run, buildout not invoked.")
+            return
+        else:
+            logger.info("Running buildout.")
+        os.chdir(buildout_dir)
+        subprocess.call(buildout_args)
+
+
 class CmdStatus(Command):
     def __init__(self, develop):
         super(CmdStatus, self).__init__(develop)
@@ -463,7 +490,8 @@ class Develop(object):
 
         self.sources = kwargs['sources']
         self.auto_checkout = set(kwargs['auto_checkout'])
-        self.config = Config(kwargs['buildout_dir'])
+        self.buildout_dir = kwargs['buildout_dir']
+        self.config = Config(self.buildout_dir)
         self.develeggs = kwargs['develeggs']
 
         self.cmd_activate = CmdActivate(self)
@@ -472,6 +500,7 @@ class Develop(object):
         self.cmd_help = CmdHelp(self)
         self.cmd_list = CmdList(self)
         self.cmd_pony = CmdPony(self)
+        self.cmd_rebuild = CmdRebuild(self)
         self.cmd_status = CmdStatus(self)
         self.cmd_update = CmdUpdate(self)
 
@@ -487,6 +516,8 @@ class Develop(object):
             list=self.cmd_list,
             ls=self.cmd_list,
             pony=self.cmd_pony,
+            rebuild=self.cmd_rebuild,
+            rb=self.cmd_rebuild,
             status=self.cmd_status,
             stat=self.cmd_status,
             st=self.cmd_status,

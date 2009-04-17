@@ -118,6 +118,7 @@ class Config(object):
         self._config = RawConfigParser()
         self._config.read(self.cfg_path)
         self.develop = {}
+        self.buildout_args = []
         if self._config.has_section('develop'):
             for package, value in self._config.items('develop'):
                 value = value.lower()
@@ -127,6 +128,15 @@ class Config(object):
                     self.develop[package] = False
                 else:
                     raise ValueError("Invalid value in 'develop' section of '%s'" % self.cfg_path)
+        if self._config.has_option('buildout', 'args'):
+            args = self._config.get('buildout', 'args').split("\n")
+            for arg in args:
+                arg = arg.strip()
+                if arg.startswith("'") and arg.endswith("'"):
+                    arg = arg[1:-1].replace("\\'", "'")
+                elif arg.startswith('"') and arg.endswith('"'):
+                    arg = arg[1:-1].replace('\\"', '"')
+                self.buildout_args.append(arg)
 
     def save(self):
         self._config.remove_section('develop')
@@ -137,4 +147,9 @@ class Config(object):
                 self._config.set('develop', package, 'true')
             elif active is False:
                 self._config.set('develop', package, 'false')
+
+        if not self._config.has_section('buildout'):
+            self._config.add_section('buildout')
+        self._config.set('buildout', 'args', "\n".join(repr(x) for x in self.buildout_args))
+
         self._config.write(open(self.cfg_path, "w"))

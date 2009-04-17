@@ -4,6 +4,8 @@ Changelog
 0.15 - Unreleased
 -----------------
 
+* Added ``rebuild`` command to rerun buildout with the last used arguments.
+  [fschulze]
 
 0.14 - 2009-04-16
 -----------------
