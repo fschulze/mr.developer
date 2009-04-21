@@ -69,17 +69,17 @@ def extension(buildout=None):
             path=os.path.join(sources_dir, name))
 
     # do automatic checkout of specified packages
-    auto_checkout = buildout['buildout'].get('auto-checkout', '').split()
+    auto_checkout = set(buildout['buildout'].get('auto-checkout', '').split())
     workingcopies = WorkingCopies(sources)
-    if not set(auto_checkout).issubset(set(sources.keys())):
-        diff = list(sorted(set(auto_checkout).difference(set(sources.keys()))))
+    if not auto_checkout.issubset(set(sources.keys())):
+        diff = list(sorted(auto_checkout.difference(set(sources.keys()))))
         if len(diff) > 1:
             pkgs = "%s and '%s'" % (", ".join("'%s'" % x for x in diff[:-1]), diff[-1])
             logger.error("The packages %s from auto-checkout have no source information." % pkgs)
         else:
             logger.error("The package '%s' from auto-checkout has no source information." % diff[0])
         sys.exit(1)
-    if workingcopies.checkout(auto_checkout, skip_errors=True):
+    if workingcopies.checkout(sorted(auto_checkout), skip_errors=True):
         atexit.register(report_error)
 
     # make the develop eggs if the package is checked out and fixup versions
@@ -92,7 +92,7 @@ def extension(buildout=None):
     for name in sources:
         if name not in develeggs:
             path = sources[name]['path']
-            if os.path.exists(path) and config.develop.get(name, True):
+            if os.path.exists(path) and config.develop.get(name, name in auto_checkout):
                 config.develop.setdefault(name, True)
                 develeggs[name] = path
                 if name in versions:

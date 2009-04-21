@@ -188,6 +188,9 @@ class CmdDeactivate(Command):
             description="Remove package from the list of development packages.",
             formatter=HelpFormatter(),
             add_help_option=False)
+        self.parser.add_option("-r", "--reset", dest="reset",
+                               action="store_true", default=False,
+                               help="""Resets the develop status. This is useful when switching to a new buildout configuration.""")
 
     def __call__(self):
         options, args = self.parser.parse_args(sys.argv[2:])
@@ -202,8 +205,13 @@ class CmdDeactivate(Command):
                 continue
             if not os.path.exists(source['path']):
                 continue
-            config.develop[name] = False
-            logger.info("Deactivated '%s'." % name)
+            if options.reset:
+                if name in config.develop:
+                    del config.develop[name]
+                    logger.info("Reset develop state of '%s'." % name)
+            else:
+                config.develop[name] = False
+                logger.info("Deactivated '%s'." % name)
             changed = True
         if changed:
             logger.warn("Don't forget to run buildout again, so the deactived packages are actually not used anymore.")
@@ -423,7 +431,7 @@ class CmdStatus(Command):
                 print " ",
             else:
                 print "M",
-            if self.develop.config.develop.get(name, True):
+            if self.develop.config.develop.get(name, name in auto_checkout):
                 if name in develeggs:
                     print " ",
                 else:
