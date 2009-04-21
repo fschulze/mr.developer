@@ -22,7 +22,6 @@ class SVNCertificateError(SVNError):
 
 class SVNWorkingCopy(common.BaseWorkingCopy):
     def __init__(self, *args, **kwargs):
-        super(SVNWorkingCopy, self).__init__(self, *args, **kwargs)
         self._svn_info_cache = {}
         self._svn_auth_cache = {}
         self.accept_invalid_certs = True

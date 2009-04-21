@@ -11,9 +11,6 @@ class GitError(common.WCError):
 
 
 class GitWorkingCopy(common.BaseWorkingCopy):
-    def __init__(self, *args, **kwargs):
-        super(GitWorkingCopy, self).__init__(self, *args, **kwargs)
-
     def git_checkout(self, source, **kwargs):
         name = source['name']
         path = source['path']

@@ -4,6 +4,9 @@ Changelog
 0.16 - Unreleased
 -----------------
 
+* Got rid of deprecation warning in Python 2.6 by removing unnecessary call
+  of __init__ in working copy implementations.
+  [fschulze]
 
 0.15 - 2009-04-17
 -----------------
