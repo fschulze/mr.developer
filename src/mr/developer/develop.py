@@ -188,9 +188,6 @@ class CmdDeactivate(Command):
             description="Remove package from the list of development packages.",
             formatter=HelpFormatter(),
             add_help_option=False)
-        self.parser.add_option("-r", "--reset", dest="reset",
-                               action="store_true", default=False,
-                               help="""Resets the develop status. This is useful when switching to a new buildout configuration.""")
 
     def __call__(self):
         options, args = self.parser.parse_args(sys.argv[2:])
@@ -205,14 +202,10 @@ class CmdDeactivate(Command):
                 continue
             if not os.path.exists(source['path']):
                 continue
-            if options.reset:
-                if name in config.develop:
-                    del config.develop[name]
-                    logger.info("Reset develop state of '%s'." % name)
-            else:
+            if config.develop.get(name) != False:
                 config.develop[name] = False
                 logger.info("Deactivated '%s'." % name)
-            changed = True
+                changed = True
         if changed:
             logger.warn("Don't forget to run buildout again, so the deactived packages are actually not used anymore.")
         config.save()
@@ -373,6 +366,37 @@ class CmdRebuild(Command):
         subprocess.call(buildout_args)
 
 
+class CmdReset(Command):
+    def __init__(self, develop):
+        super(CmdReset, self).__init__(develop)
+        self.parser=optparse.OptionParser(
+            usage="%prog <package-regexps>",
+            description="Resets the packages develop status. This is useful when switching to a new buildout configuration.",
+            formatter=HelpFormatter(),
+            add_help_option=False)
+
+    def __call__(self):
+        options, args = self.parser.parse_args(sys.argv[2:])
+        sources = self.develop.sources
+        config = self.develop.config
+        packages = set(self.get_packages(args))
+        workingcopies = WorkingCopies(sources)
+        changed = False
+        for name in sorted(sources):
+            source = sources[name]
+            if args and name not in packages:
+                continue
+            if not os.path.exists(source['path']):
+                continue
+            if name in config.develop:
+                del config.develop[name]
+                logger.info("Reset develop state of '%s'." % name)
+                changed = True
+        if changed:
+            logger.warn("Don't forget to run buildout again, so the deactived packages are actually not used anymore.")
+        config.save()
+
+
 class CmdStatus(Command):
     def __init__(self, develop):
         super(CmdStatus, self).__init__(develop)
@@ -525,6 +549,7 @@ class Develop(object):
         self.cmd_list = CmdList(self)
         self.cmd_pony = CmdPony(self)
         self.cmd_rebuild = CmdRebuild(self)
+        self.cmd_reset = CmdReset(self)
         self.cmd_status = CmdStatus(self)
         self.cmd_update = CmdUpdate(self)
 
@@ -542,6 +567,7 @@ class Develop(object):
             pony=self.cmd_pony,
             rebuild=self.cmd_rebuild,
             rb=self.cmd_rebuild,
+            reset=self.cmd_reset,
             status=self.cmd_status,
             stat=self.cmd_status,
             st=self.cmd_status,

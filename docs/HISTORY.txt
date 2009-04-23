@@ -4,10 +4,10 @@ Changelog
 0.16 - Unreleased
 -----------------
 
-* Added ``-r`` option to reset the develop state. This is useful when
-  switching to a new buildout configuration. During the next buildout run the
-  develop state is determined the same way as in a clean buildout.
-  [fschulze]
+* Added ``reset`` command to reset the develop state of packages. This is
+  useful when switching to a new buildout configuration. During the next
+  buildout run the develop state is determined the same way as in a clean
+  buildout. [fschulze]
 
 * Got rid of deprecation warning in Python 2.6 by removing unnecessary call
   of __init__ in working copy implementations.
