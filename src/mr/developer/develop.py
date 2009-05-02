@@ -101,7 +101,7 @@ class Command(object):
 
 class CmdActivate(Command):
     def __init__(self, develop):
-        super(CmdActivate, self).__init__(develop)
+        Command.__init__(self, develop)
         self.parser=optparse.OptionParser(
             usage="%prog <package-regexps>",
             description="Add package to the list of development packages.",
@@ -137,7 +137,7 @@ class CmdActivate(Command):
 
 class CmdCheckout(Command):
     def __init__(self, develop):
-        super(CmdCheckout, self).__init__(develop)
+        Command.__init__(self, develop)
         self.parser=optparse.OptionParser(
             usage="%prog <options> <package-regexps>",
             description="Make a checkout of the packages matching the regular expressions.",
@@ -182,7 +182,7 @@ class CmdCheckout(Command):
 
 class CmdDeactivate(Command):
     def __init__(self, develop):
-        super(CmdDeactivate, self).__init__(develop)
+        Command.__init__(self, develop)
         self.parser=optparse.OptionParser(
             usage="%prog <package-regexps>",
             description="Remove package from the list of development packages.",
@@ -213,7 +213,7 @@ class CmdDeactivate(Command):
 
 class CmdHelp(Command):
     def __init__(self, develop):
-        super(CmdHelp, self).__init__(develop)
+        Command.__init__(self, develop)
         self.parser = optparse.OptionParser(
             usage="%prog help [<command>]",
             description="Show help on the given command or about the whole script if none given.",
@@ -245,7 +245,7 @@ class CmdHelp(Command):
 
 class CmdList(Command):
     def __init__(self, develop):
-        super(CmdList, self).__init__(develop)
+        Command.__init__(self, develop)
         self.parser = optparse.OptionParser(
             usage="%prog list [<package-regexps>]",
             description="Lists tracked packages, filtered if <package-regexps> is given.",
@@ -302,7 +302,7 @@ class CmdList(Command):
 
 class CmdPony(Command):
     def __init__(self, develop):
-        super(CmdPony, self).__init__(develop)
+        Command.__init__(self, develop)
         self.parser = optparse.OptionParser(
             usage="%prog pony",
             description="It should be easy to develop a pony!",
@@ -341,7 +341,7 @@ class CmdPony(Command):
 
 class CmdRebuild(Command):
     def __init__(self, develop):
-        super(CmdRebuild, self).__init__(develop)
+        Command.__init__(self, develop)
         self.parser=optparse.OptionParser(
             usage="%prog",
             description="Run buildout with the last used arguments.",
@@ -368,7 +368,7 @@ class CmdRebuild(Command):
 
 class CmdReset(Command):
     def __init__(self, develop):
-        super(CmdReset, self).__init__(develop)
+        Command.__init__(self, develop)
         self.parser=optparse.OptionParser(
             usage="%prog <package-regexps>",
             description="Resets the packages develop status. This is useful when switching to a new buildout configuration.",
@@ -399,7 +399,7 @@ class CmdReset(Command):
 
 class CmdStatus(Command):
     def __init__(self, develop):
-        super(CmdStatus, self).__init__(develop)
+        Command.__init__(self, develop)
         self.parser = optparse.OptionParser(
             usage="%prog status [<package-regexps>]",
             description=textwrap.dedent("""\
@@ -479,7 +479,7 @@ class CmdStatus(Command):
 
 class CmdUpdate(Command):
     def __init__(self, develop):
-        super(CmdUpdate, self).__init__(develop)
+        Command.__init__(self, develop)
         self.parser = optparse.OptionParser(
             usage="%prog update [<package-regexps>]",
             description="Updates all known packages currently checked out. If <package-regexps> are given, then the set is limited to the matching packages.",
