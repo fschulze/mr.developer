@@ -35,7 +35,8 @@ class HelpFormatter(optparse.IndentedHelpFormatter):
     def _lineswrap(self, text, width, indent=0):
         result = []
         for line in text.split("\n"):
-            result.append("%*s%s" % (indent, "", textwrap.fill(line, width)))
+            for line2 in textwrap.fill(line, width).split("\n"):
+                result.append("%*s%s" % (indent, "", line2))
         return "\n".join(result)
 
     def format_description(self, description):
