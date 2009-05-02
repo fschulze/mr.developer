@@ -4,6 +4,9 @@ Changelog
 0.16 - Unreleased
 -----------------
 
+* Added ``info`` command to print various informations about packages.
+  [fschulze]
+
 * Added ``reset`` command to reset the develop state of packages. This is
   useful when switching to a new buildout configuration. During the next
   buildout run the develop state is determined the same way as in a clean

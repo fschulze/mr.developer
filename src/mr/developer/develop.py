@@ -243,6 +243,81 @@ class CmdHelp(Command):
             print develop.commands[sys.argv[2]].parser.format_help()
 
 
+class CmdInfo(Command):
+    def __init__(self, develop):
+        Command.__init__(self, develop)
+        self.parser = optparse.OptionParser(
+            usage="%prog info [<package-regexps>]",
+            description="Lists informations about packages, filtered if <package-regexps> is given.",
+            formatter=HelpFormatter(),
+            add_help_option=False)
+        self.parser.add_option("-a", "--auto-checkout", dest="auto_checkout",
+                               action="store_true", default=False,
+                               help="""Only considers packages declared by auto-checkout. If you don't specify a <package-regexps> then all declared packages are processed.""")
+        self.parser.add_option("-c", "--checked-out", dest="checked_out",
+                               action="store_true", default=False,
+                               help="""Only considers packages currently checked out. If you don't specify a <package-regexps> then all declared packages are processed.""")
+        self.parser.add_option("-d", "--develop", dest="develop",
+                               action="store_true", default=False,
+                               help="""Only considers packages currently in development mode. If you don't specify a <package-regexps> then all declared packages are processed.""")
+        info_opts = optparse.OptionGroup(self.parser, "Output options",
+                                         """The following options are used to print just the info you want, the order they are specified reflects the order in which the information will be printed.""")
+        info_opts.add_option("--name", dest="info",
+                             action="callback", callback=self.store_info,
+                             help="""Prints the name of the package.""")
+        info_opts.add_option("-p", "--path", dest="info",
+                             action="callback", callback=self.store_info,
+                             help="""Prints the absolute path of the package.""")
+        info_opts.add_option("--type", dest="info",
+                             action="callback", callback=self.store_info,
+                             help="""Prints the repository type of the package.""")
+        info_opts.add_option("--url", dest="info",
+                             action="callback", callback=self.store_info,
+                             help="""Prints the URL of the package.""")
+        self.parser.add_option_group(info_opts)
+
+    def store_info(self, option, opt_str, value, parser):
+        info = getattr(parser.values, option.dest)
+        if info is None:
+            info = []
+            setattr(parser.values, option.dest, info)
+        info.append(option._long_opts[0][2:])
+
+    def __call__(self):
+        options, args = self.parser.parse_args(sys.argv[2:])
+        sources = self.develop.sources
+        auto_checkout = self.develop.auto_checkout
+        develeggs = self.develop.develeggs
+        packages = set(self.get_packages(args))
+        workingcopies = WorkingCopies(sources)
+        for name in sorted(sources):
+            source = sources[name]
+            if args and name not in packages:
+                continue
+            if options.auto_checkout and name not in auto_checkout:
+                continue
+            if options.checked_out and not os.path.exists(source['path']):
+                continue
+            if options.develop and name not in develeggs:
+                continue
+            if options.info:
+                for key in options.info:
+                    if key=='name':
+                        print name,
+                    elif key=='path':
+                        print source['path'],
+                    elif key=='type':
+                        print source['kind'],
+                    elif key=='url':
+                        print source['url'],
+                print
+            else:
+                print "Name:", name
+                print "Path:", source['path']
+                print "Type:", source['kind']
+                print "URL:", source['url']
+                print
+
 class CmdList(Command):
     def __init__(self, develop):
         Command.__init__(self, develop)
@@ -546,6 +621,7 @@ class Develop(object):
         self.cmd_checkout = CmdCheckout(self)
         self.cmd_deactivate = CmdDeactivate(self)
         self.cmd_help = CmdHelp(self)
+        self.cmd_info = CmdInfo(self)
         self.cmd_list = CmdList(self)
         self.cmd_pony = CmdPony(self)
         self.cmd_rebuild = CmdRebuild(self)
@@ -562,6 +638,7 @@ class Develop(object):
             co=self.cmd_checkout,
             d=self.cmd_deactivate,
             deactivate=self.cmd_deactivate,
+            info=self.cmd_info,
             list=self.cmd_list,
             ls=self.cmd_list,
             pony=self.cmd_pony,
