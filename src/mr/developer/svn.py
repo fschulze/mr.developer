@@ -200,9 +200,11 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
         info = etree.fromstring(stdout)
         clean = True
         for target in info.findall('target'):
-            if len(target.findall('entry')) > 0:
-                clean = False
-                break
+            for entry in target.findall('entry'):
+                status = entry.find('wc-status')
+                if status is not None and status.get('item') != 'external':
+                    clean = False
+                    break
         if clean:
             status = 'clean'
         else:
