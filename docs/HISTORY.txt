@@ -4,6 +4,9 @@ Changelog
 1.0.1 - Unreleased
 ------------------
 
+* Fixed case sensitivity of package names for several commands.
+  [fschulze]
+
 * SVN externals no longer cause a modified status.
   [fschulze]
 
