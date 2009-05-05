@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.0.1 - Unreleased
+1.0.1 - 2009-05-05
 ------------------
 
 * Fixed case sensitivity of package names for several commands.
