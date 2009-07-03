@@ -4,6 +4,9 @@ Changelog
 1.1 - Unreleased
 ----------------
 
+* Added support for filesystem packages without version control with the
+  'fs' type.
+  [fschulze]
 
 1.0.1 - 2009-05-05
 ------------------
