@@ -1,7 +1,14 @@
-from setuptools import setup, find_packages
-import os
+from setuptools import setup
+import os, sys
 
 version = '1.1'
+
+install_requires = [
+  'setuptools',
+]
+
+if sys.version_info < (2, 5):
+    install_requires.append('elementtree')
 
 setup(name='mr.developer',
       version=version,
@@ -23,11 +30,7 @@ setup(name='mr.developer',
       namespace_packages=['mr'],
       include_package_data=True,
       zip_safe=False,
-      install_requires=[
-          'setuptools',
-          'elementtree',
-          # -*- Extra requirements: -*-
-      ],
+      install_requires=install_requires,
       entry_points="""
       [console_scripts]
       develop = mr.developer.develop:develop

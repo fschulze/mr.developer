@@ -4,6 +4,9 @@ Changelog
 1.1 - Unreleased
 ----------------
 
+* Don't depend on elementree on Python >= 2.5, because it's builtin there.
+  [fschulze]
+
 * When checking out a source it will automatically be activated.
   [fschulze]
 
