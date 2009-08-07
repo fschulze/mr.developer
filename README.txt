@@ -30,7 +30,10 @@ section:
     ``svn``, ``hg`` or ``git``, <url> is the location of the repository and
     the optional [path] is the base directory where the package will be
     checked out (the name of the package will be appended), if it's missing,
-    then ``sources-dir`` will be used.
+    then ``sources-dir`` will be used. It's also possible to use ``fs`` as
+    <kind>, then the format is "<kind> <name> [path]", where <name> is the
+    package name (this is just for sanity checking). This allows you to start
+    a new package which isn't in version control yet.
 
   ``auto-checkout``
     This specifies the names of packages which should be checked out during
