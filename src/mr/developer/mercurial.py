@@ -83,7 +83,7 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         force = kwargs.get('force', False)
         if not self.matches(source):
             raise MercurialError(
-                "Can't update package %r, because it's URL doesn't match." %
+                "Can't update package %r, because its URL doesn't match." %
                 name)
         if self.status(source) != 'clean' and not force:
             raise MercurialError(
