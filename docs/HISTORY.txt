@@ -4,6 +4,9 @@ Changelog
 1.1 - Unreleased
 ----------------
 
+* Warn when trying to activate a package which isn't checked out.
+  [fschulze]
+
 * Don't depend on elementree on Python >= 2.5, because it's builtin there.
   [fschulze]
 

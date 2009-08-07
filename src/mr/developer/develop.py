@@ -127,6 +127,7 @@ class CmdActivate(Command):
             if args and name not in packages:
                 continue
             if not os.path.exists(source['path']):
+                logger.warning("The package '%s' matched, but isn't checked out." % name)
                 continue
             config.develop[name] = True
             logger.info("Activated '%s'." % name)
