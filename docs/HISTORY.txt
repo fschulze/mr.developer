@@ -4,6 +4,9 @@ Changelog
 1.1 - Unreleased
 ----------------
 
+* Use 'sources' as the default section name for source information.
+  [fschulze]
+
 * Added support for filesystem packages without version control with the
   'fs' type.
   [fschulze]

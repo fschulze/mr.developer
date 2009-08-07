@@ -29,7 +29,7 @@ def extension(buildout=None):
         sources_dir = os.path.join(buildout_dir, sources_dir)
 
     sources = {}
-    section = buildout.get(buildout['buildout'].get('sources'), {})
+    section = buildout.get(buildout['buildout'].get('sources', 'sources'), {})
     for name, info in section.iteritems():
         info = info.split()
         kind = info[0]
