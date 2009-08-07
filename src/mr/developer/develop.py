@@ -141,7 +141,7 @@ class CmdCheckout(Command):
         Command.__init__(self, develop)
         self.parser=optparse.OptionParser(
             usage="%prog <options> <package-regexps>",
-            description="Make a checkout of the packages matching the regular expressions.",
+            description="Make a checkout of the packages matching the regular expressions and add them to the list of development packages.",
             formatter=HelpFormatter(),
             add_help_option=False)
         self.parser.add_option("-a", "--auto-checkout", dest="auto_checkout",
@@ -153,6 +153,7 @@ class CmdCheckout(Command):
 
     def __call__(self):
         options, args = self.parser.parse_args(sys.argv[2:])
+        config = self.develop.config
         if len(args) == 0:
             if options.auto_checkout:
                 packages = self.develop.auto_checkout
@@ -175,7 +176,11 @@ class CmdCheckout(Command):
         try:
             workingcopies = WorkingCopies(self.develop.sources)
             workingcopies.checkout(packages, verbose=options.verbose)
+            for name in packages:
+                config.develop[name] = True
+                logger.info("Activated '%s'." % name)
             logger.warn("Don't forget to run buildout again, so the checked out packages are used as develop eggs.")
+            config.save()
         except (ValueError, KeyError), e:
             logger.error(e)
             sys.exit(1)

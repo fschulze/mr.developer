@@ -4,6 +4,9 @@ Changelog
 1.1 - Unreleased
 ----------------
 
+* When checking out a source it will automatically be activated.
+  [fschulze]
+
 * Use 'sources' as the default section name for source information.
   [fschulze]
 
