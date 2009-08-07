@@ -25,19 +25,26 @@ section:
     be placed. Defaults to ``src``.
 
   ``sources``
-    This specifies a section which lists the repository information of your
-    packages. The format is "<kind> <url> [path]". Where <kind> is either
-    ``svn``, ``hg`` or ``git``, <url> is the location of the repository and
-    the optional [path] is the base directory where the package will be
-    checked out (the name of the package will be appended), if it's missing,
-    then ``sources-dir`` will be used. It's also possible to use ``fs`` as
-    <kind>, then the format is "<kind> <name> [path]", where <name> is the
-    package name (this is just for sanity checking). This allows you to start
-    a new package which isn't in version control yet.
+    This specifies the name of a section which lists the repository
+    information of your packages. Defaults to ``sources``.
 
   ``auto-checkout``
     This specifies the names of packages which should be checked out during
     buildout, packages already checked out are skipped.
+
+The format of the section with the repository information is::
+
+  <name> = <kind> <url> [path]
+
+Where <name> is the package name and <kind> is either ``svn``, ``hg`` or
+``git``, <url> is the location of the repository and the optional [path]
+is the base directory where the package will be checked out (the name of
+the package will be appended), if it's missing, then ``sources-dir`` will
+be used. It's also possible to use ``fs`` as <kind>, then the format is
+"<name> = <kind> <name> [path]", where <name> is the package name and
+it's duplicated as an internal sanity check (it was also easier to keep
+the format the same :) ). This allows you for example to start a new
+package which isn't in version control yet.
 
 The following is an example of how your ``buildout.cfg`` may look like::
 
