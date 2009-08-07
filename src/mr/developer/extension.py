@@ -34,6 +34,9 @@ def extension(buildout=None):
         info = info.split()
         kind = info[0]
         url = info[1]
+        for rewrite in config.rewrites:
+            if len(rewrite) == 2 and url.startswith(rewrite[0]):
+                url = "%s%s" % (rewrite[1], url[len(rewrite[0]):])
         if len(info) > 2:
             path = os.path.join(info[2], name)
             if not os.path.isabs(path):
@@ -47,6 +50,9 @@ def extension(buildout=None):
         logger.warn("'sources-svn' is deprecated, use 'sources' instead (see README for usage).")
     section = buildout.get(buildout['buildout'].get('sources-svn'), {})
     for name, url in section.iteritems():
+        for rewrite in config.rewrites:
+            if len(rewrite) == 2 and url.startswith(rewrite[0]):
+                url = "%s%s" % (rewrite[1], url[len(rewrite[0]):])
         if name in sources:
             logger.error("The source for '%s' is already set." % name)
             sys.exit(1)
@@ -59,6 +65,9 @@ def extension(buildout=None):
         logger.warn("'sources-git' is deprecated, use 'sources' instead (see README for usage).")
     section = buildout.get(buildout['buildout'].get('sources-git'), {})
     for name, url in section.iteritems():
+        for rewrite in config.rewrites:
+            if len(rewrite) == 2 and url.startswith(rewrite[0]):
+                url = "%s%s" % (rewrite[1], url[len(rewrite[0]):])
         if name in sources:
             logger.error("The source for '%s' is already set." % name)
             sys.exit(1)

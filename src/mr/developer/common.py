@@ -120,6 +120,7 @@ class Config(object):
         self._config.read(self.cfg_path)
         self.develop = {}
         self.buildout_args = []
+        self.rewrites = []
         if self._config.has_section('develop'):
             for package, value in self._config.items('develop'):
                 value = value.lower()
@@ -138,6 +139,9 @@ class Config(object):
                 elif arg.startswith('"') and arg.endswith('"'):
                     arg = arg[1:-1].replace('\\"', '"')
                 self.buildout_args.append(arg)
+        if self._config.has_option('mr.developer', 'rewrites'):
+            for rewrite in self._config.get('mr.developer', 'rewrites').split('\n'):
+                self.rewrites.append(rewrite.split())
 
     def save(self):
         self._config.remove_section('develop')
@@ -152,5 +156,9 @@ class Config(object):
         if not self._config.has_section('buildout'):
             self._config.add_section('buildout')
         self._config.set('buildout', 'args', "\n".join(repr(x) for x in self.buildout_args))
+
+        if not self._config.has_section('mr.developer'):
+            self._config.add_section('mr.developer')
+        self._config.set('mr.developer', 'rewrites', "\n".join(" ".join(x) for x in self.rewrites))
 
         self._config.write(open(self.cfg_path, "w"))
