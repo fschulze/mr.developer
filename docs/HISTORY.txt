@@ -4,6 +4,10 @@ Changelog
 1.1 - Unreleased
 ----------------
 
+* Use relative paths from the buildout directory for the ``develop`` option
+  if possible. This fixes issues if your buildout path contains a space.
+  [fschulze]
+
 * Warn when trying to activate or deactivate a package which isn't checked out.
   [fschulze]
 

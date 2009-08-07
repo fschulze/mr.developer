@@ -99,7 +99,13 @@ def extension(buildout=None):
                     del versions[name]
     if versions:
         zc.buildout.easy_install.default_versions(dict(versions))
-    buildout['buildout']['develop'] = "\n".join(develeggs.itervalues())
+    develop = []
+    for path in develeggs.itervalues():
+        if path.startswith(buildout_dir):
+            develop.append(path[len(buildout_dir)+1:])
+        else:
+            develop.append(path)
+    buildout['buildout']['develop'] = "\n".join(develop)
 
     # build the fake part to install the checkout script
     if FAKE_PART_ID in buildout._raw:
