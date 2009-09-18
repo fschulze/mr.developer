@@ -1,3 +1,5 @@
+.. contents:: :depth: 1
+
 Introduction
 ============
 
@@ -14,7 +16,7 @@ The basic idea for this comes from Wichert Akkerman's ``plonenext`` effort.
 
 
 Usage
------
+=====
 
 You add ``mr.developer`` to the ``extensions`` option of your ``[buildout]``
 section. Then you can add the following options to your ``[buildout]``
@@ -71,3 +73,22 @@ in the section specified by the ``versions`` option in the ``[buildout]``
 section, the version will be cleared, so the develop egg will actually be
 used. You can control the list of develop eggs explicitely with the
 ``activate`` and ``deactivate`` commands of ``bin/develop``.
+
+Troubleshooting
+===============
+
+Dirty SVN
+---------
+
+You get error like::
+
+	ERROR: Can't switch package 'y' from 'https://x/svn/y/trunk/', because it's dirty.
+
+If you have not modified the package files under src fikder the probable cause is Python .egg-info
+folder which gets generated every time you run buildout and this freaks out svn command.
+
+You need to add .egg-info to your global Subversion ignores in *~/.subversion/config*::
+  
+  global-ignores = *.o *.lo *.la *.al .libs *.so *.so.[0-9]* *.a *.pyc *.pyo *.rej *~ #*# .#* .*.swp .DS_Store *.egg-info
+
+
