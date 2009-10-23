@@ -339,11 +339,11 @@ class CmdList(Command):
                                help=textwrap.dedent("""\
                                    Show checkout status.
                                    The first column in the output shows the checkout status:
-                                       ' ' available for checkout
-                                       'A' in auto-checkout list and checked out
-                                       'C' not in auto-checkout list, but checked out
+                                       '#' available for checkout
+                                       ' ' in auto-checkout list and checked out
+                                       '~' not in auto-checkout list, but checked out
                                        '!' in auto-checkout list, but not checked out
-                                       '~' the repository URL doesn't match"""))
+                                       'C' the repository URL doesn't match"""))
 
     def __call__(self):
         options, args = self.parser.parse_args(sys.argv[2:])
@@ -360,17 +360,17 @@ class CmdList(Command):
             if options.status:
                 if os.path.exists(source['path']):
                     if not workingcopies.matches(source):
-                        print "~",
+                        print "C",
                     else:
                         if name in auto_checkout:
-                            print "A",
+                            print " ",
                         else:
-                            print "C",
+                            print "~",
                 else:
                     if name in auto_checkout:
                         print "!",
                     else:
-                        print " ",
+                        print "#",
             if options.long:
                 print "(%s)" % source['kind'], name, source['url']
             else:

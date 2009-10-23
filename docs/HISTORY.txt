@@ -4,6 +4,9 @@ Changelog
 1.1.1 - Unreleased
 ------------------
 
+* Changed the output of `list -s` to match the one from `status`.
+  [fschulze]
+
 * Added troubleshooting section to readme.
   [miohtama, fschulze]
 
