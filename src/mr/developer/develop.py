@@ -106,8 +106,7 @@ class CmdActivate(Command):
         self.parser=optparse.OptionParser(
             usage="%prog <package-regexps>",
             description="Add package to the list of development packages.",
-            formatter=HelpFormatter(),
-            add_help_option=False)
+            formatter=HelpFormatter())
         self.parser.add_option("-a", "--auto-checkout", dest="auto_checkout",
                                action="store_true", default=False,
                                help="""Only considers packages declared by auto-checkout. If you don't specify a <package-regexps> then all declared packages are processed.""")
@@ -143,8 +142,7 @@ class CmdCheckout(Command):
         self.parser=optparse.OptionParser(
             usage="%prog <options> <package-regexps>",
             description="Make a checkout of the packages matching the regular expressions and add them to the list of development packages.",
-            formatter=HelpFormatter(),
-            add_help_option=False)
+            formatter=HelpFormatter())
         self.parser.add_option("-a", "--auto-checkout", dest="auto_checkout",
                                action="store_true", default=False,
                                help="""Only considers packages declared by auto-checkout. If you don't specify a <package-regexps> then all declared packages are processed.""")
@@ -193,8 +191,7 @@ class CmdDeactivate(Command):
         self.parser=optparse.OptionParser(
             usage="%prog <package-regexps>",
             description="Remove package from the list of development packages.",
-            formatter=HelpFormatter(),
-            add_help_option=False)
+            formatter=HelpFormatter())
 
     def __call__(self):
         options, args = self.parser.parse_args(sys.argv[2:])
@@ -225,8 +222,7 @@ class CmdHelp(Command):
         self.parser = optparse.OptionParser(
             usage="%prog help [<command>]",
             description="Show help on the given command or about the whole script if none given.",
-            formatter=HelpFormatter(),
-            add_help_option=False)
+            formatter=HelpFormatter())
 
     def __call__(self):
         develop = self.develop
@@ -257,8 +253,7 @@ class CmdInfo(Command):
         self.parser = optparse.OptionParser(
             usage="%prog info [<package-regexps>]",
             description="Lists informations about packages, filtered if <package-regexps> is given.",
-            formatter=HelpFormatter(),
-            add_help_option=False)
+            formatter=HelpFormatter())
         self.parser.add_option("-a", "--auto-checkout", dest="auto_checkout",
                                action="store_true", default=False,
                                help="""Only considers packages declared by auto-checkout. If you don't specify a <package-regexps> then all declared packages are processed.""")
@@ -332,8 +327,7 @@ class CmdList(Command):
         self.parser = optparse.OptionParser(
             usage="%prog list [<package-regexps>]",
             description="Lists tracked packages, filtered if <package-regexps> is given.",
-            formatter=HelpFormatter(),
-            add_help_option=False)
+            formatter=HelpFormatter())
         self.parser.add_option("-a", "--auto-checkout", dest="auto_checkout",
                                action="store_true", default=False,
                                help="""Only show packages in auto-checkout list.""")
@@ -389,8 +383,7 @@ class CmdPony(Command):
         self.parser = optparse.OptionParser(
             usage="%prog pony",
             description="It should be easy to develop a pony!",
-            formatter=HelpFormatter(),
-            add_help_option=False)
+            formatter=HelpFormatter())
 
     def __call__(self):
         options, args = self.parser.parse_args(sys.argv[2:])
@@ -428,8 +421,7 @@ class CmdRebuild(Command):
         self.parser=optparse.OptionParser(
             usage="%prog",
             description="Run buildout with the last used arguments.",
-            formatter=HelpFormatter(),
-            add_help_option=False)
+            formatter=HelpFormatter())
         self.parser.add_option("-n", "--dry-run", dest="dry_run",
                                action="store_true", default=False,
                                help="""Don't actually run buildout, just show the last used arguments.""")
@@ -455,8 +447,7 @@ class CmdReset(Command):
         self.parser=optparse.OptionParser(
             usage="%prog <package-regexps>",
             description="Resets the packages develop status. This is useful when switching to a new buildout configuration.",
-            formatter=HelpFormatter(),
-            add_help_option=False)
+            formatter=HelpFormatter())
 
     def __call__(self):
         options, args = self.parser.parse_args(sys.argv[2:])
@@ -501,8 +492,7 @@ class CmdStatus(Command):
                     '!' deactivated, but the package is in the auto-checkout list
                     'A' activated, but not in list of development packages (run buildout)
                     'D' deactivated, but still in list of development packages (run buildout)"""),
-            formatter=HelpFormatter(),
-            add_help_option=False)
+            formatter=HelpFormatter())
         self.parser.add_option("-v", "--verbose", dest="verbose",
                                action="store_true", default=False,
                                help="""Show output of VCS command.""")
@@ -566,8 +556,7 @@ class CmdUpdate(Command):
         self.parser = optparse.OptionParser(
             usage="%prog update [<package-regexps>]",
             description="Updates all known packages currently checked out. If <package-regexps> are given, then the set is limited to the matching packages.",
-            formatter=HelpFormatter(),
-            add_help_option=False)
+            formatter=HelpFormatter())
         self.parser.add_option("-a", "--auto-checkout", dest="auto_checkout",
                                action="store_true", default=False,
                                help="""Only considers packages declared by auto-checkout. If you don't specify a <package-regexps> then all declared packages are processed.""")
