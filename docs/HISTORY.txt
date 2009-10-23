@@ -10,6 +10,9 @@ Changelog
 * Added troubleshooting section to readme.
   [miohtama, fschulze]
 
+* All commands have a `-h` and `--help` option now to show their help.
+  [fschulze]
+
 1.1 - 2009-08-07
 ----------------
 
