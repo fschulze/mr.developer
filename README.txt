@@ -80,15 +80,16 @@ Troubleshooting
 Dirty SVN
 ---------
 
-You get error like::
+You get an error like::
 
-	ERROR: Can't switch package 'y' from 'https://x/svn/y/trunk/', because it's dirty.
+  ERROR: Can't switch package 'foo' from 'https://example.com/svn/foo/trunk/', because it's dirty.
 
-If you have not modified the package files under src fikder the probable cause is Python .egg-info
-folder which gets generated every time you run buildout and this freaks out svn command.
+If you have not modified the package files under src/foo, then you can check
+what's going on with `status -v`. One common cause is a `*.egg-info` folder
+which gets generated every time you run buildout and this shows up as an
+untracked item in svn status.
 
-You need to add .egg-info to your global Subversion ignores in *~/.subversion/config*::
+You should add .egg-info to your global Subversion ignores in
+`~/.subversion/config`, like this::
   
   global-ignores = *.o *.lo *.la *.al .libs *.so *.so.[0-9]* *.a *.pyc *.pyo *.rej *~ #*# .#* .*.swp .DS_Store *.egg-info
-
-
