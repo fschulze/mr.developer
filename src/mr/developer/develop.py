@@ -606,6 +606,18 @@ class Develop(object):
         ch.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
         logger.addHandler(ch)
 
+        self.cmd_activate = self.alias_a = CmdActivate(self)
+        self.cmd_checkout = self.alias_co = CmdCheckout(self)
+        self.cmd_deactivate = self.alias_d = CmdDeactivate(self)
+        self.cmd_help = self.alias_h = CmdHelp(self)
+        self.cmd_info = CmdInfo(self)
+        self.cmd_list = self.alias_ls = CmdList(self)
+        self.cmd_pony = CmdPony(self)
+        self.cmd_rebuild = self.alias_rb = CmdRebuild(self)
+        self.cmd_reset = CmdReset(self)
+        self.cmd_status = self.alias_stat = self.alias_st = CmdStatus(self)
+        self.cmd_update = self.alias_up = CmdUpdate(self)
+
         if len(kwargs) == 0:
             try:
                 installed = load_installed_cfg()
@@ -625,45 +637,23 @@ class Develop(object):
         self.config = Config(self.buildout_dir)
         self.develeggs = kwargs['develeggs']
 
-        self.cmd_activate = CmdActivate(self)
-        self.cmd_checkout = CmdCheckout(self)
-        self.cmd_deactivate = CmdDeactivate(self)
-        self.cmd_help = CmdHelp(self)
-        self.cmd_info = CmdInfo(self)
-        self.cmd_list = CmdList(self)
-        self.cmd_pony = CmdPony(self)
-        self.cmd_rebuild = CmdRebuild(self)
-        self.cmd_reset = CmdReset(self)
-        self.cmd_status = CmdStatus(self)
-        self.cmd_update = CmdUpdate(self)
-
-        self.commands = dict(
-            help=self.cmd_help,
-            h=self.cmd_help,
-            a=self.cmd_activate,
-            activate=self.cmd_activate,
-            checkout=self.cmd_checkout,
-            co=self.cmd_checkout,
-            d=self.cmd_deactivate,
-            deactivate=self.cmd_deactivate,
-            info=self.cmd_info,
-            list=self.cmd_list,
-            ls=self.cmd_list,
-            pony=self.cmd_pony,
-            rebuild=self.cmd_rebuild,
-            rb=self.cmd_rebuild,
-            reset=self.cmd_reset,
-            status=self.cmd_status,
-            stat=self.cmd_status,
-            st=self.cmd_status,
-            update=self.cmd_update,
-            up=self.cmd_update,
-        )
-
         if len(sys.argv) < 2:
             print "Type '%s help' for usage." % os.path.basename(sys.argv[0])
         else:
             self.commands.get(sys.argv[1], self.unknown)()
+
+    @property
+    def commands(self):
+        commands = getattr(self, '_commands', None)
+        if commands is not None:
+            return commands
+        self._commands = commands = dict()
+        for key in dir(self):
+            if key.startswith('cmd_'):
+                commands[key[4:]] = getattr(self, key)
+            if key.startswith('alias_'):
+                commands[key[6:]] = getattr(self, key)
+        return commands
 
     def unknown(self):
         logger.error("Unknown command '%s'." % sys.argv[1])
