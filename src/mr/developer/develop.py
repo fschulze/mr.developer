@@ -622,9 +622,13 @@ class Develop(object):
             try:
                 installed = load_installed_cfg()
             except IOError, e:
+                self.cmd_help()
+                print
                 logger.error("You are not in a path which has mr.developer installed (%s)." % e)
                 return
             if not installed.has_option(FAKE_PART_ID, '__buildout_installed__'):
+                self.cmd_help()
+                print
                 logger.error("You are not in a path which has mr.developer installed (mr.developer not in buildout).")
                 return
             develop = installed.get(FAKE_PART_ID, '__buildout_installed__')
