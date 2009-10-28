@@ -101,6 +101,8 @@ class Command(object):
 
 
 class CmdActivate(Command):
+    """Activates already checked out packages.
+    """
     def __init__(self, develop):
         Command.__init__(self, develop)
         self.parser=optparse.OptionParser(
@@ -137,6 +139,8 @@ class CmdActivate(Command):
 
 
 class CmdCheckout(Command):
+    """Checks out package and activates it.
+    """
     def __init__(self, develop):
         Command.__init__(self, develop)
         self.parser=optparse.OptionParser(
