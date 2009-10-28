@@ -1,2 +1,7 @@
 dist/*
 build/*
+*.pyc
+.*.cfg
+*.egg-info
+bin/
+develop-eggs/
