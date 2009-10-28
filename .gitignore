@@ -5,3 +5,8 @@ build/*
 *.egg-info
 bin/
 develop-eggs/
+tags
+*.swp
+*.swo
+.swp
+.swo
