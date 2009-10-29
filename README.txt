@@ -36,17 +36,21 @@ section:
 
 The format of the section with the repository information is::
 
-  <name> = <kind> <url> [path]
+  <name> = <kind> <url> [path] [revision=<revspec>] [basedir=<basedir>]
 
 Where <name> is the package name and <kind> is either ``svn``, ``hg`` or
 ``git``, <url> is the location of the repository and the optional [path]
-is the base directory where the package will be checked out (the name of
+is the base directory where the repository will be checked out (the name of
 the package will be appended), if it's missing, then ``sources-dir`` will
 be used. It's also possible to use ``fs`` as <kind>, then the format is
 "<name> = <kind> <name> [path]", where <name> is the package name and
 it's duplicated as an internal sanity check (it was also easier to keep
 the format the same :) ). This allows you for example to start a new
 package which isn't in version control yet.
+
+TODO: explain revision
+
+TODO: explain basedir
 
 The following is an example of how your ``buildout.cfg`` may look like::
 
