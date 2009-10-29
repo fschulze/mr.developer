@@ -10,3 +10,5 @@ tags
 *.swo
 .swp
 .swo
+src/*
+!src/mr/
