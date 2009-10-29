@@ -42,16 +42,55 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         if kwargs.get('verbose', False):
             return stdout
 
+    def _gitcmd(self, name, path, gitcmd, *args):
+        cmd = subprocess.Popen(["git", gitcmd]+list(args),
+                               cwd=path,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
+        stdout, stderr = cmd.communicate()
+        if cmd.returncode != 0:
+            raise GitError("git %s for '%s' failed.\n%s" % (gitcmd, name, stderr))
+        return stdout
+
+
+    def git_revision(self, source, **kwargs):
+        name = source['name']
+        path = source['path']
+        revision = source['revision']
+        logger.info("Checking out revision '%s' with git." % revision)
+        try:
+            # Assume it's a local branch/tag/SHA1
+            stdout = self._gitcmd(name, path, 'checkout', revision)
+        except GitError:
+            # A remote branch, checkout as local branch
+            stdout = self._gitcmd(name, path, 'checkout', '-b', revision, 'remotes/origin/'+revision)
+            # TODO:
+            # - remote tag
+            # SHA1 are checked out without creating a branch
+        if kwargs.get('verbose', False):
+            return stdout
+
+
     def checkout(self, source, **kwargs):
         name = source['name']
         path = source['path']
+        stdout = ''
+        # checkout package
         if os.path.exists(path):
             if self.matches(source):
-                logger.info("Skipped checkout of existing package '%s'." % name)
+                logger.info("Skipped clone of existing package '%s'." % name)
+                stdout = self.update(source, **kwargs) or ''
             else:
                 raise GitError("Checkout URL for existing package '%s' differs. Expected '%s'." % (name, source['url']))
         else:
-            return self.git_checkout(source, **kwargs)
+            stdout = self.git_checkout(source, **kwargs) or ''
+
+        # get specific revision
+        if source['revision']:
+            stdout += self.git_revision(source, **kwargs) or ''
+
+        return stdout
+
 
     def matches(self, source):
         name = source['name']
