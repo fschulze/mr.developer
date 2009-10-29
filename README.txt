@@ -48,9 +48,8 @@ it's duplicated as an internal sanity check (it was also easier to keep
 the format the same :) ). This allows you for example to start a new
 package which isn't in version control yet.
 
-TODO: explain revision
+For an explanation of revision and basedir parameters see below.
 
-TODO: explain basedir
 
 The following is an example of how your ``buildout.cfg`` may look like::
 
@@ -77,6 +76,50 @@ in the section specified by the ``versions`` option in the ``[buildout]``
 section, the version will be cleared, so the develop egg will actually be
 used. You can control the list of develop eggs explicitely with the
 ``activate`` and ``deactivate`` commands of ``bin/develop``.
+
+
+Project repositories
+--------------------
+
+``basedir`` exists to support *project repositories*, i.e. repositories that do
+not directly contain the egg, but hold multiple eggs in seperate directories
+optionally further grouped into subdirectories.
+
+
+Given a project repository with the following structure::
+
+  example.projectrepo.git/
+    example.projectrepo.pkg1/
+      setup.py
+      src/
+        example/
+          projectrepo/
+            pkg1/
+    subdir/
+      example.projectrepo.pkg2/
+        setup.py
+        src/
+          example/
+            projectrepo/
+              pkg2/
+
+You would access the eggs::
+
+  [sources]
+  example.projectrepo.pkg1 =
+    git git://github.com/chaoflow/example.projectrepo.git basedir=
+  example.projectrepo.pkg2 =
+    git git://github.com/chaoflow/example.projectrepo.git basedir=subdir
+
+Project repo support so far has been only tested with git.
+ 
+
+Revision support
+----------------
+
+TODO
+
+
 
 Troubleshooting
 ===============
