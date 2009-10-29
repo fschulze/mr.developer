@@ -32,18 +32,27 @@ def extension(buildout=None):
     section = buildout.get(buildout['buildout'].get('sources', 'sources'), {})
     for name, info in section.iteritems():
         info = info.split()
-        kind = info[0]
-        url = info[1]
+        kind = info.pop(0)
+        url = info.pop(0)
         for rewrite in config.rewrites:
             if len(rewrite) == 2 and url.startswith(rewrite[0]):
                 url = "%s%s" % (rewrite[1], url[len(rewrite[0]):])
-        if len(info) > 2:
-            path = os.path.join(info[2], name)
+        if len(info) and not '=' in info[0]:
+            path = os.path.join(info.pop(0), name)
             if not os.path.isabs(path):
                 path = os.path.join(buildout_dir, path)
         else:
             path = os.path.join(sources_dir, name)
-        sources[name] = dict(kind=kind, name=name, url=url, path=path)
+        revision = None
+        while len(info):
+            if info[0].startswith('revision='):
+                revision = info.pop(0).split('=')[1]
+                continue
+            else:
+                #XXX: Make this nice
+                raise NotImplemented
+        sources[name] = dict(kind=kind, name=name, url=url, path=path,
+                             revision=revision)
 
     # deprecated way of specifing sources
     if 'sources-svn' in buildout['buildout']:
