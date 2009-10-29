@@ -36,7 +36,7 @@ section:
 
 The format of the section with the repository information is::
 
-  <name> = <kind> <url> [path] [revision=<revspec>] [basedir=<basedir>]
+  <name> = <kind> <url> [path] [revision=<revspec>] [pkgbasedir=[<pkgbasedir>]]
 
 Where <name> is the package name and <kind> is either ``svn``, ``hg`` or
 ``git``, <url> is the location of the repository and the optional [path]
@@ -81,7 +81,7 @@ used. You can control the list of develop eggs explicitely with the
 Project repositories
 --------------------
 
-``basedir`` exists to support *project repositories*, i.e. repositories that do
+``pkgbasedir`` exists to support *project repositories*, i.e. repositories that do
 not directly contain the egg, but hold multiple eggs in seperate directories
 optionally further grouped into subdirectories.
 
@@ -107,9 +107,9 @@ You would access the eggs::
 
   [sources]
   example.projectrepo.pkg1 =
-    git git://github.com/chaoflow/example.projectrepo.git basedir=
+    git git://github.com/chaoflow/example.projectrepo.git pkgbasedir=
   example.projectrepo.pkg2 =
-    git git://github.com/chaoflow/example.projectrepo.git basedir=subdir
+    git git://github.com/chaoflow/example.projectrepo.git pkgbasedir=subdir
 
 Project repo support so far has been only tested with git.
  

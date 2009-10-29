@@ -44,18 +44,18 @@ def extension(buildout=None):
         else:
             path = os.path.join(sources_dir, name)
         revision = None
-        basedir = None
+        pkgbasedir = None
         while len(info):
             if info[0].startswith('revision='):
                 revision = info.pop(0).split('=')[1]
                 continue
-            if info[0].startswith('basedir='):
-                basedir = info.pop(0).split('=')[1]
+            if info[0].startswith('pkgbasedir='):
+                pkgbasedir = info.pop(0).split('=')[1]
                 continue
             #XXX: Make this nice
             raise NotImplemented
         sources[name] = dict(kind=kind, name=name, url=url, path=path,
-                             revision=revision, basedir=basedir)
+                             revision=revision, pkgbasedir=pkgbasedir)
 
     # deprecated way of specifing sources
     if 'sources-svn' in buildout['buildout']:
@@ -115,9 +115,9 @@ def extension(buildout=None):
             path = sources[name]['path']
             if os.path.exists(path) and config.develop.get(name, name in auto_checkout):
                 config.develop.setdefault(name, True)
-                basedir = sources[name]['basedir']
-                if basedir is not None:
-                    path = os.path.join(path, basedir, name)
+                pkgbasedir = sources[name]['pkgbasedir']
+                if pkgbasedir is not None:
+                    path = os.path.join(path, pkgbasedir, name)
                 develeggs[name] = path
                 if name in versions:
                     del versions[name]
