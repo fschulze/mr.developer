@@ -117,8 +117,26 @@ Project repo support so far has been only tested with git.
 Revision support
 ----------------
 
-TODO
+It is possible to check out a specific revision/branch/tag or a combination of
+such instead of following HEAD.
 
+So far this has only been implemented for git.
+
+Valid ``revspec``s are:
+
+- SHA1 of a revision
+- name of a local tag/branch
+- name of a remote branch which will automatically be set up as a local
+  tracking branch with the same name
+
+Some examples::
+
+  example.packagerepo =
+    git git://github.com/chaoflow/example.packagerepo.git revision=master
+  example.packagerepo =
+    git git://github.com/chaoflow/example.packagerepo.git revision=stable
+  example.packagerepo =
+    git git://github.com/chaoflow/example.packagerepo.git revision=50e34
 
 
 Troubleshooting
