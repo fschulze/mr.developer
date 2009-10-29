@@ -157,6 +157,7 @@ class CmdCheckout(Command):
     def __call__(self):
         options, args = self.parser.parse_args(sys.argv[2:])
         config = self.develop.config
+        # Find out which packages to checkout
         if len(args) == 0:
             if options.auto_checkout:
                 packages = self.develop.auto_checkout
@@ -176,6 +177,7 @@ class CmdCheckout(Command):
             logger.error("No package matched %s." % regexps)
             sys.exit(1)
 
+        # Actually checkout
         try:
             workingcopies = WorkingCopies(self.develop.sources)
             workingcopies.checkout(packages, verbose=options.verbose)
