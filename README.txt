@@ -111,7 +111,8 @@ You would access the eggs::
   example.projectrepo.pkg2 =
     git git://github.com/chaoflow/example.projectrepo.git pkgbasedir=subdir
 
-Project repo support so far has been only tested with git.
+Project repo support so far has been tested with git and svn, but should work
+with mercurial - FEEDBACK please.
  
 
 Revision support
