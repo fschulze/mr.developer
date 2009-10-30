@@ -118,9 +118,7 @@ with mercurial - FEEDBACK please.
 Revision support
 ----------------
 
-It is possible to check out a specific revision/branch/tag or a combination of
-such instead of following HEAD.
-
+Preliminary support to check out specific revisions existr.
 So far this has only been implemented for git.
 
 Valid ``revspec``s are:
