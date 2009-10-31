@@ -124,6 +124,7 @@ class Config(object):
                 'namedrepos': [
                     ('collective:', 'https://svn.plone.org/svn/collective/'),
                     ],
+                'defaultcfg': [],
                 'local': []
                 }
         if self._config.has_section('develop'):
@@ -147,6 +148,18 @@ class Config(object):
         if self._config.has_option('mr.developer', 'rewrites'):
             for rewrite in self._config.get('mr.developer', 'rewrites').split('\n'):
                 self.rewrites['local'].append(rewrite.split())
+
+        # rewrites from default.cfg
+        defaultcfg_path = os.path.join(os.path.expanduser('~'),
+                '.buildout', 'default.cfg')
+        if os.path.exists(defaultcfg_path):
+            defaultcfg = RawConfigParser()
+            # no idea what this does - copy pasted from above
+            defaultcfg.optionxform = lambda s: s
+            defaultcfg.read(defaultcfg_path)
+            if defaultcfg.has_option('mr.developer', 'rewrites'):
+                for rewrite in defaultcfg.get('mr.developer', 'rewrites').split('\n'):
+                    self.rewrites['defaultcfg'].append(rewrite.split())
 
     def save(self):
         self._config.remove_section('develop')

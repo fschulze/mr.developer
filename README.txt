@@ -138,22 +138,6 @@ Some examples::
     git git://github.com/chaoflow/example.packagerepo.git revision=50e34
 
 
-Rewrites
---------
-
-After once running buildout with mr.developer a .mr.developer.cfg file is
-created in your buildout directory. Its syntax is similar to buildout.cfg, but
-it is parsed separately. You can define url rewrites, e.g. to use your personal
-push/pull url instead of the public pull url::
-
-  [mr.developer]
-  rewrites =
-      git://github.com/ git@github.com:
-
-TODO: Do we want people to rely on the current syntax of .mr.developer.cfg or
-should changes be made through ./bin/develop?
-
-
 Named repositories
 ------------------
 
@@ -161,24 +145,48 @@ Named repositories save typing, e.g.::
 
   example.svnpackagerepo = svn collective:example.svnpackagerepo/trunk
 
-Via rewrite this is translated to::
+Via rewrite (see below) this is translated to::
 
   example.svnpackagerepo = svn https://svn.plone.org/svn/collective/example.svnpackagerepo/trunk
 
-The structure of an url using a named repository is::
+The structure of a url using a named repository is::
 
   <reponame>:<relative_path>
-
-Rewrites are applied in this order, which enables their usage in your local
-rewrites (.mr.developer.cfg):
-
-- named repository rewrites
-- your local rewrites
-- named repository rewrites
 
 Mr. Developer knows the following named repositories::
 
   collective https://svn.plone.org/svn/collective/
+
+
+Rewrites
+--------
+
+Rewrites are peformed on the url before fetching the repository and are read
+from ~/.buildout/default.cfg and <buildoutdir>/.mr.developer.cfg.
+
+In contrast to buildout.cfg syntax, rewrite definitions are additive.
+
+A typical use case for rewrites is to change public fetch urls to your
+personal pull/push url.::
+
+  [mr.developer]
+  rewrites =
+      git://github.com/ git@github.com:
+
+Rewrites are performed in the order defined, local rewrites preceeding
+default.cfg rewrites.
+
+The named repositories are implemented by using rewrites. These are performed
+before and after your rewrites, i.e. you can perform rewrites on the actual
+urls and you can use named repositories in the result part of your rewrites.::
+
+- named repository rewrites
+- your local rewrites (.mr.developer.cfg
+- default.cfg rewrites
+- named repository rewrites
+
+TODO: Do we want people to rely on the current syntax of .mr.developer.cfg or
+should changes be made through ./bin/develop?
 
 
 Troubleshooting

@@ -35,7 +35,7 @@ def extension(buildout=None):
         kind = info.pop(0)
         url = info.pop(0)
         # namedrepos can be used in local rewrites
-        for x in ('namedrepos', 'local', 'namedrepos'):
+        for x in ('namedrepos', 'local', 'defaultcfg', 'namedrepos'):
             for rewrite in config.rewrites[x]:
                 if len(rewrite) == 2 and url.startswith(rewrite[0]):
                     url = "%s%s" % (rewrite[1], url[len(rewrite[0]):])
