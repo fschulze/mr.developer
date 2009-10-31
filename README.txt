@@ -118,7 +118,7 @@ with mercurial - FEEDBACK please.
 Revision support
 ----------------
 
-Preliminary support to check out specific revisions existr.
+Preliminary support to check out specific revisions exists.
 So far this has only been implemented for git.
 
 Valid ``revspec``s are:
@@ -143,7 +143,7 @@ Rewrites
 
 After once running buildout with mr.developer a .mr.developer.cfg file is
 created in your buildout directory. Its syntax is similar to buildout.cfg, but
-is parsed separately. You can define url rewrites, e.g. to use your personal
+it is parsed separately. You can define url rewrites, e.g. to use your personal
 push/pull url instead of the public pull url::
 
   [mr.developer]
