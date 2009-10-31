@@ -1,9 +1,7 @@
 * use pexpect for better interaction with the called processes
-* rethink syntax for branches/revisions and project dir
+* rethink syntax for branches/revisions and project repo
 * config for git repos
   - branches from different remotes
-* personal variants (.mr.developer.cfg)
+* personal variants (.mr.developer.cfg / default.cfg)
   - git-svn for svn
-* make mr.developer honor settings in ~/.buildout/default.cfg, esp:
-  - rewrites
-  - git-svn for svn (kind mapping)
+* gitify of svn repos
