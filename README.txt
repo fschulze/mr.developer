@@ -138,6 +138,22 @@ Some examples::
     git git://github.com/chaoflow/example.packagerepo.git revision=50e34
 
 
+Rewrites
+--------
+
+After once running buildout with mr.developer a .mr.developer.cfg file is
+created in your buildout directory. Its syntax is similar to buildout.cfg, but
+is parsed separately. You can define url rewrites, e.g. to use your personal
+push/pull url instead of the public pull url::
+
+  [mr.developer]
+  rewrites =
+      git://github.com/ git@github.com:
+
+TODO: Do we want people to rely on the current syntax of .mr.developer.cfg or
+should changes be made through ./bin/develop?
+
+
 Troubleshooting
 ===============
 
