@@ -1,2 +1,8 @@
-* support branches in git
 * use pexpect for better interaction with the called processes
+* rethink syntax for branches/revisions and project dir
+* config for git repos
+  - branches from different remotes
+* personal variants
+  - git svn for svn
+  - personal replacement urls
+* user config file
