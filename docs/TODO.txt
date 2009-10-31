@@ -2,7 +2,8 @@
 * rethink syntax for branches/revisions and project dir
 * config for git repos
   - branches from different remotes
-* personal variants
-  - git svn for svn
-  - personal replacement urls
-* user config file
+* personal variants (.mr.developer.cfg)
+  - git-svn for svn
+* make mr.developer honor settings in ~/.buildout/default.cfg, esp:
+  - rewrites
+  - git-svn for svn (kind mapping)
