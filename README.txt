@@ -154,6 +154,33 @@ TODO: Do we want people to rely on the current syntax of .mr.developer.cfg or
 should changes be made through ./bin/develop?
 
 
+Named repositories
+------------------
+
+Named repositories save typing, e.g.::
+
+  example.svnpackagerepo = svn collective:example.svnpackagerepo/trunk
+
+Via rewrite this is translated to::
+
+  example.svnpackagerepo = svn https://svn.plone.org/svn/collective/example.svnpackagerepo/trunk
+
+The structure of an url using a named repository is::
+
+  <reponame>:<relative_path>
+
+Rewrites are applied in this order, which enables their usage in your local
+rewrites (.mr.developer.cfg):
+
+- named repository rewrites
+- your local rewrites
+- named repository rewrites
+
+Mr. Developer knows the following named repositories::
+
+  collective https://svn.plone.org/svn/collective/
+
+
 Troubleshooting
 ===============
 
