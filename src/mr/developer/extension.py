@@ -37,7 +37,7 @@ def extension(buildout=None):
         # namedrepos can be used in local rewrites
         for x in ('namedrepos', 'local', 'defaultcfg', 'namedrepos'):
             for rewrite in config.rewrites[x]:
-                if len(rewrite) == 2 and url.startswith(rewrite[0]):
+                if rewrite and url.startswith(rewrite[0]):
                     url = "%s%s" % (rewrite[1], url[len(rewrite[0]):])
         if len(info) and not '=' in info[0]:
             path = os.path.join(info.pop(0), name)
