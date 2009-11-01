@@ -3,10 +3,10 @@ import logging
 import os
 import sys
 
-NAMED_REPOS = (
-        ('collective:', 'https://svn.plone.org/svn/collective/'),
-        ('github:', 'git://github.com/'),
-        )
+NAMED_REPOS = dict(
+    collective = ('collective:', 'https://svn.plone.org/svn/collective/', 'svn'),
+    github = ('github:', 'git://github.com/', 'git'),
+    )
 
 logger = logging.getLogger("mr.developer")
 
@@ -128,8 +128,8 @@ class Config(object):
         self.buildout_args = []
         if os.path.split(sys.argv[0])[1] == 'buildout':
             self.buildout_args = list(sys.argv)
+        self.namedrepos = NAMED_REPOS
         self.rewrites = {
-                'namedrepos': NAMED_REPOS,
                 'defaultcfg': [],
                 'local': []
                 }
