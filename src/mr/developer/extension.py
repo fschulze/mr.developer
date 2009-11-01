@@ -1,6 +1,5 @@
 from mr.developer.common import WorkingCopies, Config
 from pprint import pformat
-from UserDict import UserDict
 import atexit
 import logging
 import os
@@ -16,13 +15,6 @@ def report_error():
     logger.error("*"*40)
     logger.error("There have been errors during checkout, check the output above or use 'develop status'.")
     logger.error("*"*40)
-
-
-class Source(UserDict):
-    """Stores information for a source.
-    """
-    def __init__(self, **kwargs):
-        UserDict.__init__(self, **kwargs)
 
 
 def sourcefromcfgline(config, name, info):
