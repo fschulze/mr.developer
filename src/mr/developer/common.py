@@ -117,18 +117,26 @@ class WorkingCopies(object):
 
 
 class Config(object):
-    def __init__(self, buildout_dir):
-        self.cfg_path = os.path.join(buildout_dir, '.mr.developer.cfg')
+    def __init__(self, buildout):
+        # TODO: some logic should move to factory
+        buildout_dir = self.buildout_dir = buildout['buildout']['directory']
+        self.cfg_path = os.path.join(self.buildout_dir, '.mr.developer.cfg')
         self._config = RawConfigParser()
         self._config.optionxform = lambda s: s
         self._config.read(self.cfg_path)
         self.develop = {}
         self.buildout_args = []
+        if os.path.split(sys.argv[0])[1] == 'buildout':
+            self.buildout_args = list(sys.argv)
         self.rewrites = {
                 'namedrepos': NAMED_REPOS,
                 'defaultcfg': [],
                 'local': []
                 }
+        sources_dir = self.sources_dir = \
+                buildout['buildout'].get('sources-dir', 'src')
+        if not os.path.isabs(sources_dir):
+            sources_dir = os.path.join(buildout_dir, sources_dir)
         if self._config.has_section('develop'):
             for package, value in self._config.items('develop'):
                 value = value.lower()

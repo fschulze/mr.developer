@@ -19,14 +19,9 @@ def report_error():
 def extension(buildout=None):
     import zc.buildout.easy_install
 
-    buildout_dir = buildout['buildout']['directory']
-    config = Config(buildout_dir)
-    if os.path.split(sys.argv[0])[1] == 'buildout':
-        config.buildout_args = list(sys.argv)
-
-    sources_dir = buildout['buildout'].get('sources-dir', 'src')
-    if not os.path.isabs(sources_dir):
-        sources_dir = os.path.join(buildout_dir, sources_dir)
+    config = Config(buildout)
+    sources_dir = config.sources_dir
+    buildout_dir = config.buildout_dir
 
     sources = {}
     section = buildout.get(buildout['buildout'].get('sources', 'sources'), {})
