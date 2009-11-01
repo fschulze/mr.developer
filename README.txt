@@ -113,7 +113,7 @@ You would access the eggs::
 
 Project repo support so far has been tested with git and svn, but should work
 with mercurial - FEEDBACK please.
- 
+
 
 Revision support
 ----------------
