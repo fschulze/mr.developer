@@ -103,7 +103,7 @@ Given a project repository with the following structure::
             projectrepo/
               pkg2/
 
-You would access the eggs::
+You would access the packages::
 
   [sources]
   example.projectrepo.pkg1 =

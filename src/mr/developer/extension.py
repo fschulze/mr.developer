@@ -121,6 +121,24 @@ def sourcefromcfgline(config, name, info):
         'othersrc/name'
         >>> src['revision']
         'rev/spec1'
+
+    Project repositories:
+
+        >>> info = "repo1:rel/path rev=rev/spec1 pkgbasedir="
+        >>> src = sourcefromcfgline(config, 'name', info)
+        >>> src['path']
+        'src/name'
+        >>> src['pkgbasedir']
+        ''
+        >>> src['revision']
+        'rev/spec1'
+
+        >>> info = "repo1:rel/path rev=rev/spec1 pkgbasedir=subdir"
+        >>> src = sourcefromcfgline(config, 'name', info)
+        >>> src['path']
+        'src/name'
+        >>> src['pkgbasedir']
+        'subdir'
     """
     info = info.split()
 
