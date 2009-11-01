@@ -6,6 +6,12 @@ version = '1.1'
 install_requires = [
   'setuptools',
 ]
+extras_require=dict(
+        test = [
+            'interlude',
+            'chaoflow.testing.crawler',
+            ],
+        )
 
 if sys.version_info < (2, 5):
     install_requires.append('elementtree')
@@ -31,6 +37,7 @@ setup(name='mr.developer',
       include_package_data=True,
       zip_safe=False,
       install_requires=install_requires,
+      extras_require=extras_require,
       entry_points="""
       [console_scripts]
       develop = mr.developer.develop:develop
