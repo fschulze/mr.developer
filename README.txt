@@ -118,8 +118,17 @@ with mercurial - FEEDBACK please.
 Revision support
 ----------------
 
-Preliminary support to check out specific revisions exists.
-So far this has only been implemented for git.
+Subversion supports checkout of specific revisions/tags and following branches
+via repository url. Some examples::
+
+  example.svnpackagerepo = svn collective:example.svnpackagerepo/trunk@100499
+
+  example.svnpackagerepo = svn collective:example.svnpackagerepo/branches/stable
+
+  example.svnpackagerepo = svn collective:example.svnpackagerepo/tags/1.1
+
+
+Preliminary support to check out specific revisions exists for git.
 
 Valid ``revspec``s are:
 
@@ -131,7 +140,7 @@ Valid ``revspec``s are:
 Some examples::
 
   example.packagerepo =
-    git git://github.com/chaoflow/example.packagerepo.git revision=master
+    git git://github.com/chaoflow/example.packagerepo.git rev=master
   example.packagerepo =
     git git://github.com/chaoflow/example.packagerepo.git revision=stable
   example.packagerepo =
@@ -177,16 +186,12 @@ Rewrites are performed in the order defined, local rewrites preceeding
 default.cfg rewrites.
 
 The named repositories are implemented by using rewrites. These are performed
-before and after your rewrites, i.e. you can perform rewrites on the actual
-urls and you can use named repositories in the result part of your rewrites.::
+before your rewrites, i.e. you can perform rewrites on the actual
+urls.::
 
 - named repository rewrites
-- your local rewrites (.mr.developer.cfg
+- your local rewrites (.mr.developer.cfg)
 - default.cfg rewrites
-- named repository rewrites
-
-TODO: Do we want people to rely on the current syntax of .mr.developer.cfg or
-should changes be made through ./bin/develop?
 
 
 Troubleshooting
