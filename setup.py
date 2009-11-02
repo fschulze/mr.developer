@@ -4,7 +4,7 @@ import os, sys
 version = '1.1'
 
 install_requires = [
-  'setuptools',
+  'setuptools>=0.6c10',
 ]
 extras_require=dict(
         test = [
