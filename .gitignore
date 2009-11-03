@@ -4,5 +4,4 @@ bin/
 build/*
 develop-eggs/
 dist/*
-src/*
-!src/mr/
+/mrd/
