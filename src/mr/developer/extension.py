@@ -92,6 +92,20 @@ def sourcefromcfgline(config, name, info):
         >>> src['url']
         'otheruser@repo1.url:rel/path'
 
+    Rewriting with regular expression
+
+        >>> config.rewrites['local'].append(
+        ...     ('re.sub', 'other(.*)/path', r'\\1'))
+        >>> src = sourcefromcfgline(config, 'name', info)
+        >>> src['url']
+        'user@repo1.url:rel'
+
+        >>> config.rewrites['local'].append(
+        ...     ('re.sub', ':rel$'))
+        >>> src = sourcefromcfgline(config, 'name', info)
+        >>> src['url']
+        'user@repo1.url'
+
     Revision:
 
         >>> info = "repo1:rel/path rev=rev/spec1"
