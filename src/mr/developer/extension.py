@@ -22,7 +22,7 @@ def sourcefromcfgline(config, name, info):
 
     info format:
         <name> = <kind> <repo_url> [path] \
-            [revision=<revision] [pkgbasedir=<pkgbasedir>]
+            [rev[ision]=<revision] [pkgbasedir=<pkgbasedir>]
 
         >>> config = UserDict()
         >>> config.namedrepos = {}
