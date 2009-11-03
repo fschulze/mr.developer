@@ -88,7 +88,6 @@ def sourcefromcfgline(config, name, info):
 
         >>> config.rewrites['local'].append(
         ...     ('xyz://repo1.url/', 'otheruser@repo1.url:'))
-        >>> info = "repo1:rel/path"
         >>> src = sourcefromcfgline(config, 'name', info)
         >>> src['url']
         'otheruser@repo1.url:rel/path'
