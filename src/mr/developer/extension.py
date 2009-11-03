@@ -147,6 +147,7 @@ def sourcefromcfgline(config, name, info):
     """
     info = info.split()
 
+    # figure out what arguments we got
     arg0 = info.pop(0)
     if ':' in arg0:
         # kind of hackish, named repos eventually shouldnt be rewrites
@@ -157,12 +158,14 @@ def sourcefromcfgline(config, name, info):
         kind = arg0
         url = info.pop(0)
 
+    # perform url rewrites
     for rewrite in filter(None, config.namedrepos.values() + \
                 config.rewrites['local'] + \
                 config.rewrites['defaultcfg']):
         if url.startswith(rewrite[0]):
             url = "%s%s" % (rewrite[1], url[len(rewrite[0]):])
 
+    # derive relative path to package
     if len(info) and not '=' in info[0]:
         path = os.path.join(info.pop(0), name)
         # XXX:
