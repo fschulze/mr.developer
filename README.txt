@@ -185,6 +185,19 @@ personal pull/push url.::
 Rewrites are performed in the order defined, local rewrites preceeding
 default.cfg rewrites.
 
+Normally a rewrite is matched to and performed on the beginning of a url.
+
+It is also possible to rewrite using regular expressions::
+
+  [mr.developer]
+  rewrites =
+      re.sub  ^(.*)somepath/(.*)$  \1\2
+      re.sub  .git$
+
+The arguments are directly passed to python's re.sub function. If the last
+argument (the replacement string) is missing, an empty string is assumed - the
+second example would remove a .git at the end of urls.
+
 The named repositories are implemented by using rewrites. These are performed
 before your rewrites, i.e. you can perform rewrites on the actual
 urls.::

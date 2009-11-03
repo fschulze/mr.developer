@@ -3,6 +3,7 @@ from pprint import pformat
 import atexit
 import logging
 import os
+import re
 import sys
 
 
@@ -162,6 +163,16 @@ def sourcefromcfgline(config, name, info):
     for rewrite in filter(None, config.namedrepos.values() + \
                 config.rewrites['local'] + \
                 config.rewrites['defaultcfg']):
+        # regex substitution
+        if rewrite[0] == 're.sub':
+            pattern = rewrite[1]
+            try:
+                repl = rewrite[2]
+            except IndexError:
+                repl = ''
+            url = re.sub(pattern, repl, url)
+            continue
+        # replacement at beginning of url
         if url.startswith(rewrite[0]):
             url = "%s%s" % (rewrite[1], url[len(rewrite[0]):])
 
