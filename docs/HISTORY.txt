@@ -15,16 +15,17 @@ Changelog
 * Use verbosity from buildout when running as extension.
   [fschulze]
 
-* Fix buildout_dir in `develop` script, so it is properly escaped on Windows.
+* Fix buildout_dir in ``develop`` script, so it is properly escaped on
+  Windows.
   [fschulze]
 
-* Changed the output of `list -s` to match the one from `status`.
+* Changed the output of ``list -s`` to match the one from ``status``.
   [fschulze]
 
 * Added troubleshooting section to readme.
   [miohtama, fschulze]
 
-* All commands have a `-h` and `--help` option now to show their help.
+* All commands have a ``-h`` and ``--help`` option now to show their help.
   [fschulze]
 
 1.1 - 2009-08-07
