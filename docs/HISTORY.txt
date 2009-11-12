@@ -4,6 +4,9 @@ Changelog
 1.1.1 - Unreleased
 ------------------
 
+* Don't bail on subversion URLs ending in a slash or a revision marker.
+  [fschulze]
+
 * Removed old way of specifying sources with ``sources-svn`` and
   ``sources-git``.
   [fschulze]

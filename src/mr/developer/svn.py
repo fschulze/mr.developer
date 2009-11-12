@@ -5,6 +5,7 @@ except ImportError:
     import elementtree.ElementTree as etree
 import getpass
 import os
+import re
 import subprocess
 
 
@@ -129,6 +130,9 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
         result = {}
         entry = info.find('entry')
         if entry is not None:
+            rev = entry.attrib.get('revision')
+            if rev is not None:
+                result['revision'] = rev
             info_url = entry.find('url')
             if info_url is not None:
                 result['url'] = info_url.text
@@ -189,7 +193,15 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
 
     def matches(self, source):
         info = self._svn_info(source)
-        return (info.get('url') == source['url'])
+        url = source['url']
+        rev = info.get('revision')
+        match = re.search('^(.+)@(\\d+)$', url)
+        if match:
+            url = match.group(1)
+            rev = match.group(2)
+        if url.endswith('/'):
+            url = url[:-1]
+        return (info.get('url') == url) and (info.get('revision') == rev)
 
     def status(self, source, **kwargs):
         name = source['name']
