@@ -71,8 +71,16 @@ def extension(buildout=None):
     for name in sources:
         if name not in develeggs:
             path = sources[name]['path']
-            if os.path.exists(path) and config.develop.get(name, name in auto_checkout):
-                config.develop.setdefault(name, True)
+            status = config.develop.get(name, name in auto_checkout)
+            if os.path.exists(path) and status:
+                if name in auto_checkout:
+                    config.develop.setdefault(name, 'auto')
+                else:
+                    if status == 'auto':
+                        if name in config.develop:
+                            del config.develop[name]
+                            continue
+                    config.develop.setdefault(name, True)
                 develeggs[name] = path
                 if name in versions:
                     del versions[name]

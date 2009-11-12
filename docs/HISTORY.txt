@@ -4,6 +4,12 @@ Changelog
 1.1.1 - Unreleased
 ------------------
 
+* If a package is removed from ``auto-checkout`` and wasn't explicitly
+  activated, then it will be removed from the develop packages automatically.
+  In existing buildouts with an older mr.developer, you have to ``reset`` the
+  packages first.
+  [fschulze]
+
 * Added ``*`` wild card support for ``auto-checkout``.
   [fschulze]
 

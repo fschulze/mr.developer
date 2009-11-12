@@ -118,6 +118,8 @@ class Config(object):
                     self.develop[package] = True
                 elif value == 'false':
                     self.develop[package] = False
+                elif value == 'auto':
+                    self.develop[package] = 'auto'
                 else:
                     raise ValueError("Invalid value in 'develop' section of '%s'" % self.cfg_path)
         if self._config.has_option('buildout', 'args'):
@@ -137,10 +139,12 @@ class Config(object):
         self._config.remove_section('develop')
         self._config.add_section('develop')
         for package in sorted(self.develop):
-            active = self.develop[package]
-            if active is True:
+            state = self.develop[package]
+            if state is 'auto':
+                self._config.set('develop', package, 'auto')
+            elif state is True:
                 self._config.set('develop', package, 'true')
-            elif active is False:
+            elif state is False:
                 self._config.set('develop', package, 'false')
 
         if not self._config.has_section('buildout'):
