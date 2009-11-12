@@ -123,7 +123,7 @@ def extension(buildout=None):
     args = dict(
         sources = pformat(sources),
         auto_checkout = pformat(auto_checkout),
-        buildout_dir = '"%s"' % buildout_dir,
+        buildout_dir = '%r' % buildout_dir,
         develeggs = pformat(develeggs),
     )
     buildout._raw[FAKE_PART_ID] = dict(

@@ -4,6 +4,9 @@ Changelog
 1.1.1 - Unreleased
 ------------------
 
+* Fix buildout_dir in `develop` script, so it is properly escaped on Windows.
+  [fschulze]
+
 * Changed the output of `list -s` to match the one from `status`.
   [fschulze]
 
