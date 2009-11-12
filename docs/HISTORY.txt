@@ -4,6 +4,13 @@ Changelog
 1.1.1 - Unreleased
 ------------------
 
+* Exit immediately when there are issues during checkout when running as
+  extension.
+  [fschulze]
+
+* Use verbosity from buildout when running as extension.
+  [fschulze]
+
 * Fix buildout_dir in `develop` script, so it is properly escaped on Windows.
   [fschulze]
 

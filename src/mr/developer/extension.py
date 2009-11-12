@@ -1,6 +1,5 @@
 from mr.developer.common import WorkingCopies, Config
 from pprint import pformat
-import atexit
 import logging
 import os
 import sys
@@ -88,8 +87,9 @@ def extension(buildout=None):
         else:
             logger.error("The package '%s' from auto-checkout has no source information." % diff[0])
         sys.exit(1)
-    if workingcopies.checkout(sorted(auto_checkout), skip_errors=True):
-        atexit.register(report_error)
+    root_logger = logging.getLogger()
+    workingcopies.checkout(sorted(auto_checkout),
+                           verbose=root_logger.level <= 10)
 
     # make the develop eggs if the package is checked out and fixup versions
     develop = buildout['buildout'].get('develop', '')
