@@ -117,13 +117,15 @@ class WorkingCopies(object):
 
 
 class Config(object):
-    def __init__(self, buildout_dir):
+    def __init__(self, buildout_dir, sources_dir=None):
         self.cfg_path = os.path.join(buildout_dir, '.mr.developer.cfg')
         self._config = RawConfigParser()
         self._config.optionxform = lambda s: s
         self._config.read(self.cfg_path)
         self.develop = {}
         self.buildout_args = []
+        if sources_dir is not None:
+            self.sources_dir = sources_dir
         self.namedrepos = NAMED_REPOS
         self.rewrites = {
                 'defaultcfg': [],
