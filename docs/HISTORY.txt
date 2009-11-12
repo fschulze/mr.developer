@@ -4,6 +4,10 @@ Changelog
 1.1.1 - Unreleased
 ------------------
 
+* Removed old way of specifying sources with ``sources-svn`` and
+  ``sources-git``.
+  [fschulze]
+
 * Exit immediately when there are issues during checkout when running as
   extension.
   [fschulze]

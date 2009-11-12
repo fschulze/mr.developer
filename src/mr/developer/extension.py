@@ -44,38 +44,6 @@ def extension(buildout=None):
             path = os.path.join(sources_dir, name)
         sources[name] = dict(kind=kind, name=name, url=url, path=path)
 
-    # deprecated way of specifing sources
-    if 'sources-svn' in buildout['buildout']:
-        logger.warn("'sources-svn' is deprecated, use 'sources' instead (see README for usage).")
-    section = buildout.get(buildout['buildout'].get('sources-svn'), {})
-    for name, url in section.iteritems():
-        for rewrite in config.rewrites:
-            if len(rewrite) == 2 and url.startswith(rewrite[0]):
-                url = "%s%s" % (rewrite[1], url[len(rewrite[0]):])
-        if name in sources:
-            logger.error("The source for '%s' is already set." % name)
-            sys.exit(1)
-        sources[name] = dict(
-            kind='svn',
-            name=name,
-            url=url,
-            path=os.path.join(sources_dir, name))
-    if 'sources-git' in buildout['buildout']:
-        logger.warn("'sources-git' is deprecated, use 'sources' instead (see README for usage).")
-    section = buildout.get(buildout['buildout'].get('sources-git'), {})
-    for name, url in section.iteritems():
-        for rewrite in config.rewrites:
-            if len(rewrite) == 2 and url.startswith(rewrite[0]):
-                url = "%s%s" % (rewrite[1], url[len(rewrite[0]):])
-        if name in sources:
-            logger.error("The source for '%s' is already set." % name)
-            sys.exit(1)
-        sources[name] = dict(
-            kind='git',
-            name=name,
-            url=url,
-            path=os.path.join(sources_dir, name))
-
     # do automatic checkout of specified packages
     auto_checkout = set(buildout['buildout'].get('auto-checkout', '').split())
     workingcopies = WorkingCopies(sources)
