@@ -1,8 +1,8 @@
 Changelog
 =========
 
-1.1.1 - Unreleased
-------------------
+1.2 - 2009-11-12
+----------------
 
 * If a package is removed from ``auto-checkout`` and wasn't explicitly
   activated, then it will be removed from the develop packages automatically.
