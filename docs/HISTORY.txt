@@ -4,6 +4,9 @@ Changelog
 1.1.1 - Unreleased
 ------------------
 
+* Added ``*`` wild card support for ``auto-checkout``.
+  [fschulze]
+
 * Don't bail on subversion URLs ending in a slash or a revision marker.
   [fschulze]
 

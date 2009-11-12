@@ -32,7 +32,8 @@ section:
 
   ``auto-checkout``
     This specifies the names of packages which should be checked out during
-    buildout, packages already checked out are skipped.
+    buildout, packages already checked out are skipped. You can use ``*`` as
+    a wild card for all packages in ``sources``.
 
 The format of the section with the repository information is::
 

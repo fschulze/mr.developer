@@ -46,6 +46,8 @@ def extension(buildout=None):
 
     # do automatic checkout of specified packages
     auto_checkout = set(buildout['buildout'].get('auto-checkout', '').split())
+    if '*' in auto_checkout:
+        auto_checkout = set(sources.keys())
     workingcopies = WorkingCopies(sources)
     if not auto_checkout.issubset(set(sources.keys())):
         diff = list(sorted(auto_checkout.difference(set(sources.keys()))))
