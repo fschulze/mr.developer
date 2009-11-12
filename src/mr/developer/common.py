@@ -122,15 +122,15 @@ class Config(object):
         self._config = RawConfigParser()
         self._config.optionxform = lambda s: s
         self._config.read(self.cfg_path)
-        self.develop = {}
-        self.buildout_args = []
         if sources_dir is not None:
             self.sources_dir = sources_dir
-        self.namedrepos = NAMED_REPOS
+        self.develop = {}
+        self.buildout_args = []
         self.rewrites = {
                 'defaultcfg': [],
                 'local': []
                 }
+        self.namedrepos = NAMED_REPOS
         if self._config.has_section('develop'):
             for package, value in self._config.items('develop'):
                 value = value.lower()
