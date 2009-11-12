@@ -117,32 +117,18 @@ class WorkingCopies(object):
 
 
 class Config(object):
-    def __init__(self, buildout):
-        # TODO: some logic should move to factory
-        try:
-            buildout_dir = self.buildout_dir = buildout['buildout']['directory']
-            sources_dir = self.sources_dir = \
-                    buildout['buildout'].get('sources-dir', 'src')
-        except TypeError:
-            # this very hackish - the whole reading/writing of cfg should move
-            # here or elsewhere central
-            buildout_dir = self.buildout_dir = buildout
-            sources_dir = self.sources_dir = 'src'
-        self.cfg_path = os.path.join(self.buildout_dir, '.mr.developer.cfg')
+    def __init__(self, buildout_dir):
+        self.cfg_path = os.path.join(buildout_dir, '.mr.developer.cfg')
         self._config = RawConfigParser()
         self._config.optionxform = lambda s: s
         self._config.read(self.cfg_path)
         self.develop = {}
         self.buildout_args = []
-        if os.path.split(sys.argv[0])[1] == 'buildout':
-            self.buildout_args = list(sys.argv)
         self.namedrepos = NAMED_REPOS
         self.rewrites = {
                 'defaultcfg': [],
                 'local': []
                 }
-        if not os.path.isabs(sources_dir):
-            sources_dir = os.path.join(buildout_dir, sources_dir)
         if self._config.has_section('develop'):
             for package, value in self._config.items('develop'):
                 value = value.lower()
