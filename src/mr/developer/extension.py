@@ -17,43 +17,55 @@ class Extension(object):
         self.executable = sys.argv[0]
 
     def get_config(self):
-        return Config(self.buildout_dir)
+        config = getattr(self, '_config', None)
+        if config is None:
+            self._config = config = Config(self.buildout_dir)
+        return config
 
-    def __call__(self):
-        import zc.buildout.easy_install
+    def get_workingcopies(self):
+        return WorkingCopies(self.get_sources())
 
+    def get_sources(self):
+        sources = getattr(self, '_sources', None)
+        if sources is not None:
+            return sources
         buildout = self.buildout
-        buildout_dir = self.buildout_dir
-        config = self.get_config()
-        if os.path.split(self.executable)[1] == 'buildout':
-            config.buildout_args = list(sys.argv)
-
         sources_dir = buildout['buildout'].get('sources-dir', 'src')
         if not os.path.isabs(sources_dir):
-            sources_dir = os.path.join(buildout_dir, sources_dir)
+            sources_dir = os.path.join(self.buildout_dir, sources_dir)
 
-        sources = {}
+        self._sources = sources = {}
         section = buildout.get(buildout['buildout'].get('sources', 'sources'), {})
         for name, info in section.iteritems():
             info = info.split()
             kind = info[0]
             url = info[1]
-            for rewrite in config.rewrites:
+            for rewrite in self.get_config().rewrites:
                 if len(rewrite) == 2 and url.startswith(rewrite[0]):
                     url = "%s%s" % (rewrite[1], url[len(rewrite[0]):])
             if len(info) > 2:
                 path = os.path.join(info[2], name)
                 if not os.path.isabs(path):
-                    path = os.path.join(buildout_dir, path)
+                    path = os.path.join(self.buildout_dir, path)
             else:
                 path = os.path.join(sources_dir, name)
             sources[name] = dict(kind=kind, name=name, url=url, path=path)
+        return sources
 
-        # do automatic checkout of specified packages
-        auto_checkout = set(buildout['buildout'].get('auto-checkout', '').split())
+    def get_auto_checkout(self):
+        auto_checkout = getattr(self, '_auto_checkout', None)
+        if auto_checkout is not None:
+            return auto_checkout
+        buildout = self.buildout
+        sources = self.get_sources()
+
+        auto_checkout = set(
+            buildout['buildout'].get('auto-checkout', '').split()
+        )
         if '*' in auto_checkout:
             auto_checkout = set(sources.keys())
-        workingcopies = WorkingCopies(sources)
+        self._auto_checkout = auto_checkout
+
         if not auto_checkout.issubset(set(sources.keys())):
             diff = list(sorted(auto_checkout.difference(set(sources.keys()))))
             if len(diff) > 1:
@@ -62,11 +74,14 @@ class Extension(object):
             else:
                 logger.error("The package '%s' from auto-checkout has no source information." % diff[0])
             sys.exit(1)
-        root_logger = logging.getLogger()
-        workingcopies.checkout(sorted(auto_checkout),
-                               verbose=root_logger.level <= 10)
 
-        # make the develop eggs if the package is checked out and fixup versions
+        return auto_checkout
+
+    def get_develop_info(self):
+        buildout = self.buildout
+        config = self.get_config()
+        auto_checkout = self.get_auto_checkout()
+        sources = self.get_sources()
         develop = buildout['buildout'].get('develop', '')
         versions = buildout.get(buildout['buildout'].get('versions'), {})
         develeggs = {}
@@ -89,35 +104,59 @@ class Extension(object):
                     develeggs[name] = path
                     if name in versions:
                         del versions[name]
-        if versions:
-            zc.buildout.easy_install.default_versions(dict(versions))
         develop = []
         for path in develeggs.itervalues():
-            if path.startswith(buildout_dir):
-                develop.append(path[len(buildout_dir)+1:])
+            if path.startswith(self.buildout_dir):
+                develop.append(path[len(self.buildout_dir)+1:])
             else:
                 develop.append(path)
-        buildout['buildout']['develop'] = "\n".join(develop)
+        return develop, develeggs, versions
 
-        # build the fake part to install the checkout script
+    def add_fake_part(self, **kwargs):
+        buildout = self.buildout
         if FAKE_PART_ID in buildout._raw:
             logger.error("mr.developer: The buildout already has a '%s' section, this shouldn't happen" % FAKE_PART_ID)
             sys.exit(1)
-        args = dict(
-            sources = pformat(sources),
-            auto_checkout = pformat(auto_checkout),
-            buildout_dir = '%r' % buildout_dir,
-            develeggs = pformat(develeggs),
-        )
         buildout._raw[FAKE_PART_ID] = dict(
             recipe='zc.recipe.egg',
             eggs='mr.developer',
-            arguments=',\n'.join("=".join(x) for x in args.items()),
+            arguments=',\n'.join("=".join(x) for x in kwargs.items()),
         )
         # insert the fake part
         parts = buildout['buildout']['parts'].split()
         parts.insert(0, FAKE_PART_ID)
         buildout['buildout']['parts'] = " ".join(parts)
+
+    def __call__(self):
+        buildout = self.buildout
+        buildout_dir = self.buildout_dir
+        config = self.get_config()
+
+        # store arguments when running from buildout
+        if os.path.split(self.executable)[1] == 'buildout':
+            config.buildout_args = list(sys.argv)
+
+        sources = self.get_sources()
+
+        auto_checkout = self.get_auto_checkout()
+
+        root_logger = logging.getLogger()
+        workingcopies = self.get_workingcopies()
+        workingcopies.checkout(sorted(auto_checkout),
+                               verbose=root_logger.level <= 10)
+
+        develop, develeggs, versions = self.get_develop_info()
+        if versions:
+            import zc.buildout.easy_install
+            zc.buildout.easy_install.default_versions(dict(versions))
+        buildout['buildout']['develop'] = "\n".join(develop)
+
+        self.add_fake_part(
+            sources = pformat(sources),
+            auto_checkout = pformat(auto_checkout),
+            buildout_dir = '%r' % buildout_dir,
+            develeggs = pformat(develeggs),
+        )
 
         config.save()
 
