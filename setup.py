@@ -5,6 +5,7 @@ version = '1.3'
 
 install_requires = [
   'setuptools',
+  'zc.buildout'
 ]
 
 if sys.version_info < (2, 5):

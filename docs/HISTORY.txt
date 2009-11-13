@@ -4,6 +4,8 @@ Changelog
 1.3 - Unreleased
 ----------------
 
+* Added tests and a buildout to run them easily.
+  [fschulze]
 
 1.2 - 2009-11-12
 ----------------
