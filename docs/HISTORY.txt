@@ -1,16 +1,43 @@
 Changelog
 =========
 
-1.1.1 - Unreleased
-------------------
+1.2 - 2009-11-12
+----------------
 
-* Changed the output of `list -s` to match the one from `status`.
+* If a package is removed from ``auto-checkout`` and wasn't explicitly
+  activated, then it will be removed from the develop packages automatically.
+  In existing buildouts with an older mr.developer, you have to ``reset`` the
+  packages first.
+  [fschulze]
+
+* Added ``*`` wild card support for ``auto-checkout``.
+  [fschulze]
+
+* Don't bail on subversion URLs ending in a slash or a revision marker.
+  [fschulze]
+
+* Removed old way of specifying sources with ``sources-svn`` and
+  ``sources-git``.
+  [fschulze]
+
+* Exit immediately when there are issues during checkout when running as
+  extension.
+  [fschulze]
+
+* Use verbosity from buildout when running as extension.
+  [fschulze]
+
+* Fix buildout_dir in ``develop`` script, so it is properly escaped on
+  Windows.
+  [fschulze]
+
+* Changed the output of ``list -s`` to match the one from ``status``.
   [fschulze]
 
 * Added troubleshooting section to readme.
   [miohtama, fschulze]
 
-* All commands have a `-h` and `--help` option now to show their help.
+* All commands have a ``-h`` and ``--help`` option now to show their help.
   [fschulze]
 
 1.1 - 2009-08-07

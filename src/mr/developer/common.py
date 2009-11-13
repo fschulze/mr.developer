@@ -30,34 +30,24 @@ class WorkingCopies(object):
 
     def checkout(self, packages, **kwargs):
         errors = False
-        skip_errors = kwargs.get('skip_errors', False)
         for name in packages:
             if name not in self.sources:
                 logger.error("Checkout failed. No source defined for '%s'." % name)
-                if not skip_errors:
-                    sys.exit(1)
-                else:
-                    errors = True
+                sys.exit(1)
             source = self.sources[name]
             try:
                 kind = source['kind']
                 wc = workingcopytypes.get(kind)
                 if wc is None:
                     logger.error("Unknown repository type '%s'." % kind)
-                    if not skip_errors:
-                        sys.exit(1)
-                    else:
-                        errors = True
+                    sys.exit(1)
                 output = wc.checkout(source, **kwargs)
-                if kwargs.get('verbose', False):
+                if kwargs.get('verbose', False) and output is not None and output.strip():
                     print output
             except WCError, e:
                 for l in e.args[0].split('\n'):
                     logger.error(l)
-                if not skip_errors:
-                    sys.exit(1)
-                else:
-                    errors = True
+                sys.exit(1)
         return errors
 
     def matches(self, source):
@@ -108,7 +98,7 @@ class WorkingCopies(object):
                     logger.error("Unknown repository type '%s'." % kind)
                     sys.exit(1)
                 output = wc.update(source, **kwargs)
-                if kwargs.get('verbose', False):
+                if kwargs.get('verbose', False) and output is not None and output.strip():
                     print output
             except WCError, e:
                 for l in e.args[0].split('\n'):
@@ -138,6 +128,8 @@ class Config(object):
                     self.develop[package] = True
                 elif value == 'false':
                     self.develop[package] = False
+                elif value == 'auto':
+                    self.develop[package] = 'auto'
                 else:
                     raise ValueError("Invalid value in 'develop' section of '%s'" % self.cfg_path)
         if self._config.has_option('buildout', 'args'):
@@ -169,10 +161,12 @@ class Config(object):
         self._config.remove_section('develop')
         self._config.add_section('develop')
         for package in sorted(self.develop):
-            active = self.develop[package]
-            if active is True:
+            state = self.develop[package]
+            if state is 'auto':
+                self._config.set('develop', package, 'auto')
+            elif state is True:
                 self._config.set('develop', package, 'true')
-            elif active is False:
+            elif state is False:
                 self._config.set('develop', package, 'false')
 
         if not self._config.has_section('buildout'):

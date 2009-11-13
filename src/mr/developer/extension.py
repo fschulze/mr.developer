@@ -1,6 +1,5 @@
 from mr.developer.common import WorkingCopies, Config
 from pprint import pformat
-import atexit
 import logging
 import os
 import re
@@ -221,40 +220,10 @@ def extension(buildout=None):
     for name, info in section.iteritems():
         sources[name] = sourcefromcfgline(config, name, info)
 
-    # deprecated way of specifing sources
-    if 'sources-svn' in buildout['buildout']:
-        logger.warn("'sources-svn' is deprecated, use 'sources' instead (see README for usage).")
-    section = buildout.get(buildout['buildout'].get('sources-svn'), {})
-    for name, url in section.iteritems():
-        for rewrite in config.rewrites['local']:
-            if len(rewrite) == 2 and url.startswith(rewrite[0]):
-                url = "%s%s" % (rewrite[1], url[len(rewrite[0]):])
-        if name in sources:
-            logger.error("The source for '%s' is already set." % name)
-            sys.exit(1)
-        sources[name] = dict(
-            kind='svn',
-            name=name,
-            url=url,
-            path=os.path.join(sources_dir, name))
-    if 'sources-git' in buildout['buildout']:
-        logger.warn("'sources-git' is deprecated, use 'sources' instead (see README for usage).")
-    section = buildout.get(buildout['buildout'].get('sources-git'), {})
-    for name, url in section.iteritems():
-        for rewrite in config.rewrites['local']:
-            if len(rewrite) == 2 and url.startswith(rewrite[0]):
-                url = "%s%s" % (rewrite[1], url[len(rewrite[0]):])
-        if name in sources:
-            logger.error("The source for '%s' is already set." % name)
-            sys.exit(1)
-        sources[name] = dict(
-            kind='git',
-            name=name,
-            url=url,
-            path=os.path.join(sources_dir, name))
-
     # do automatic checkout of specified packages
     auto_checkout = set(buildout['buildout'].get('auto-checkout', '').split())
+    if '*' in auto_checkout:
+        auto_checkout = set(sources.keys())
     workingcopies = WorkingCopies(sources)
     if not auto_checkout.issubset(set(sources.keys())):
         diff = list(sorted(auto_checkout.difference(set(sources.keys()))))
@@ -264,8 +233,9 @@ def extension(buildout=None):
         else:
             logger.error("The package '%s' from auto-checkout has no source information." % diff[0])
         sys.exit(1)
-    if workingcopies.checkout(sorted(auto_checkout), skip_errors=True):
-        atexit.register(report_error)
+    root_logger = logging.getLogger()
+    workingcopies.checkout(sorted(auto_checkout),
+                           verbose=root_logger.level <= 10)
 
     # make the develop eggs if the package is checked out and fixup versions
     develop = buildout['buildout'].get('develop', '')
@@ -279,6 +249,16 @@ def extension(buildout=None):
             path = sources[name]['path']
             if os.path.exists(path) and config.develop.get(name, name in auto_checkout):
                 config.develop.setdefault(name, True)
+            status = config.develop.get(name, name in auto_checkout)
+            if os.path.exists(path) and status:
+                if name in auto_checkout:
+                    config.develop.setdefault(name, 'auto')
+                else:
+                    if status == 'auto':
+                        if name in config.develop:
+                            del config.develop[name]
+                            continue
+                    config.develop.setdefault(name, True)
                 pkgbasedir = sources[name]['pkgbasedir']
                 if pkgbasedir is not None:
                     path = os.path.join(path, pkgbasedir, name)
@@ -302,7 +282,7 @@ def extension(buildout=None):
     args = dict(
         sources = pformat(sources),
         auto_checkout = pformat(auto_checkout),
-        buildout_dir = '"%s"' % buildout_dir,
+        buildout_dir = '%r' % buildout_dir,
         develeggs = pformat(develeggs),
     )
     buildout._raw[FAKE_PART_ID] = dict(

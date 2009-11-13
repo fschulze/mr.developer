@@ -32,7 +32,8 @@ section:
 
   ``auto-checkout``
     This specifies the names of packages which should be checked out during
-    buildout, packages already checked out are skipped.
+    buildout, packages already checked out are skipped. You can use ``*`` as
+    a wild card for all packages in ``sources``.
 
 The format of the section with the repository information is::
 
@@ -226,3 +227,9 @@ You should add .egg-info to your global Subversion ignores in
 `~/.subversion/config`, like this::
   
   global-ignores = *.o *.lo *.la *.al .libs *.so *.so.[0-9]* *.a *.pyc *.pyo *.rej *~ #*# .#* .*.swp .DS_Store *.egg-info
+
+HTTPS certificates
+------------------
+
+The best way to handle https certificates at the moment, is to accept them
+permanently when checking out the source manually.
