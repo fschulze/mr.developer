@@ -10,11 +10,6 @@ FAKE_PART_ID = '_mr.developer'
 logger = logging.getLogger("mr.developer")
 
 
-def report_error():
-    logger.error("*"*40)
-    logger.error("There have been errors during checkout, check the output above or use 'develop status'.")
-    logger.error("*"*40)
-
 def extension(buildout=None):
     import zc.buildout.easy_install
 
