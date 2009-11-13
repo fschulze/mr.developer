@@ -13,14 +13,19 @@ logger = logging.getLogger("mr.developer")
 class Extension(object):
     def __init__(self, buildout):
         self.buildout = buildout
+        self.buildout_dir = buildout['buildout']['directory']
+        self.executable = sys.argv[0]
+
+    def get_config(self):
+        return Config(self.buildout_dir)
 
     def __call__(self):
         import zc.buildout.easy_install
 
         buildout = self.buildout
-        buildout_dir = buildout['buildout']['directory']
-        config = Config(buildout_dir)
-        if os.path.split(sys.argv[0])[1] == 'buildout':
+        buildout_dir = self.buildout_dir
+        config = self.get_config()
+        if os.path.split(self.executable)[1] == 'buildout':
             config.buildout_args = list(sys.argv)
 
         sources_dir = buildout['buildout'].get('sources-dir', 'src')

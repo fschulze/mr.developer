@@ -24,6 +24,49 @@ class MockBuildout(object):
         return repr(self._raw)
 
 
+class MockConfig(object):
+    def save(self):
+        return
+
+
+class TestExtensionClass(TestCase):
+    def setUp(self):
+        from mr.developer.extension import Extension
+
+        self.buildout = MockBuildout(dict(
+            buildout=dict(
+                directory='/',
+                parts='',
+            ),
+            sources={},
+        ))
+
+        class MockExtension(Extension):
+            def get_config(self):
+                config = getattr(self, '_config', None)
+                if config is None:
+                    self._config = config = MockConfig()
+                return config
+
+        self.extension = MockExtension(self.buildout)
+
+    def testPartAdded(self):
+        buildout = self.buildout
+        self.failIf('_mr.developer' in buildout['buildout']['parts'])
+        self.extension()
+        self.failUnless('_mr.developer' in buildout)
+        self.failUnless('_mr.developer' in buildout['buildout']['parts'])
+
+    def testArgsIgnoredIfNotBuildout(self):
+        self.extension()
+        self.failIf(hasattr(self.extension.get_config(), 'buildout_args'))
+
+    def testBuildoutArgsSaved(self):
+        self.extension.executable = 'buildout'
+        self.extension()
+        self.failUnless(hasattr(self.extension.get_config(), 'buildout_args'))
+
+
 class TestExtension(TestCase):
     def setUp(self):
         self.tempdir = tempfile.mkdtemp()
@@ -37,14 +80,6 @@ class TestExtension(TestCase):
 
     def tearDown(self):
         shutil.rmtree(self.tempdir)
-
-    def testPartAdded(self):
-        from mr.developer.extension import extension
-        buildout = self.buildout
-        self.failIf('_mr.developer' in buildout['buildout']['parts'])
-        extension(buildout)
-        self.failUnless('_mr.developer' in buildout)
-        self.failUnless('_mr.developer' in buildout['buildout']['parts'])
 
     def testConfigCreated(self):
         from mr.developer.extension import extension
