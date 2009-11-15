@@ -10,64 +10,71 @@ FAKE_PART_ID = '_mr.developer'
 logger = logging.getLogger("mr.developer")
 
 
+def memoize(f, _marker=[]):
+    def g(*args, **kwargs):
+        name = '_memoize_%s' % f.__name__
+        value = getattr(args[0], name, _marker)
+        if value is _marker:
+            value = f(*args, **kwargs)
+            setattr(args[0], name, value)
+        return value
+    return g
+
+
 class Extension(object):
     def __init__(self, buildout):
         self.buildout = buildout
         self.buildout_dir = buildout['buildout']['directory']
         self.executable = sys.argv[0]
 
+    @memoize
     def get_config(self):
-        config = getattr(self, '_config', None)
-        if config is None:
-            self._config = config = Config(self.buildout_dir)
-        return config
+        return Config(self.buildout_dir)
 
     def get_workingcopies(self):
         return WorkingCopies(self.get_sources())
 
+    @memoize
     def get_sources(self):
-        sources = getattr(self, '_sources', None)
-        if sources is not None:
-            return sources
-        buildout = self.buildout
-        sources_dir = buildout['buildout'].get('sources-dir', 'src')
+        sources_dir = self.buildout['buildout'].get('sources-dir', 'src')
         if not os.path.isabs(sources_dir):
             sources_dir = os.path.join(self.buildout_dir, sources_dir)
 
-        self._sources = sources = {}
-        section = buildout.get(buildout['buildout'].get('sources', 'sources'), {})
-        for name, info in section.iteritems():
-            info = info.split()
+        sources = {}
+        sources_section = self.buildout['buildout'].get('sources', 'sources')
+        section = self.buildout.get(sources_section, {})
+        for name in section:
+            info = section[name].split()
             kind = info[0]
             url = info[1]
+
             for rewrite in self.get_config().rewrites:
                 if len(rewrite) == 2 and url.startswith(rewrite[0]):
                     url = "%s%s" % (rewrite[1], url[len(rewrite[0]):])
+
             if len(info) > 2:
                 path = os.path.join(info[2], name)
                 if not os.path.isabs(path):
                     path = os.path.join(self.buildout_dir, path)
             else:
                 path = os.path.join(sources_dir, name)
+
             sources[name] = dict(kind=kind, name=name, url=url, path=path)
+
         return sources
 
+    @memoize
     def get_auto_checkout(self):
-        auto_checkout = getattr(self, '_auto_checkout', None)
-        if auto_checkout is not None:
-            return auto_checkout
-        buildout = self.buildout
-        sources = self.get_sources()
+        packages = set(self.get_sources().keys())
 
         auto_checkout = set(
-            buildout['buildout'].get('auto-checkout', '').split()
+            self.buildout['buildout'].get('auto-checkout', '').split()
         )
         if '*' in auto_checkout:
-            auto_checkout = set(sources.keys())
-        self._auto_checkout = auto_checkout
+            auto_checkout = packages
 
-        if not auto_checkout.issubset(set(sources.keys())):
-            diff = list(sorted(auto_checkout.difference(set(sources.keys()))))
+        if not auto_checkout.issubset(packages):
+            diff = list(sorted(auto_checkout.difference(packages)))
             if len(diff) > 1:
                 pkgs = "%s and '%s'" % (", ".join("'%s'" % x for x in diff[:-1]), diff[-1])
                 logger.error("The packages %s from auto-checkout have no source information." % pkgs)
@@ -78,29 +85,29 @@ class Extension(object):
         return auto_checkout
 
     def get_develop_info(self):
-        buildout = self.buildout
-        config = self.get_config()
         auto_checkout = self.get_auto_checkout()
         sources = self.get_sources()
-        develop = buildout['buildout'].get('develop', '')
-        versions = buildout.get(buildout['buildout'].get('versions'), {})
+        develop = self.buildout['buildout'].get('develop', '')
+        versions_section = self.buildout['buildout'].get('versions')
+        versions = self.buildout.get(versions_section, {})
         develeggs = {}
         for path in develop.split():
             head, tail = os.path.split(path)
             develeggs[tail] = path
+        config_develop = self.get_config().develop
         for name in sources:
             if name not in develeggs:
                 path = sources[name]['path']
-                status = config.develop.get(name, name in auto_checkout)
+                status = config_develop.get(name, name in auto_checkout)
                 if os.path.exists(path) and status:
                     if name in auto_checkout:
-                        config.develop.setdefault(name, 'auto')
+                        config_develop.setdefault(name, 'auto')
                     else:
                         if status == 'auto':
-                            if name in config.develop:
-                                del config.develop[name]
+                            if name in config_develop:
+                                del config_develop[name]
                                 continue
-                        config.develop.setdefault(name, True)
+                        config_develop.setdefault(name, True)
                     develeggs[name] = path
                     if name in versions:
                         del versions[name]
@@ -113,30 +120,25 @@ class Extension(object):
         return develop, develeggs, versions
 
     def add_fake_part(self, **kwargs):
-        buildout = self.buildout
-        if FAKE_PART_ID in buildout._raw:
+        if FAKE_PART_ID in self.buildout._raw:
             logger.error("mr.developer: The buildout already has a '%s' section, this shouldn't happen" % FAKE_PART_ID)
             sys.exit(1)
-        buildout._raw[FAKE_PART_ID] = dict(
+        self.buildout._raw[FAKE_PART_ID] = dict(
             recipe='zc.recipe.egg',
             eggs='mr.developer',
             arguments=',\n'.join("=".join(x) for x in kwargs.items()),
         )
         # insert the fake part
-        parts = buildout['buildout']['parts'].split()
+        parts = self.buildout['buildout']['parts'].split()
         parts.insert(0, FAKE_PART_ID)
-        buildout['buildout']['parts'] = " ".join(parts)
+        self.buildout['buildout']['parts'] = " ".join(parts)
 
     def __call__(self):
-        buildout = self.buildout
-        buildout_dir = self.buildout_dir
         config = self.get_config()
 
         # store arguments when running from buildout
         if os.path.split(self.executable)[1] == 'buildout':
             config.buildout_args = list(sys.argv)
-
-        sources = self.get_sources()
 
         auto_checkout = self.get_auto_checkout()
 
@@ -145,16 +147,18 @@ class Extension(object):
         workingcopies.checkout(sorted(auto_checkout),
                                verbose=root_logger.level <= 10)
 
-        develop, develeggs, versions = self.get_develop_info()
+        (develop, develeggs, versions) = self.get_develop_info()
+
         if versions:
             import zc.buildout.easy_install
             zc.buildout.easy_install.default_versions(dict(versions))
-        buildout['buildout']['develop'] = "\n".join(develop)
+
+        self.buildout['buildout']['develop'] = "\n".join(develop)
 
         self.add_fake_part(
-            sources = pformat(sources),
+            sources = pformat(self.get_sources()),
             auto_checkout = pformat(auto_checkout),
-            buildout_dir = '%r' % buildout_dir,
+            buildout_dir = '%r' % self.buildout_dir,
             develeggs = pformat(develeggs),
         )
 

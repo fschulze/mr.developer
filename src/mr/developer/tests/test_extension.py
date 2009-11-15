@@ -46,7 +46,7 @@ class MockWorkingCopies(object):
 
 class TestExtensionClass(TestCase):
     def setUp(self):
-        from mr.developer.extension import Extension
+        from mr.developer.extension import memoize, Extension
 
         self.buildout = MockBuildout(dict(
             buildout=dict(
@@ -57,14 +57,15 @@ class TestExtensionClass(TestCase):
         ))
 
         class MockExtension(Extension):
+            @memoize
+            def get_config(self):
+                return MockConfig()
+
+            @memoize
             def get_workingcopies(self):
-                wcs = getattr(self, '_wcs', None)
-                if wcs is None:
-                    self._wcs = wcs = MockWorkingCopies(self.get_sources())
-                return wcs
+                return MockWorkingCopies(self.get_sources())
 
         self.extension = MockExtension(self.buildout)
-        self.extension._config = MockConfig()
 
     def testPartAdded(self):
         buildout = self.buildout
@@ -123,7 +124,7 @@ class TestExtensionClass(TestCase):
             'pkg.foo': 'svn dummy://pkg.foo',
             'pkg.bar': 'svn baz://pkg.bar',
         })
-        self.extension._config.rewrites.append(('dummy://', 'ham://'))
+        self.extension.get_config().rewrites.append(('dummy://', 'ham://'))
         sources = self.extension.get_sources()
         self.assertEquals(sources['pkg.foo']['url'], 'ham://pkg.foo')
         self.assertEquals(sources['pkg.bar']['url'], 'baz://pkg.bar')
