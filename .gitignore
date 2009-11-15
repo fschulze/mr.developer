@@ -1,2 +1,5 @@
-dist/*
+bin/*
 build/*
+coverage/*
+develop-eggs/*
+dist/*
