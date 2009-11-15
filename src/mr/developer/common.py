@@ -102,6 +102,80 @@ class WorkingCopies(object):
                 sys.exit(1)
 
 
+def parse_buildout_args(args):
+    settings = dict(
+        config_file = 'buildout.cfg',
+        verbosity = 0,
+        options = [],
+        windows_restart = False,
+        user_defaults = True,
+        debug = False,
+    )
+    options = []
+    while args:
+        if args[0][0] == '-':
+            op = orig_op = args.pop(0)
+            op = op[1:]
+            while op and op[0] in 'vqhWUoOnNDA':
+                if op[0] == 'v':
+                    settings['verbosity'] = settings['verbosity'] + 10
+                elif op[0] == 'q':
+                    settings['verbosity'] = settings['verbosity'] - 10
+                elif op[0] == 'W':
+                    settings['windows_restart'] = True
+                elif op[0] == 'U':
+                    settings['user_defaults'] = False
+                elif op[0] == 'o':
+                    options.append(('buildout', 'offline', 'true'))
+                elif op[0] == 'O':
+                    options.append(('buildout', 'offline', 'false'))
+                elif op[0] == 'n':
+                    options.append(('buildout', 'newest', 'true'))
+                elif op[0] == 'N':
+                    options.append(('buildout', 'newest', 'false'))
+                elif op[0] == 'D':
+                    settings['debug'] = True
+                else:
+                    raise ValueError("Unkown option '%s'." % op[0])
+                op = op[1:]
+
+            if op[:1] in  ('c', 't'):
+                op_ = op[:1]
+                op = op[1:]
+
+                if op_ == 'c':
+                    if op:
+                        settings['config_file'] = op
+                    else:
+                        if args:
+                            settings['config_file'] = args.pop(0)
+                        else:
+                            raise ValueError("No file name specified for option", orig_op)
+                elif op_ == 't':
+                    try:
+                        timeout = int(args.pop(0))
+                    except IndexError:
+                        raise ValueError("No timeout value specified for option", orig_op)
+                    except ValueError:
+                        raise ValueError("No timeout value must be numeric", orig_op)
+                    options.append(('socket_timeout', op))
+            elif op:
+                if orig_op == '--help':
+                    return 'help'
+                raise ValueError("Invalid option", '-'+op[0])
+        elif '=' in args[0]:
+            option, value = args.pop(0).split('=', 1)
+            if len(option.split(':')) != 2:
+                raise ValueError('Invalid option:', option)
+            section, option = option.split(':')
+            options.append((section.strip(), option.strip(), value.strip()))
+        else:
+            # We've run out of command-line options and option assignnemnts
+            # The rest should be commands, so we'll stop here
+            break
+    return options, settings
+
+
 class Config(object):
     def __init__(self, buildout_dir):
         self.cfg_path = os.path.join(buildout_dir, '.mr.developer.cfg')
