@@ -4,6 +4,11 @@ Changelog
 1.3 - Unreleased
 ----------------
 
+* Read the cfg used by last buildout run. This prevents unexpected behaviour,
+  if you change mr.developer options like source declarations and don't run
+  buildout. Such changes are now picked up immediately.
+  [fschulze]
+
 * Added tests and a buildout to run them easily.
   [fschulze]
 

@@ -205,6 +205,8 @@ class Config(object):
                 elif arg.startswith('"') and arg.endswith('"'):
                     arg = arg[1:-1].replace('\\"', '"')
                 self.buildout_args.append(arg)
+        (self.buildout_options, self.buildout_settings) = \
+            parse_buildout_args(self.buildout_args[1:])
         if self._config.has_option('mr.developer', 'rewrites'):
             for rewrite in self._config.get('mr.developer', 'rewrites').split('\n'):
                 self.rewrites.append(rewrite.split())

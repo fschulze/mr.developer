@@ -1,5 +1,4 @@
 from mr.developer.common import WorkingCopies, Config
-from pprint import pformat
 import logging
 import os
 import sys
@@ -119,14 +118,13 @@ class Extension(object):
                 develop.append(path)
         return develop, develeggs, versions
 
-    def add_fake_part(self, **kwargs):
+    def add_fake_part(self):
         if FAKE_PART_ID in self.buildout._raw:
             logger.error("mr.developer: The buildout already has a '%s' section, this shouldn't happen" % FAKE_PART_ID)
             sys.exit(1)
         self.buildout._raw[FAKE_PART_ID] = dict(
             recipe='zc.recipe.egg',
             eggs='mr.developer',
-            arguments=',\n'.join("=".join(x) for x in kwargs.items()),
         )
         # insert the fake part
         parts = self.buildout['buildout']['parts'].split()
@@ -155,12 +153,7 @@ class Extension(object):
 
         self.buildout['buildout']['develop'] = "\n".join(develop)
 
-        self.add_fake_part(
-            sources = pformat(self.get_sources()),
-            auto_checkout = pformat(auto_checkout),
-            buildout_dir = '%r' % self.buildout_dir,
-            develeggs = pformat(develeggs),
-        )
+        self.add_fake_part()
 
         config.save()
 

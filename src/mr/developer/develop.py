@@ -1,6 +1,7 @@
 from mr.developer.common import logger, WorkingCopies, Config
-from mr.developer.extension import FAKE_PART_ID
-import ConfigParser
+from mr.developer.extension import Extension
+from zc.buildout.buildout import Buildout
+import atexit
 import logging
 import optparse
 import os
@@ -10,25 +11,20 @@ import sys
 import textwrap
 
 
-def load_installed_cfg(path=None):
+def find_base():
+    path = os.getcwd()
+    while path:
+        if os.path.exists(os.path.join(path, '.mr.developer.cfg')):
+            break
+        old_path = path
+        path = os.path.dirname(path)
+        if old_path == path:
+            path = None
+            break
     if path is None:
-        path = os.getcwd()
-        while path:
-            if os.path.exists(os.path.join(path, '.installed.cfg')):
-                break
-            old_path = path
-            path = os.path.dirname(path)
-            if old_path == path:
-                path = None
-                break
-    if path is None:
-        raise IOError(".installed.cfg not found")
+        raise IOError(".mr.developer.cfg not found")
 
-    config = ConfigParser.RawConfigParser()
-    config.optionxform = lambda s: s
-    config.read(os.path.join(path, '.installed.cfg'))
-
-    return config
+    return path
 
 
 class HelpFormatter(optparse.IndentedHelpFormatter):
@@ -607,33 +603,34 @@ class Develop(object):
         self.cmd_status = self.alias_stat = self.alias_st = CmdStatus(self)
         self.cmd_update = self.alias_up = CmdUpdate(self)
 
-        if len(kwargs) == 0:
-            try:
-                installed = load_installed_cfg()
-            except IOError, e:
-                self.cmd_help()
-                print
-                logger.error("You are not in a path which has mr.developer installed (%s)." % e)
-                return
-            if not installed.has_option(FAKE_PART_ID, '__buildout_installed__'):
-                self.cmd_help()
-                print
-                logger.error("You are not in a path which has mr.developer installed (mr.developer not in buildout).")
-                return
-            develop = installed.get(FAKE_PART_ID, '__buildout_installed__')
-            subprocess.call([develop] + sys.argv[1:])
+        try:
+            self.buildout_dir = find_base()
+        except IOError, e:
+            self.cmd_help()
+            print
+            logger.error("You are not in a path which has mr.developer installed (%s)." % e)
             return
 
-        self.sources = kwargs['sources']
-        self.auto_checkout = set(kwargs['auto_checkout'])
-        self.buildout_dir = kwargs['buildout_dir']
         self.config = Config(self.buildout_dir)
-        self.develeggs = kwargs['develeggs']
+        self.original_dir = os.getcwd()
+        atexit.register(self.restore_original_dir)
+        os.chdir(self.buildout_dir)
+        buildout = Buildout(self.config.buildout_settings['config_file'],
+                            self.config.buildout_options,
+                            self.config.buildout_settings['user_defaults'],
+                            self.config.buildout_settings['windows_restart'])
+        extension = Extension(buildout)
+        self.sources = extension.get_sources()
+        self.auto_checkout = extension.get_auto_checkout()
+        develop, self.develeggs, versions = extension.get_develop_info()
 
         if len(sys.argv) < 2:
             print "Type '%s help' for usage." % os.path.basename(sys.argv[0])
         else:
             self.commands.get(sys.argv[1], self.unknown)()
+
+    def restore_original_dir(self):
+        os.chdir(self.original_dir)
 
     @property
     def commands(self):
