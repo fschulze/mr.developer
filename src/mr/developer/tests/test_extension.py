@@ -128,6 +128,20 @@ class TestExtensionClass(TestCase):
         self.assertEquals(sources['pkg.foo']['url'], 'ham://pkg.foo')
         self.assertEquals(sources['pkg.bar']['url'], 'baz://pkg.bar')
 
+    def _testEmptySourceDefinition(self):
+        # TODO handle this case
+        self.buildout['sources'].update({
+            'pkg.foo': '',
+        })
+        sources = self.extension.get_sources()
+
+    def _testTooShortSourceDefinition(self):
+        # TODO handle this case
+        self.buildout['sources'].update({
+            'pkg.foo': 'svn',
+        })
+        sources = self.extension.get_sources()
+
 
 class TestExtension(TestCase):
     def setUp(self):
