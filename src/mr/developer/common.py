@@ -158,7 +158,7 @@ def parse_buildout_args(args):
                         raise ValueError("No timeout value specified for option", orig_op)
                     except ValueError:
                         raise ValueError("No timeout value must be numeric", orig_op)
-                    options.append(('socket_timeout', op))
+                    settings['socket_timeout'] = op
             elif op:
                 if orig_op == '--help':
                     return 'help'

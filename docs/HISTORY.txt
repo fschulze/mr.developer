@@ -4,6 +4,8 @@ Changelog
 1.5 - Unreleased
 ----------------
 
+* Fix parsing of buildout arguments when ``-t`` was used.
+  [fschulze]
 
 1.4 - 2009-11-16
 ----------------
