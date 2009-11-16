@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.4 - Unreleased
+1.4 - 2009-11-16
 ----------------
 
 * Allow to set a minimal revision for ``svn`` repositories. If the current
