@@ -37,17 +37,58 @@ section:
 
 The format of the section with the repository information is::
 
-  <name> = <kind> <url> [path]
+  <name> = <kind> <url> [path] [key=value]
 
-Where <name> is the package name and <kind> is either ``svn``, ``hg`` or
-``git``, <url> is the location of the repository and the optional [path]
-is the base directory where the package will be checked out (the name of
-the package will be appended), if it's missing, then ``sources-dir`` will
-be used. It's also possible to use ``fs`` as <kind>, then the format is
-"<name> = <kind> <name> [path]", where <name> is the package name and
-it's duplicated as an internal sanity check (it was also easier to keep
-the format the same :) ). This allows you for example to start a new
-package which isn't in version control yet.
+The different parts have the following meaning:
+
+  ``<name>``
+    This is the package name.
+
+  ``<kind>``
+    The kind of repository. Currently supported are one of ``svn``, ``hg``,
+    ``git`` or ``fs``.
+
+  ``<url>``
+    The location of the repository. This value is specific to the version
+    control system used.
+
+  ``[path]``
+    The (optional) base directory where the package will be checked out.
+
+    The name of the package will be appended.
+
+    If it's not set, then ``sources-dir`` will be used.
+
+  ``[key=value]``
+    You can add options with this, which are specific to the version control
+    system used. There are is no whitespace allowed in `key`, `value` or
+    around the equal sign.
+
+The different repository kinds accept some specific options.
+
+  ``svn``
+    The ``<url>`` is one of the urls supported by subversion.
+
+    You can specify a url with a revision pin, like
+    ``http://example.com/trunk@123``.
+
+    You can also set the ``rev`` or ``revision`` option, which is either a pin
+    like with ``rev=123`` or a minimum revision like ``rev=>123`` or
+    ``rev=>=123``. When you set a minimum revision, the repository is updated
+    when the current revision is lower.
+
+  ``git``
+    Currently no additional options.
+
+  ``hg``
+    Currently no additional options.
+
+  ``fs``
+    This allows you to add packages on the filesystem without a version
+    control system, or with an unsupported one. You can activate and
+    deactivate packages, but you don't get status info and can't update etc.
+
+    The ``<url>`` needs to be the same as the ``<name>`` of the package.
 
 The following is an example of how your ``buildout.cfg`` may look like::
 

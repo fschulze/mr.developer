@@ -50,7 +50,7 @@ class TestExtensionClass(TestCase):
 
         self.buildout = MockBuildout(dict(
             buildout=dict(
-                directory='/',
+                directory='/buildout',
                 parts='',
             ),
             sources={},
@@ -142,6 +142,73 @@ class TestExtensionClass(TestCase):
             'pkg.foo': 'svn',
         })
         sources = self.extension.get_sources()
+
+    def testSourcePathParsing(self):
+        self.buildout['sources'].update({
+            'pkg.bar': 'svn dummy://foo/trunk',
+            'pkg.ham': 'git dummy://foo/trunk ham',
+            'pkg.baz': 'git dummy://foo/trunk other/baz',
+            'pkg.foo': 'git dummy://foo/trunk /foo',
+        })
+        sources = self.extension.get_sources()
+        self.assertEqual(sources['pkg.bar']['path'],
+                         os.path.join(os.sep, 'buildout', 'src', 'pkg.bar'))
+        self.assertEqual(sources['pkg.ham']['path'],
+                         os.path.join(os.sep, 'buildout', 'ham', 'pkg.ham'))
+        self.assertEqual(sources['pkg.baz']['path'],
+                         os.path.join(os.sep, 'buildout', 'other', 'baz', 'pkg.baz'))
+        self.assertEqual(sources['pkg.foo']['path'],
+                         os.path.join(os.sep, 'foo', 'pkg.foo'))
+
+    def testOptionParsing(self):
+        self.buildout['sources'].update({
+            'pkg.bar': 'svn dummy://foo/trunk revision=456',
+            'pkg.ham': 'git dummy://foo/trunk ham rev=456ad138',
+            'pkg.foo': 'git dummy://foo/trunk rev=>=456ad138 branch=blubber',
+        })
+        sources = self.extension.get_sources()
+
+        self.assertEqual(sorted(sources['pkg.bar'].keys()),
+                         ['kind', 'name', 'path', 'revision', 'url'])
+        self.assertEqual(sources['pkg.bar']['revision'], '456')
+
+        self.assertEqual(sorted(sources['pkg.ham'].keys()),
+                         ['kind', 'name', 'path', 'rev', 'url'])
+        self.assertEqual(sources['pkg.ham']['path'],
+                         os.path.join(os.sep, 'buildout', 'ham', 'pkg.ham'))
+        self.assertEqual(sources['pkg.ham']['rev'], '456ad138')
+
+        self.assertEqual(sorted(sources['pkg.foo'].keys()),
+                         ['branch', 'kind', 'name', 'path', 'rev', 'url'])
+        self.assertEqual(sources['pkg.foo']['branch'], 'blubber')
+        self.assertEqual(sources['pkg.foo']['rev'], '>=456ad138')
+
+    def testDuplicateOptionParsing(self):
+        self.buildout['sources'].update({
+            'pkg.foo': 'git dummy://foo/trunk rev=456ad138 rev=blubber',
+        })
+        self.assertRaises(ValueError, self.extension.get_sources)
+
+        self.buildout['sources'].update({
+            'pkg.foo': 'git dummy://foo/trunk path=/',
+        })
+        self.assertRaises(ValueError, self.extension.get_sources)
+
+        self.buildout['sources'].update({
+            'pkg.foo': 'git dummy://foo/trunk kind=svn',
+        })
+        self.assertRaises(ValueError, self.extension.get_sources)
+
+    def testInvalidOptionParsing(self):
+        self.buildout['sources'].update({
+            'pkg.foo': 'git dummy://foo/trunk rev=456ad138 foo',
+        })
+        self.assertRaises(ValueError, self.extension.get_sources)
+
+        self.buildout['sources'].update({
+            'pkg.foo': 'git dummy://foo/trunk rev=456ad138 =foo',
+        })
+        self.assertRaises(ValueError, self.extension.get_sources)
 
 
 class TestExtension(TestCase):

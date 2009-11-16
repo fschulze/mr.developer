@@ -150,6 +150,9 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
         url = source['url']
         logger.info("Switching '%s' with subversion." % name)
         args = ["svn", "switch", url, path]
+        rev = source.get('revision', source.get('rev'))
+        if rev is not None and not rev.startswith('>'):
+            args.insert(2, '-r%s' % rev)
         stdout, stderr, returncode = self._svn_communicate(args, url, **kwargs)
         if returncode != 0:
             raise SVNError("Subversion switch for '%s' failed.\n%s" % (name, stderr))
@@ -162,6 +165,9 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
         url = source['url']
         logger.info("Updating '%s' with subversion." % name)
         args = ["svn", "update", path]
+        rev = source.get('revision', source.get('rev'))
+        if rev is not None and not rev.startswith('>'):
+            args.insert(2, '-r%s' % rev)
         stdout, stderr, returncode = self._svn_communicate(args, url, **kwargs)
         if returncode != 0:
             raise SVNError("Subversion update for '%s' failed.\n%s" % (name, stderr))
@@ -199,9 +205,22 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
         if match:
             url = match.group(1)
             rev = match.group(2)
+        if 'rev' in source and 'revision' in source:
+            raise ValueError("The source definition of '%s' contains duplicate revision option." % source['name'])
+        elif ('rev' in source or 'revision' in source) and match:
+            raise ValueError("The url of '%s' contains a revision and there is an additional revision option." % source['name'])
+        elif 'rev' in source:
+            rev = source['rev']
+        elif 'revision' in source:
+            rev = source['revision']
         if url.endswith('/'):
             url = url[:-1]
-        return (info.get('url') == url) and (info.get('revision') == rev)
+        if rev.startswith('>='):
+            return (info.get('url') == url) and (int(info.get('revision')) >= int(rev[2:]))
+        elif rev.startswith('>'):
+            return (info.get('url') == url) and (int(info.get('revision')) > int(rev[1:]))
+        else:
+            return (info.get('url') == url) and (info.get('revision') == rev)
 
     def status(self, source, **kwargs):
         name = source['name']

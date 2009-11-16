@@ -52,13 +52,27 @@ class Extension(object):
                     url = "%s%s" % (rewrite[1], url[len(rewrite[0]):])
 
             if len(info) > 2:
-                path = os.path.join(info[2], name)
-                if not os.path.isabs(path):
-                    path = os.path.join(self.buildout_dir, path)
+                if '=' not in info[2]:
+                    path = os.path.join(info[2], name)
+                    if not os.path.isabs(path):
+                        path = os.path.join(self.buildout_dir, path)
+                    options = info[3:]
+                else:
+                    path = os.path.join(sources_dir, name)
+                    options = info[2:]
             else:
                 path = os.path.join(sources_dir, name)
+                options = []
 
-            sources[name] = dict(kind=kind, name=name, url=url, path=path)
+            source = dict(kind=kind, name=name, url=url, path=path)
+            for option in options:
+                key, value = option.split('=', 1)
+                if not key:
+                    raise ValueError("Option with no name '%s'." % option)
+                if key in source:
+                    raise ValueError("Key '%s' already in source info." % key)
+                source[key] = value
+            sources[name] = source
 
         return sources
 

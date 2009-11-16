@@ -4,6 +4,9 @@ Changelog
 1.4 - Unreleased
 ----------------
 
+* Allow to set a minimal revision for ``svn`` repositories. If the current
+  revision is lower, then the package is updated.
+  [fschulze]
 
 1.3 - 2009-11-15
 ----------------
