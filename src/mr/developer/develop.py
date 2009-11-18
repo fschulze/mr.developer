@@ -1,4 +1,4 @@
-from mr.developer.common import logger, WorkingCopies, Config
+from mr.developer.common import logger, memoize, WorkingCopies, Config
 from mr.developer.extension import Extension
 from zc.buildout.buildout import Buildout
 import atexit
@@ -81,11 +81,9 @@ class Command(object):
     def __init__(self, develop):
         self.develop = develop
 
+    @memoize
     def get_packages(self, args):
-        packages = getattr(self, '_packages', None)
-        if packages is not None:
-            return packages
-        packages = self._packages = []
+        packages = []
         if not args:
             return packages
         regexp = re.compile("|".join("(%s)" % x for x in args))

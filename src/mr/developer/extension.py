@@ -1,4 +1,4 @@
-from mr.developer.common import WorkingCopies, Config
+from mr.developer.common import memoize, WorkingCopies, Config
 import logging
 import os
 import sys
@@ -7,17 +7,6 @@ import sys
 FAKE_PART_ID = '_mr.developer'
 
 logger = logging.getLogger("mr.developer")
-
-
-def memoize(f, _marker=[]):
-    def g(*args, **kwargs):
-        name = '_memoize_%s' % f.__name__
-        value = getattr(args[0], name, _marker)
-        if value is _marker:
-            value = f(*args, **kwargs)
-            setattr(args[0], name, value)
-        return value
-    return g
 
 
 class Extension(object):
