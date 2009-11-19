@@ -4,6 +4,9 @@ Changelog
 1.5 - Unreleased
 ----------------
 
+* Ask user how to proceed when package is dirty.
+  [fschulze]
+
 * Refactored package matching and made the command options consistent.
   Now you can update only the packages currently in development with ``-d``
   and similar possibilities.
