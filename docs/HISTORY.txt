@@ -4,6 +4,11 @@ Changelog
 1.5 - Unreleased
 ----------------
 
+* Refactored package matching and made the command options consistent.
+  Now you can update only the packages currently in development with ``-d``
+  and similar possibilities.
+  [fschulze]
+
 * Fix duplicate logging output.
   [fschulze]
 

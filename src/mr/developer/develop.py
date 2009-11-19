@@ -84,14 +84,14 @@ class Command(object):
 
     @memoize
     def get_packages(self, args, auto_checkout=False,
-                     develop=False, existing=False):
+                     develop=False, checked_out=False):
         if auto_checkout:
             packages = set(self.develop.auto_checkout)
         else:
             packages = set(self.develop.sources)
         if develop:
             packages = packages.intersection(set(self.develop.develeggs))
-        if existing:
+        if checked_out:
             for name in set(packages):
                 if not self.develop.sources[name].exists():
                     packages.remove(name)
@@ -125,12 +125,20 @@ class CmdActivate(Command):
         self.parser.add_option("-a", "--auto-checkout", dest="auto_checkout",
                                action="store_true", default=False,
                                help="""Only considers packages declared by auto-checkout. If you don't specify a <package-regexps> then all declared packages are processed.""")
+        self.parser.add_option("-c", "--checked-out", dest="checked_out",
+                               action="store_true", default=False,
+                               help="""Only considers packages currently checked out. If you don't specify a <package-regexps> then all checked out packages are processed.""")
+        self.parser.add_option("-d", "--develop", dest="develop",
+                               action="store_true", default=False,
+                               help="""Only considers packages currently in development mode. If you don't specify a <package-regexps> then all develop packages are processed.""")
 
     def __call__(self):
         options, args = self.parser.parse_args(sys.argv[2:])
         config = self.develop.config
         packages = self.get_packages(args,
-                                     auto_checkout=options.auto_checkout)
+                                     auto_checkout=options.auto_checkout,
+                                     checked_out=options.checked_out,
+                                     develop=options.develop)
         changed = False
         for name in sorted(packages):
             source = self.develop.sources[name]
@@ -187,11 +195,23 @@ class CmdDeactivate(Command):
             usage="%prog <package-regexps>",
             description="Remove package from the list of development packages.",
             formatter=HelpFormatter())
+        self.parser.add_option("-a", "--auto-checkout", dest="auto_checkout",
+                               action="store_true", default=False,
+                               help="""Only considers packages declared by auto-checkout. If you don't specify a <package-regexps> then all declared packages are processed.""")
+        self.parser.add_option("-c", "--checked-out", dest="checked_out",
+                               action="store_true", default=False,
+                               help="""Only considers packages currently checked out. If you don't specify a <package-regexps> then all checked out packages are processed.""")
+        self.parser.add_option("-d", "--develop", dest="develop",
+                               action="store_true", default=False,
+                               help="""Only considers packages currently in development mode. If you don't specify a <package-regexps> then all develop packages are processed.""")
 
     def __call__(self):
         options, args = self.parser.parse_args(sys.argv[2:])
         config = self.develop.config
-        packages = self.get_packages(args)
+        packages = self.get_packages(args,
+                                     auto_checkout=options.auto_checkout,
+                                     checked_out=options.checked_out,
+                                     develop=options.develop)
         changed = False
         for name in sorted(packages):
             source = self.develop.sources[name]
@@ -282,7 +302,7 @@ class CmdInfo(Command):
         packages = self.get_packages(args,
                                      auto_checkout=options.auto_checkout,
                                      develop=options.develop,
-                                     existing=options.checked_out)
+                                     checked_out=options.checked_out)
         for name in sorted(packages):
             source = self.develop.sources[name]
             if options.info:
@@ -314,6 +334,12 @@ class CmdList(Command):
         self.parser.add_option("-a", "--auto-checkout", dest="auto_checkout",
                                action="store_true", default=False,
                                help="""Only show packages in auto-checkout list.""")
+        self.parser.add_option("-c", "--checked-out", dest="checked_out",
+                               action="store_true", default=False,
+                               help="""Only considers packages currently checked out. If you don't specify a <package-regexps> then all checked out packages are processed.""")
+        self.parser.add_option("-d", "--develop", dest="develop",
+                               action="store_true", default=False,
+                               help="""Only considers packages currently in development mode. If you don't specify a <package-regexps> then all develop packages are processed.""")
         self.parser.add_option("-l", "--long", dest="long",
                                action="store_true", default=False,
                                help="""Show URL and kind of package.""")
@@ -333,7 +359,9 @@ class CmdList(Command):
         sources = self.develop.sources
         auto_checkout = self.develop.auto_checkout
         packages = self.get_packages(args,
-                                     auto_checkout=options.auto_checkout)
+                                     auto_checkout=options.auto_checkout,
+                                     checked_out=options.checked_out,
+                                     develop=options.develop)
         workingcopies = WorkingCopies(sources)
         for name in sorted(packages):
             source = sources[name]
@@ -428,11 +456,23 @@ class CmdReset(Command):
             usage="%prog <package-regexps>",
             description="Resets the packages develop status. This is useful when switching to a new buildout configuration.",
             formatter=HelpFormatter())
+        self.parser.add_option("-a", "--auto-checkout", dest="auto_checkout",
+                               action="store_true", default=False,
+                               help="""Only considers packages declared by auto-checkout. If you don't specify a <package-regexps> then all declared packages are processed.""")
+        self.parser.add_option("-c", "--checked-out", dest="checked_out",
+                               action="store_true", default=False,
+                               help="""Only considers packages currently checked out. If you don't specify a <package-regexps> then all checked out packages are processed.""")
+        self.parser.add_option("-d", "--develop", dest="develop",
+                               action="store_true", default=False,
+                               help="""Only considers packages currently in development mode. If you don't specify a <package-regexps> then all develop packages are processed.""")
 
     def __call__(self):
         options, args = self.parser.parse_args(sys.argv[2:])
         config = self.develop.config
-        packages = self.get_packages(args, existing=True)
+        packages = self.get_packages(args,
+                                     auto_checkout=options.auto_checkout,
+                                     checked_out=options.checked_out,
+                                     develop=options.develop)
         changed = False
         for name in sorted(packages):
             if name in config.develop:
@@ -466,6 +506,15 @@ class CmdStatus(Command):
                     'A' activated, but not in list of development packages (run buildout)
                     'D' deactivated, but still in list of development packages (run buildout)"""),
             formatter=HelpFormatter())
+        self.parser.add_option("-a", "--auto-checkout", dest="auto_checkout",
+                               action="store_true", default=False,
+                               help="""Only considers packages declared by auto-checkout. If you don't specify a <package-regexps> then all declared packages are processed.""")
+        self.parser.add_option("-c", "--checked-out", dest="checked_out",
+                               action="store_true", default=False,
+                               help="""Only considers packages currently checked out. If you don't specify a <package-regexps> then all checked out packages are processed.""")
+        self.parser.add_option("-d", "--develop", dest="develop",
+                               action="store_true", default=False,
+                               help="""Only considers packages currently in development mode. If you don't specify a <package-regexps> then all develop packages are processed.""")
         self.parser.add_option("-v", "--verbose", dest="verbose",
                                action="store_true", default=False,
                                help="""Show output of VCS command.""")
@@ -474,7 +523,10 @@ class CmdStatus(Command):
         options, args = self.parser.parse_args(sys.argv[2:])
         auto_checkout = self.develop.auto_checkout
         develeggs = self.develop.develeggs
-        packages = self.get_packages(args)
+        packages = self.get_packages(args,
+                                     auto_checkout=options.auto_checkout,
+                                     checked_out=options.checked_out,
+                                     develop=options.develop)
         workingcopies = WorkingCopies(self.develop.sources)
         for name in sorted(packages):
             source = self.develop.sources[name]
@@ -529,6 +581,9 @@ class CmdUpdate(Command):
         self.parser.add_option("-a", "--auto-checkout", dest="auto_checkout",
                                action="store_true", default=False,
                                help="""Only considers packages declared by auto-checkout. If you don't specify a <package-regexps> then all declared packages are processed.""")
+        self.parser.add_option("-d", "--develop", dest="develop",
+                               action="store_true", default=False,
+                               help="""Only considers packages currently in development mode. If you don't specify a <package-regexps> then all develop packages are processed.""")
         self.parser.add_option("-f", "--force", dest="force",
                                action="store_true", default=False,
                                help="""Force update even if the working copy is dirty.""")
@@ -540,7 +595,8 @@ class CmdUpdate(Command):
         options, args = self.parser.parse_args(sys.argv[2:])
         packages = self.get_packages(args,
                                      auto_checkout=options.auto_checkout,
-                                     existing=True)
+                                     checked_out=True,
+                                     develop=options.develop)
         workingcopies = WorkingCopies(self.develop.sources)
         workingcopies.update(sorted(packages),
                              force=options.force,
