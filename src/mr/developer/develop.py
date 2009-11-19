@@ -119,7 +119,7 @@ class CmdActivate(Command):
     def __init__(self, develop):
         Command.__init__(self, develop)
         self.parser=optparse.OptionParser(
-            usage="%prog <package-regexps>",
+            usage="%prog activate [options] [<package-regexps>]",
             description="Add package to the list of development packages.",
             formatter=HelpFormatter())
         self.parser.add_option("-a", "--auto-checkout", dest="auto_checkout",
@@ -157,7 +157,7 @@ class CmdCheckout(Command):
     def __init__(self, develop):
         Command.__init__(self, develop)
         self.parser=optparse.OptionParser(
-            usage="%prog <options> <package-regexps>",
+            usage="%prog checkout [options] <package-regexps>",
             description="Make a checkout of the packages matching the regular expressions and add them to the list of development packages.",
             formatter=HelpFormatter())
         self.parser.add_option("-a", "--auto-checkout", dest="auto_checkout",
@@ -192,7 +192,7 @@ class CmdDeactivate(Command):
     def __init__(self, develop):
         Command.__init__(self, develop)
         self.parser=optparse.OptionParser(
-            usage="%prog <package-regexps>",
+            usage="%prog deactivate [options] <package-regexps>",
             description="Remove package from the list of development packages.",
             formatter=HelpFormatter())
         self.parser.add_option("-a", "--auto-checkout", dest="auto_checkout",
@@ -262,7 +262,7 @@ class CmdInfo(Command):
     def __init__(self, develop):
         Command.__init__(self, develop)
         self.parser = optparse.OptionParser(
-            usage="%prog info [<package-regexps>]",
+            usage="%prog info [options] [<package-regexps>]",
             description="Lists informations about packages, filtered if <package-regexps> is given.",
             formatter=HelpFormatter())
         self.parser.add_option("-a", "--auto-checkout", dest="auto_checkout",
@@ -328,7 +328,7 @@ class CmdList(Command):
     def __init__(self, develop):
         Command.__init__(self, develop)
         self.parser = optparse.OptionParser(
-            usage="%prog list [<package-regexps>]",
+            usage="%prog list [options] [<package-regexps>]",
             description="Lists tracked packages, filtered if <package-regexps> is given.",
             formatter=HelpFormatter())
         self.parser.add_option("-a", "--auto-checkout", dest="auto_checkout",
@@ -427,7 +427,7 @@ class CmdRebuild(Command):
     def __init__(self, develop):
         Command.__init__(self, develop)
         self.parser=optparse.OptionParser(
-            usage="%prog",
+            usage="%prog rebuild [options]",
             description="Run buildout with the last used arguments.",
             formatter=HelpFormatter())
         self.parser.add_option("-n", "--dry-run", dest="dry_run",
@@ -453,7 +453,7 @@ class CmdReset(Command):
     def __init__(self, develop):
         Command.__init__(self, develop)
         self.parser=optparse.OptionParser(
-            usage="%prog <package-regexps>",
+            usage="%prog reset [options] [<package-regexps>]",
             description="Resets the packages develop status. This is useful when switching to a new buildout configuration.",
             formatter=HelpFormatter())
         self.parser.add_option("-a", "--auto-checkout", dest="auto_checkout",
@@ -488,7 +488,7 @@ class CmdStatus(Command):
     def __init__(self, develop):
         Command.__init__(self, develop)
         self.parser = optparse.OptionParser(
-            usage="%prog status [<package-regexps>]",
+            usage="%prog status [options] [<package-regexps>]",
             description=textwrap.dedent("""\
                 Shows the status of tracked packages, filtered if <package-regexps> is given.
                 The first column in the output shows the checkout status:
@@ -575,7 +575,7 @@ class CmdUpdate(Command):
     def __init__(self, develop):
         Command.__init__(self, develop)
         self.parser = optparse.OptionParser(
-            usage="%prog update [<package-regexps>]",
+            usage="%prog update [options] [<package-regexps>]",
             description="Updates all known packages currently checked out. If <package-regexps> are given, then the set is limited to the matching packages.",
             formatter=HelpFormatter())
         self.parser.add_option("-a", "--auto-checkout", dest="auto_checkout",
