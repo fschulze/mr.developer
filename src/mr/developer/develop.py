@@ -582,6 +582,9 @@ class Develop(object):
                             self.config.buildout_options,
                             self.config.buildout_settings['user_defaults'],
                             self.config.buildout_settings['windows_restart'])
+        root_logger = logging.getLogger()
+        root_logger.handlers = []
+        root_logger.setLevel(logging.INFO)
         extension = Extension(buildout)
         self.sources = extension.get_sources()
         self.auto_checkout = extension.get_auto_checkout()

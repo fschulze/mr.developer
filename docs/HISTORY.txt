@@ -4,6 +4,9 @@ Changelog
 1.5 - Unreleased
 ----------------
 
+* Fix duplicate logging output.
+  [fschulze]
+
 * Fix parsing of buildout arguments when ``-t`` was used.
   [fschulze]
 
