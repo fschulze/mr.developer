@@ -35,6 +35,11 @@ section:
     buildout, packages already checked out are skipped. You can use ``*`` as
     a wild card for all packages in ``sources``.
 
+  ``always-checkout``
+    This defaults to ``false``. If it's ``true``, then all packages specified
+    by ``auto-checkout`` and currently in develop mode are updated during the
+    buildout run.
+
 The format of the section with the repository information is::
 
   <name> = <kind> <url> [path] [key=value]
@@ -65,6 +70,12 @@ The different parts have the following meaning:
     around the equal sign.
 
 The different repository kinds accept some specific options.
+
+  Common options
+    The ``update`` option allows you to specify whether a package will be
+    updated during buildout or not. If it's ``true``, then it will always be
+    updated. If it's ``false``, then it will never be updated, even if the
+    global ``always-checkout`` option is set.
 
   ``svn``
     The ``<url>`` is one of the urls supported by subversion.

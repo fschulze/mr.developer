@@ -4,6 +4,9 @@ Changelog
 1.5 - Unreleased
 ----------------
 
+* Added global ``always-checkout`` and a per source ``update`` option.
+  [fschulze]
+
 * Added ``purge`` command.
   [fschulze]
 

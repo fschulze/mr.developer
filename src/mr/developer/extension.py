@@ -150,10 +150,14 @@ class Extension(object):
 
         root_logger = logging.getLogger()
         workingcopies = self.get_workingcopies()
-        workingcopies.checkout(sorted(auto_checkout),
-                               verbose=root_logger.level <= 10)
-
+        always_checkout = self.buildout['buildout'].get('always-checkout', False)
         (develop, develeggs, versions) = self.get_develop_info()
+
+        packages = auto_checkout.union(develeggs)
+
+        workingcopies.checkout(sorted(packages),
+                               verbose=root_logger.level <= 10,
+                               update=always_checkout)
 
         if versions:
             import zc.buildout.easy_install

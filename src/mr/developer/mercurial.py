@@ -43,8 +43,11 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
     def checkout(self, source, **kwargs):
         name = source['name']
         path = source['path']
+        update = self.should_update(source, **kwargs)
         if os.path.exists(path):
-            if self.matches(source):
+            if update:
+                self.update(source, **kwargs)
+            elif self.matches(source):
                 logger.info('Skipped checkout of existing package %r.' % name)
             else:
                 raise MercurialError(

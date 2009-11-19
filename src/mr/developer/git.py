@@ -46,8 +46,11 @@ class GitWorkingCopy(common.BaseWorkingCopy):
     def checkout(self, source, **kwargs):
         name = source['name']
         path = source['path']
+        update = self.should_update(source, **kwargs)
         if os.path.exists(path):
-            if self.matches(source):
+            if update:
+                self.update(source, **kwargs)
+            elif self.matches(source):
                 logger.info("Skipped checkout of existing package '%s'." % name)
             else:
                 raise GitError("Checkout URL for existing package '%s' differs. Expected '%s'." % (name, source['url']))

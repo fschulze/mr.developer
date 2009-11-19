@@ -186,9 +186,14 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
     def checkout(self, source, **kwargs):
         name = source['name']
         path = source['path']
+        update = self.should_update(source, **kwargs)
         if os.path.exists(path):
-            if self.matches(source):
-                logger.info("Skipped checkout of existing package '%s'." % name)
+            matches = self.matches(source)
+            if matches:
+                if update:
+                    self.update(source, **kwargs)
+                else:
+                    logger.info("Skipped checkout of existing package '%s'." % name)
             else:
                 if self.status(source) == 'clean':
                     return self.svn_switch(source, **kwargs)

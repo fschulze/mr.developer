@@ -30,6 +30,17 @@ class BaseWorkingCopy(object):
         workingcopytypes[kind] = wc
         return wc
 
+    def should_update(self, source, **kwargs):
+        update = source.get('update', kwargs.get('update', False))
+        if not isinstance(update, bool):
+            if update.lower() in ('true', 'yes'):
+                update = True
+            elif update.lower() in ('false', 'no'):
+                update = False
+            else:
+                raise ValueError("Unknown value for 'update': %s" % update)
+        return update
+
 
 class WorkingCopies(object):
     def __init__(self, sources):
