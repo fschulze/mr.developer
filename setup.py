@@ -1,7 +1,7 @@
 from setuptools import setup
 import os, sys
 
-version = '1.5'
+version = '1.6'
 
 install_requires = [
   'setuptools',
