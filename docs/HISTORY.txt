@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.5 - Unreleased
+1.5 - 2009-11-19
 ----------------
 
 * Added global ``always-checkout`` and a per source ``update`` option.
