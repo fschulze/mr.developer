@@ -9,6 +9,11 @@ FAKE_PART_ID = '_mr.developer'
 logger = logging.getLogger("mr.developer")
 
 
+class Source(dict):
+    def exists(self):
+        return os.path.exists(self['path'])
+
+
 class Extension(object):
     def __init__(self, buildout):
         self.buildout = buildout
@@ -53,7 +58,7 @@ class Extension(object):
                 path = os.path.join(sources_dir, name)
                 options = []
 
-            source = dict(kind=kind, name=name, url=url, path=path)
+            source = Source(kind=kind, name=name, url=url, path=path)
             for option in options:
                 key, value = option.split('=', 1)
                 if not key:

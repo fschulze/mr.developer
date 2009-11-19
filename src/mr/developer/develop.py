@@ -77,21 +77,42 @@ class HelpFormatter(optparse.IndentedHelpFormatter):
             result.append("\n")
         return "".join(result)
 
+
 class Command(object):
     def __init__(self, develop):
         self.develop = develop
 
     @memoize
-    def get_packages(self, args):
-        packages = []
+    def get_packages(self, args, auto_checkout=False,
+                     develop=False, existing=False):
+        if auto_checkout:
+            packages = set(self.develop.auto_checkout)
+        else:
+            packages = set(self.develop.sources)
+        if develop:
+            packages = packages.intersection(set(self.develop.develeggs))
+        if existing:
+            for name in set(packages):
+                if not self.develop.sources[name].exists():
+                    packages.remove(name)
         if not args:
             return packages
+        result = set()
         regexp = re.compile("|".join("(%s)" % x for x in args))
-        for name in sorted(self.develop.sources):
+        for name in packages:
             if not regexp.search(name):
                 continue
-            packages.append(name)
-        return packages
+            result.add(name)
+
+        if len(result) == 0:
+            if len(args) > 1:
+                regexps = "%s or '%s'" % (", ".join("'%s'" % x for x in args[:-1]), args[-1])
+            else:
+                regexps = "'%s'" % args[0]
+            logger.error("No package matched %s." % regexps)
+            sys.exit(1)
+
+        return result
 
 
 class CmdActivate(Command):
@@ -107,19 +128,13 @@ class CmdActivate(Command):
 
     def __call__(self):
         options, args = self.parser.parse_args(sys.argv[2:])
-        sources = self.develop.sources
-        auto_checkout = self.develop.auto_checkout
         config = self.develop.config
-        packages = set(self.get_packages(args))
-        workingcopies = WorkingCopies(sources)
+        packages = self.get_packages(args,
+                                     auto_checkout=options.auto_checkout)
         changed = False
-        for name in sorted(sources):
-            if options.auto_checkout and name not in auto_checkout:
-                continue
-            source = sources[name]
-            if args and name not in packages:
-                continue
-            if not os.path.exists(source['path']):
+        for name in sorted(packages):
+            source = self.develop.sources[name]
+            if not source.exists():
                 logger.warning("The package '%s' matched, but isn't checked out." % name)
                 continue
             config.develop[name] = True
@@ -147,29 +162,15 @@ class CmdCheckout(Command):
     def __call__(self):
         options, args = self.parser.parse_args(sys.argv[2:])
         config = self.develop.config
-        if len(args) == 0:
-            if options.auto_checkout:
-                packages = self.develop.auto_checkout
-            else:
-                print self.parser.format_help()
-                sys.exit(0)
-        else:
-            packages = self.get_packages(args)
-            if options.auto_checkout:
-                packages = [x for x in packages
-                            if x in self.develop.auto_checkout]
-        if len(packages) == 0:
-            if len(args) > 1:
-                regexps = "%s or '%s'" % (", ".join("'%s'" % x for x in args[:-1]), args[-1])
-            else:
-                regexps = "'%s'" % args[0]
-            logger.error("No package matched %s." % regexps)
-            sys.exit(1)
-
+        if len(args) == 0 and not options.auto_checkout:
+            print self.parser.format_help()
+            sys.exit(0)
+        packages = self.get_packages(args,
+                                     auto_checkout=options.auto_checkout)
         try:
             workingcopies = WorkingCopies(self.develop.sources)
-            workingcopies.checkout(packages, verbose=options.verbose)
-            for name in packages:
+            workingcopies.checkout(sorted(packages), verbose=options.verbose)
+            for name in sorted(packages):
                 config.develop[name] = True
                 logger.info("Activated '%s'." % name)
             logger.warn("Don't forget to run buildout again, so the checked out packages are used as develop eggs.")
@@ -189,16 +190,12 @@ class CmdDeactivate(Command):
 
     def __call__(self):
         options, args = self.parser.parse_args(sys.argv[2:])
-        sources = self.develop.sources
         config = self.develop.config
-        packages = set(self.get_packages(args))
-        workingcopies = WorkingCopies(sources)
+        packages = self.get_packages(args)
         changed = False
-        for name in sorted(sources):
-            source = sources[name]
-            if args and name not in packages:
-                continue
-            if not os.path.exists(source['path']):
+        for name in sorted(packages):
+            source = self.develop.sources[name]
+            if not source.exists():
                 logger.warning("The package '%s' matched, but isn't checked out." % name)
                 continue
             if config.develop.get(name) != False:
@@ -282,21 +279,12 @@ class CmdInfo(Command):
 
     def __call__(self):
         options, args = self.parser.parse_args(sys.argv[2:])
-        sources = self.develop.sources
-        auto_checkout = self.develop.auto_checkout
-        develeggs = self.develop.develeggs
-        packages = set(self.get_packages(args))
-        workingcopies = WorkingCopies(sources)
-        for name in sorted(sources):
-            source = sources[name]
-            if args and name not in packages:
-                continue
-            if options.auto_checkout and name not in auto_checkout:
-                continue
-            if options.checked_out and not os.path.exists(source['path']):
-                continue
-            if options.develop and name not in develeggs:
-                continue
+        packages = self.get_packages(args,
+                                     auto_checkout=options.auto_checkout,
+                                     develop=options.develop,
+                                     existing=options.checked_out)
+        for name in sorted(packages):
+            source = self.develop.sources[name]
             if options.info:
                 for key in options.info:
                     if key=='name':
@@ -314,6 +302,7 @@ class CmdInfo(Command):
                 print "Type:", source['kind']
                 print "URL:", source['url']
                 print
+
 
 class CmdList(Command):
     def __init__(self, develop):
@@ -343,16 +332,13 @@ class CmdList(Command):
         options, args = self.parser.parse_args(sys.argv[2:])
         sources = self.develop.sources
         auto_checkout = self.develop.auto_checkout
-        packages = set(self.get_packages(args))
+        packages = self.get_packages(args,
+                                     auto_checkout=options.auto_checkout)
         workingcopies = WorkingCopies(sources)
-        for name in sorted(sources):
-            if args and name not in packages:
-                continue
-            if options.auto_checkout and name not in auto_checkout:
-                continue
+        for name in sorted(packages):
             source = sources[name]
             if options.status:
-                if os.path.exists(source['path']):
+                if source.exists():
                     if not workingcopies.matches(source):
                         print "C",
                     else:
@@ -445,17 +431,10 @@ class CmdReset(Command):
 
     def __call__(self):
         options, args = self.parser.parse_args(sys.argv[2:])
-        sources = self.develop.sources
         config = self.develop.config
-        packages = set(self.get_packages(args))
-        workingcopies = WorkingCopies(sources)
+        packages = self.get_packages(args, existing=True)
         changed = False
-        for name in sorted(sources):
-            source = sources[name]
-            if args and name not in packages:
-                continue
-            if not os.path.exists(source['path']):
-                continue
+        for name in sorted(packages):
             if name in config.develop:
                 del config.develop[name]
                 logger.info("Reset develop state of '%s'." % name)
@@ -493,17 +472,13 @@ class CmdStatus(Command):
 
     def __call__(self):
         options, args = self.parser.parse_args(sys.argv[2:])
-        sources = self.develop.sources
         auto_checkout = self.develop.auto_checkout
         develeggs = self.develop.develeggs
-        packages = set(self.get_packages(args))
-        workingcopies = WorkingCopies(sources)
-        for name in sorted(sources):
-            if args and name not in packages:
-                continue
-            source = sources[name]
-            path = source['path']
-            if not os.path.exists(path):
+        packages = self.get_packages(args)
+        workingcopies = WorkingCopies(self.develop.sources)
+        for name in sorted(packages):
+            source = self.develop.sources[name]
+            if not source.exists():
                 if name in auto_checkout:
                     print "!", " ", name
                 continue
@@ -563,21 +538,11 @@ class CmdUpdate(Command):
 
     def __call__(self):
         options, args = self.parser.parse_args(sys.argv[2:])
-        sources = self.develop.sources
-        auto_checkout = self.develop.auto_checkout
-        packages = set(self.get_packages(args))
-        workingcopies = WorkingCopies(sources)
-        toupdate = []
-        for name in sorted(sources):
-            if options.auto_checkout and name not in auto_checkout:
-                continue
-            source = sources[name]
-            if args and name not in packages:
-                continue
-            if not os.path.exists(source['path']):
-                continue
-            toupdate.append(name)
-        workingcopies.update(toupdate,
+        packages = self.get_packages(args,
+                                     auto_checkout=options.auto_checkout,
+                                     existing=True)
+        workingcopies = WorkingCopies(self.develop.sources)
+        workingcopies.update(sorted(packages),
                              force=options.force,
                              verbose=options.verbose)
 
