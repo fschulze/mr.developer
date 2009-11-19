@@ -128,7 +128,7 @@ class Extension(object):
 
     def add_fake_part(self):
         if FAKE_PART_ID in self.buildout._raw:
-            logger.error("mr.developer: The buildout already has a '%s' section, this shouldn't happen" % FAKE_PART_ID)
+            logger.error("The buildout already has a '%s' section, this shouldn't happen" % FAKE_PART_ID)
             sys.exit(1)
         self.buildout._raw[FAKE_PART_ID] = dict(
             recipe='zc.recipe.egg',
