@@ -4,6 +4,9 @@ Changelog
 1.5 - Unreleased
 ----------------
 
+* Added ``purge`` command.
+  [fschulze]
+
 * Ask user how to proceed when package is dirty.
   [fschulze]
 

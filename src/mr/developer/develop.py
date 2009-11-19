@@ -6,6 +6,7 @@ import logging
 import optparse
 import os
 import re
+import shutil
 import subprocess
 import sys
 import textwrap
@@ -423,6 +424,39 @@ class CmdPony(Command):
         logger.info("Done.")
 
 
+class CmdPurge(Command):
+    def __init__(self, develop):
+        Command.__init__(self, develop)
+        self.parser=optparse.OptionParser(
+            usage="%prog purge [options] [<package-regexps>]",
+            description=textwrap.dedent("""\
+                Remove checked out packages which aren't active anymore.
+
+                Only 'svn' packages can be purged, because other repositories may contain unrecoverable files even when not marked as 'dirty'."""),
+            formatter=HelpFormatter())
+
+    def __call__(self):
+        options, args = self.parser.parse_args(sys.argv[2:])
+        buildout_dir = self.develop.buildout_dir
+        packages = self.get_packages(args, checked_out=True)
+        packages = packages - self.develop.auto_checkout
+        packages = packages - set(self.develop.develeggs)
+        workingcopies = WorkingCopies(self.develop.sources)
+        for name in packages:
+            source = self.develop.sources[name]
+            path = source['path']
+            if path.startswith(buildout_dir):
+                path = path[len(buildout_dir)+1:]
+            if source['kind'] != 'svn':
+                logger.warn("The directory of package '%s' at '%s' might contain unrecoverable files and will not be removed." % (name, path))
+                continue
+            if workingcopies.status(source) != 'clean':
+                logger.warn("The package '%s' is dirty and will not be removed." % name)
+                continue
+            logger.info("Removing package '%s' at '%s'." % (name, path))
+            shutil.rmtree(source['path'])
+
+
 class CmdRebuild(Command):
     def __init__(self, develop):
         Command.__init__(self, develop)
@@ -617,6 +651,7 @@ class Develop(object):
         self.cmd_info = CmdInfo(self)
         self.cmd_list = self.alias_ls = CmdList(self)
         self.cmd_pony = CmdPony(self)
+        self.cmd_purge = CmdPurge(self)
         self.cmd_rebuild = self.alias_rb = CmdRebuild(self)
         self.cmd_reset = CmdReset(self)
         self.cmd_status = self.alias_stat = self.alias_st = CmdStatus(self)
