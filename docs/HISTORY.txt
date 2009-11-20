@@ -4,7 +4,8 @@ Changelog
 1.6 - Unreleased
 ----------------
 
-
+* Added support for Concurrent Versions System (CVS).
+  [sargo]
 
 1.5 - 2009-11-19
 ----------------

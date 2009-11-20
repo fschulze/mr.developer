@@ -51,7 +51,7 @@ The different parts have the following meaning:
 
   ``<kind>``
     The kind of repository. Currently supported are one of ``svn``, ``hg``,
-    ``git`` or ``fs``.
+    ``git``, ``cvs`` or ``fs``.
 
   ``<url>``
     The location of the repository. This value is specific to the version
@@ -94,6 +94,10 @@ The different repository kinds accept some specific options.
   ``hg``
     Currently no additional options.
 
+  ``cvs``
+    ``cvs_root`` option can be used to override the setting of the $CVSROOT
+    environment variable.
+    
   ``fs``
     This allows you to add packages on the filesystem without a version
     control system, or with an unsupported one. You can activate and
