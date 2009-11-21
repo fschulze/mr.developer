@@ -4,6 +4,10 @@ Changelog
 1.6 - Unreleased
 ----------------
 
+* Filter the packages gathered from ``buildout:develop`` to ones declared in
+  sources, otherwise things like "develop = ." break.
+  [fschulze]
+
 * Added support for Concurrent Versions System (CVS).
   [sargo]
 

@@ -153,7 +153,11 @@ class Extension(object):
         always_checkout = self.buildout['buildout'].get('always-checkout', False)
         (develop, develeggs, versions) = self.get_develop_info()
 
-        packages = auto_checkout.union(develeggs)
+        packages = set(auto_checkout)
+        sources = self.get_sources()
+        for pkg in develeggs:
+            if pkg in sources:
+                packages.add(pkg)
 
         workingcopies.checkout(sorted(packages),
                                verbose=root_logger.level <= 10,
