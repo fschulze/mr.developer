@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.6 - Unreleased
+1.6 - 2009-11-21
 ----------------
 
 * Filter the packages gathered from ``buildout:develop`` to ones declared in
