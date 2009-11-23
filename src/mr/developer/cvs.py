@@ -8,19 +8,50 @@ logger = common.logger
 class CVSError(common.WCError):
     pass
 
-class CVSWorkingCopy(common.BaseWorkingCopy):
+
+def build_cvs_command(command, name, url, tag='', cvs_root=''):
+    """
+    Create CVS commands.
     
+    Examples::
+    
+        >>> build_cvs_command('checkout', 'package.name', 'python/package.name')
+        ['cvs', 'checkout', '-P', '-f', '-d', 'package.name', 'python/package.name']
+        >>> build_cvs_command('update', 'package.name', 'python/package.name')
+        ['cvs', 'update', '-P', '-f', '-d', 'package.name']
+        >>> build_cvs_command('checkout', 'package.name', 'python/package.name', tag='package_name_0-1-0')
+        ['cvs', 'checkout', '-P', '-r', 'package_name_0-1-0', '-d', 'package.name', 'python/package.name']
+        >>> build_cvs_command('update', 'package.name', 'python/package.name', tag='package_name_0-1-0')
+        ['cvs', 'update', '-P', '-r', 'package_name_0-1-0', '-d', 'package.name']
+        >>> build_cvs_command('checkout', 'package.name', 'python/package.name', cvs_root=':pserver:user@127.0.0.1:/repos')
+        ['cvs', '-d', ':pserver:user@127.0.0.1:/repos', 'checkout', '-P', '-f', '-d', 'package.name', 'python/package.name']
+        
+    """
+    cmd = ['cvs']
+    if cvs_root:
+        cmd.extend(['-d', cvs_root])
+    cmd.extend([command, '-P'])
+    if tag:
+        cmd.extend(['-r', tag])
+    else:
+        cmd.append('-f')
+    cmd.extend(['-d', name])
+    if command == 'checkout':
+        cmd.append(url)
+    
+    return cmd
+        
+
+class CVSWorkingCopy(common.BaseWorkingCopy):        
     def cvs_command(self, source, command, **kwargs):
         name = source['name']
         path = source['path']
         url = source['url']
+        tag = source.get('tag')
         cvs_root = source.get('cvs_root')
         
-        logger.info('Running %s %r from CVS.' % (command, name))
-        cmd = ['cvs', command, '-Pf', '-d', name, url]
-        if cvs_root:
-            cmd[1:1] = ['-d', cvs_root]
-        logger.debug(' '.join(cmd))
+        logger.info('Running %s %r from CVS.' % (command, name))            
+        cmd = build_cvs_command(command, name, url, tag, cvs_root)
 
         ## because CVS can not work on absolute paths, we must execute cvs commands
         ## in parent directory of destination
