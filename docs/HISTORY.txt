@@ -4,7 +4,9 @@ Changelog
 1.7 - Unreleased
 ----------------
 
+* Possibility to checkout/update tags instead of HEAD in CVS [sargo]
 
+* Tests for CVS integration [sargo]
 
 1.6 - 2009-11-21
 ----------------

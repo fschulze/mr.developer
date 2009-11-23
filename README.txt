@@ -97,6 +97,7 @@ The different repository kinds accept some specific options.
   ``cvs``
     ``cvs_root`` option can be used to override the setting of the $CVSROOT
     environment variable.
+    ``tag`` option force checkout/update of given tag instead of CVS HEAD.
     
   ``fs``
     This allows you to add packages on the filesystem without a version
