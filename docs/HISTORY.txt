@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.7 - Unreleased
+1.7 - 2009-11-26
 ----------------
 
 * Fix a problem where a package wasn't added to the develop packages on auto
