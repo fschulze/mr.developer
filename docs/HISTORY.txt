@@ -4,7 +4,9 @@ Changelog
 1.7 - Unreleased
 ----------------
 
-
+* Fix a problem where a package wasn't added to the develop packages on auto
+  checkout.
+  [fschulze]
 
 1.6 - 2009-11-21
 ----------------
