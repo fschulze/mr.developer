@@ -232,31 +232,62 @@ class CmdHelp(Command):
     def __init__(self, develop):
         Command.__init__(self, develop)
         self.parser = optparse.OptionParser(
-            usage="%prog help [<command>]",
+            usage="%prog help [options] [<command>]",
             description="Show help on the given command or about the whole script if none given.",
             formatter=HelpFormatter())
+        self.parser.add_option("", "--rst", dest="rst",
+                               action="store_true", default=False,
+                               help="""Print help for all commands in reStructuredText format.""")
 
     def __call__(self):
         develop = self.develop
-        if len(sys.argv) != 3 or sys.argv[2] not in develop.commands:
-            print("usage: %s <command> [options] [args]" % os.path.basename(sys.argv[0]))
-            print("\nType '%s help <command>' for help on a specific command." % os.path.basename(sys.argv[0]))
-            print("\nAvailable commands:")
-            f_to_name = {}
-            for name, f in develop.commands.iteritems():
-                f_to_name.setdefault(f, []).append(name)
-            for cmd in sorted(x for x in dir(develop) if x.startswith('cmd_')):
-                name = cmd[4:]
-                if name == 'pony':
-                    continue
-                f = getattr(develop, cmd)
-                aliases = [x for x in f_to_name[f] if x != name]
-                if len(aliases):
-                    print("    %s (%s)" % (name, ", ".join(aliases)))
+        options, args = self.parser.parse_args(sys.argv[2:])
+        if len(args) and args[0] in develop.commands:
+            print develop.commands[args[0]].parser.format_help()
+            return
+        f_to_name = {}
+        for name, f in develop.commands.iteritems():
+            f_to_name.setdefault(f, []).append(name)
+        cmds = {}
+        for cmd in (x for x in dir(develop) if x.startswith('cmd_')):
+            name = cmd[4:]
+            if name == 'pony':
+                continue
+            f = getattr(develop, cmd)
+            aliases = [x for x in f_to_name[f] if x != name]
+            cmds[name] = dict(
+                aliases=aliases,
+                cmd=f,
+            )
+        if options.rst:
+            print "Commands"
+            print "========"
+            print
+            print "The following is a list of all commands and their options."
+            print
+            for name in sorted(cmds):
+                cmd = cmds[name]
+                if len(cmd['aliases']):
+                    header = "%s (%s)" % (name, ", ".join(cmd['aliases']))
+                else:
+                    header = name
+                print header
+                print "-"*len(header)
+                print
+                print "::"
+                print
+                for line in cmd['cmd'].parser.format_help().split('\n'):
+                    print "    %s" % line
+                print
+        else:
+            print self.parser.format_help()
+            print("Available commands:")
+            for name in sorted(cmds):
+                cmd = cmds[name]
+                if len(cmd['aliases']):
+                    print("    %s (%s)" % (name, ", ".join(cmd['aliases'])))
                 else:
                     print("    %s" % name)
-        else:
-            print develop.commands[sys.argv[2]].parser.format_help()
 
 
 class CmdInfo(Command):
