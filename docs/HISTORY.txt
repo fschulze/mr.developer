@@ -4,7 +4,9 @@ Changelog
 1.8 - Unreleased
 ----------------
 
-
+* Don't abort after user answered `no` on whether to update a package, just
+  skip that package.
+  [fschulze]
 
 1.7 - 2009-11-26
 ----------------

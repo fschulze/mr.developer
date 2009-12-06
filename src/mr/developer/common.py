@@ -42,6 +42,29 @@ class BaseWorkingCopy(object):
         return update
 
 
+def yesno(question, default=True):
+    if default:
+        question = "%s [Y/n] " % question
+        answers = {
+            False: ('n', 'no'),
+            True: ('', 'y', 'yes'),
+        }
+    else:
+        question = "%s [y/N] " % question
+        answers = {
+            False: ('', 'n', 'no'),
+            True: ('y', 'yes'),
+        }
+    while 1:
+        answer = raw_input(question).lower()
+        if answer in answers[False]:
+            return False
+        elif answer in answers[True]:
+            return True
+        else:
+            print >>sys.stderr, "You have to answer with y, yes, n or no."
+
+
 class WorkingCopies(object):
     def __init__(self, sources):
         self.sources = sources
@@ -115,6 +138,14 @@ class WorkingCopies(object):
                 if wc is None:
                     logger.error("Unknown repository type '%s'." % kind)
                     sys.exit(1)
+                if wc.status(source) != 'clean' and not kwargs.get('force', False):
+                    print >>sys.stderr, "The package '%s' is dirty." % name
+                    answer = yesno("Do you want to update it anyway?", default=False)
+                    if answer == True:
+                        kwargs['force'] = True
+                    else:
+                        logger.info("Skipped update of '%s'." % name)
+                        continue
                 output = wc.update(source, **kwargs)
                 if kwargs.get('verbose', False) and output is not None and output.strip():
                     print output

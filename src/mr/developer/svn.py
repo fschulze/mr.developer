@@ -7,7 +7,6 @@ import getpass
 import os
 import re
 import subprocess
-import sys
 
 logger = common.logger
 
@@ -264,17 +263,6 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
         path = source['path']
         force = kwargs.get('force', False)
         status = self.status(source)
-        if status != 'clean' and not force:
-            print >>sys.stderr, "The package '%s' is dirty." % name
-            while 1:
-                answer = raw_input("Do you want to update it anyway [y/N]? ")
-                if answer.lower() in ('', 'n', 'no'):
-                    break
-                elif answer.lower() in ('y', 'yes'):
-                    force = True
-                    break
-                else:
-                    print >>sys.stderr, "You have to answer with y, yes, n or no."
         if not self.matches(source):
             if force or status == 'clean':
                 return self.svn_switch(source, **kwargs)

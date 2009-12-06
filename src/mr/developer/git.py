@@ -1,7 +1,6 @@
 from mr.developer import common
 import os
 import subprocess
-import sys
 
 
 logger = common.logger
@@ -90,22 +89,9 @@ class GitWorkingCopy(common.BaseWorkingCopy):
     def update(self, source, **kwargs):
         name = source['name']
         path = source['path']
-        force = kwargs.get('force', False)
-        status = self.status(source)
-        if status != 'clean' and not force:
-            print >>sys.stderr, "The package '%s' is dirty." % name
-            while 1:
-                answer = raw_input("Do you want to update it anyway [y/N]? ")
-                if answer.lower() in ('', 'n', 'no'):
-                    break
-                elif answer.lower() in ('y', 'yes'):
-                    force = True
-                    break
-                else:
-                    print >>sys.stderr, "You have to answer with y, yes, n or no."
         if not self.matches(source):
             raise GitError("Can't update package '%s', because it's URL doesn't match." % name)
-        if status != 'clean' and not force:
+        if self.status(source) != 'clean' and not kwargs.get('force', False):
             raise GitError("Can't update package '%s', because it's dirty." % name)
         return self.git_update(source, **kwargs)
 
