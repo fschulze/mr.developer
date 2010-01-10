@@ -8,18 +8,17 @@ class CVSError(common.WCError):
     pass
 
 class CVSWorkingCopy(common.BaseWorkingCopy):
-    
     def cvs_command(self, source, command, **kwargs):
         name = source['name']
         path = source['path']
         url = source['url']
         cvs_root = source.get('cvs_root')
         
-        logger.info('Running %s %r from CVS.' % (command, name))
+        self.output((logger.info, 'Running %s %r from CVS.' % (command, name)))
         cmd = ['cvs', command, '-Pf', '-d', name, url]
         if cvs_root:
             cmd[1:1] = ['-d', cvs_root]
-        logger.debug(' '.join(cmd))
+        self.output((logger.debug, ' '.join(cmd)))
 
         ## because CVS can not work on absolute paths, we must execute cvs commands
         ## in parent directory of destination
@@ -45,7 +44,7 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
             if update:
                 self.update(source, **kwargs)
             elif self.matches(source):
-                logger.info('Skipped checkout of existing package %r.' % name)
+                self.output((logger.info, 'Skipped checkout of existing package %r.' % name))
             else:
                 raise CVSError(
                     'Source URL for existing package %r differs. '
@@ -114,4 +113,4 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
                 "Can't update package %r, because it's dirty." % name)
         return self.cvs_command(source, 'update', **kwargs)
 
-wc = CVSWorkingCopy('cvs')
+common.workingcopytypes['cvs'] = CVSWorkingCopy

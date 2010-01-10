@@ -4,6 +4,20 @@ Changelog
 1.8 - Unreleased
 ----------------
 
+* Added threading for parallel checkouts.
+  [fschulze, jensens]
+
+* Ask whether to update dirty packages during checkout.
+  [fschulze]
+
+* When you answered `yes` when asked whether to update a dirty package, then
+  all further questions had been answered with `yes` as well, this is now
+  fixed.
+  [fschulze]
+
+* Added `all` option when asked to update dirty packages.
+  [fschulze]
+
 * Added help for all commands to PyPI description.
   [fschulze]
 

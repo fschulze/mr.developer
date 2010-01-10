@@ -16,9 +16,9 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         path = source['path']
         url = source['url']
         if os.path.exists(path):
-            logger.info("Skipped cloning of existing package '%s'." % name)
+            self.output((logger.info, "Skipped cloning of existing package '%s'." % name))
             return
-        logger.info("Cloning '%s' with git." % name)
+        self.output((logger.info, "Cloning '%s' with git." % name))
         cmd = subprocess.Popen(["git", "clone", "--quiet", url, path],
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
@@ -31,7 +31,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
     def git_update(self, source, **kwargs):
         name = source['name']
         path = source['path']
-        logger.info("Updating '%s' with git." % name)
+        self.output((logger.info, "Updating '%s' with git." % name))
         cmd = subprocess.Popen(["git", "pull"],
                                cwd=path,
                                stdout=subprocess.PIPE,
@@ -50,7 +50,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
             if update:
                 self.update(source, **kwargs)
             elif self.matches(source):
-                logger.info("Skipped checkout of existing package '%s'." % name)
+                self.output((logger.info, "Skipped checkout of existing package '%s'." % name))
             else:
                 raise GitError("Checkout URL for existing package '%s' differs. Expected '%s'." % (name, source['url']))
         else:
@@ -95,4 +95,4 @@ class GitWorkingCopy(common.BaseWorkingCopy):
             raise GitError("Can't update package '%s', because it's dirty." % name)
         return self.git_update(source, **kwargs)
 
-wc = GitWorkingCopy('git')
+common.workingcopytypes['git'] = GitWorkingCopy

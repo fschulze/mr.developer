@@ -13,9 +13,9 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         path = source['path']
         url = source['url']
         if os.path.exists(path):
-            logger.info('Skipped cloning of existing package %r.' % name)
+            self.output((logger.info, 'Skipped cloning of existing package %r.' % name))
             return
-        logger.info('Cloning %r with mercurial.' % name)
+        self.output((logger.info, 'Cloning %r with mercurial.' % name))
         cmd = subprocess.Popen(
             ['hg', 'clone', '--quiet', '--noninteractive', url, path],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -29,7 +29,7 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
     def hg_pull(self, source, **kwargs):
         name = source['name']
         path = source['path']
-        logger.info('Updating %r with mercurial.' % name)
+        self.output((logger.info, 'Updating %r with mercurial.' % name))
         cmd = subprocess.Popen(['hg', 'pull', '-u'], cwd=path,
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
@@ -47,7 +47,7 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
             if update:
                 self.update(source, **kwargs)
             elif self.matches(source):
-                logger.info('Skipped checkout of existing package %r.' % name)
+                self.output((logger.info, 'Skipped checkout of existing package %r.' % name))
             else:
                 raise MercurialError(
                     'Source URL for existing package %r differs. '
@@ -92,4 +92,4 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
                 "Can't update package %r, because it's dirty." % name)
         return self.hg_pull(source, **kwargs)
 
-wc = MercurialWorkingCopy('hg')
+common.workingcopytypes['hg'] = MercurialWorkingCopy
