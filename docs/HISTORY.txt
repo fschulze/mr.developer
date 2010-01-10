@@ -1,7 +1,11 @@
 Changelog
 =========
 
-1.8 - Unreleased
+1.9 - Unreleased
+----------------
+
+
+1.8 - 2010-01-10
 ----------------
 
 * Added threading for parallel checkouts.
