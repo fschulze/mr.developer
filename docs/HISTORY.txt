@@ -4,6 +4,9 @@ Changelog
 1.9 - Unreleased
 ----------------
 
+* Fix purging on windows.
+  [kleist]
+
 * Fix compatibility with Python < 2.6.
   [fschulze, vincentfretin]
 

@@ -2,11 +2,13 @@ from mr.developer.common import logger, memoize, WorkingCopies, Config
 from mr.developer.extension import Extension
 from zc.buildout.buildout import Buildout
 import atexit
+import errno
 import logging
 import optparse
 import os
 import re
 import shutil
+import stat
 import subprocess
 import sys
 import textwrap
@@ -466,6 +468,14 @@ class CmdPurge(Command):
                 Only 'svn' packages can be purged, because other repositories may contain unrecoverable files even when not marked as 'dirty'."""),
             formatter=HelpFormatter())
 
+    def handle_remove_readonly(self, func, path, exc):
+        excvalue = exc[1]
+        if func in (os.rmdir, os.remove) and excvalue.errno == errno.EACCES:
+            os.chmod(path, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO) # 0777
+            func(path)
+        else:
+            raise
+
     def __call__(self):
         options, args = self.parser.parse_args(sys.argv[2:])
         buildout_dir = self.develop.buildout_dir
@@ -485,7 +495,9 @@ class CmdPurge(Command):
                 logger.warn("The package '%s' is dirty and will not be removed." % name)
                 continue
             logger.info("Removing package '%s' at '%s'." % (name, path))
-            shutil.rmtree(source['path'])
+            shutil.rmtree(source['path'],
+                          ignore_errors=False,
+                          onerror=self.handle_remove_readonly)
 
 
 class CmdRebuild(Command):
