@@ -106,12 +106,9 @@ class WorkingCopies(object):
                     if kwargs.get('verbose', False) and output is not None and output.strip():
                         print output
                     output_lock.release()
-                finally:
-                    queue.task_done()
         threads = []
         for i in range(self.threads):
             thread = threading.Thread(target=worker)
-            thread.daemon = True
             thread.start()
             threads.append(thread)
         for thread in threads:

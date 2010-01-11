@@ -4,6 +4,9 @@ Changelog
 1.9 - Unreleased
 ----------------
 
+* Fix compatibility with Python < 2.6.
+  [fschulze, vincentfretin]
+
 * Fix `all` answer for ``update`` command.
   [fschulze]
 
