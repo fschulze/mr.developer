@@ -467,6 +467,9 @@ class CmdPurge(Command):
 
                 Only 'svn' packages can be purged, because other repositories may contain unrecoverable files even when not marked as 'dirty'."""),
             formatter=HelpFormatter())
+        self.parser.add_option("-n", "--dry-run", dest="dry_run",
+                               action="store_true", default=False,
+                               help="""Don't actually remove anything, just print the paths which would be removed.""")
 
     def handle_remove_readonly(self, func, path, exc):
         excvalue = exc[1]
@@ -483,6 +486,8 @@ class CmdPurge(Command):
         packages = packages - self.develop.auto_checkout
         packages = packages - set(self.develop.develeggs)
         workingcopies = WorkingCopies(self.develop.sources)
+        if options.dry_run:
+            logger.info("Dry run, nothing will be removed.")
         for name in packages:
             source = self.develop.sources[name]
             path = source['path']
@@ -495,9 +500,10 @@ class CmdPurge(Command):
                 logger.warn("The package '%s' is dirty and will not be removed." % name)
                 continue
             logger.info("Removing package '%s' at '%s'." % (name, path))
-            shutil.rmtree(source['path'],
-                          ignore_errors=False,
-                          onerror=self.handle_remove_readonly)
+            if not options.dry_run:
+                shutil.rmtree(source['path'],
+                              ignore_errors=False,
+                              onerror=self.handle_remove_readonly)
 
 
 class CmdRebuild(Command):

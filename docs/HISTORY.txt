@@ -4,6 +4,9 @@ Changelog
 1.9 - Unreleased
 ----------------
 
+* Added dry-run option to ``purge`` command.
+  [fschulze]
+
 * Fix purging on windows.
   [kleist]
 
