@@ -197,10 +197,10 @@ class WorkingCopies(object):
             if wc.status(source) != 'clean' and not kw.get('force', False):
                 print >>sys.stderr, "The package '%s' is dirty." % name
                 answer = yesno("Do you want to update it anyway?", default=False, all=True)
-                if answer == True:
+                if answer:
                     kw['force'] = True
-                elif answer == 'all':
-                    kwargs['force'] = True
+                    if answer == 'all':
+                        kwargs['force'] = True
                 else:
                     logger.info("Skipped update of '%s'." % name)
                     continue
