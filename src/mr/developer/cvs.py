@@ -1,8 +1,12 @@
 from mr.developer import common
 import os
+import re
 import subprocess
 
 logger = common.logger
+
+RE_ROOT = re.compile(r'(:pserver:)([a-zA-Z0-9]*)(@.*)')
+
 
 class CVSError(common.WCError):
     pass
@@ -84,7 +88,13 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
             return self.cvs_command(source, 'checkout', **kwargs)
 
     def matches(self, source):
-        name = source['name']
+	def normalize_root(text):
+	    """
+	    Removes username from CVS Root path.
+	    """
+	    return RE_ROOT.sub(r'\1\3', text)
+
+	name = source['name']
         path = source['path']
         
         repo_file = os.path.join(path, 'CVS', 'Repository')
@@ -96,7 +106,7 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
         if cvs_root:
             root_file = os.path.join(path, 'CVS', 'Root')
             root = open(root_file).read().strip()            
-            if cvs_root != root:
+            if normalize_root(cvs_root) != normalize_root(root):
                 return False
         
         return (source['url'] == repo)
@@ -105,6 +115,10 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
         name = source['name']
         path = source['path']
         
+	## packages before checkout is clean
+	if not os.path.exists(path):
+	    return 'clean'
+
         ## because CVS can not work on absolute paths, we must execute cvs commands
         ## in parent directory of destination
         old_cwd = os.getcwd()
@@ -118,7 +132,9 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
             os.chdir(old_cwd)
         
         status = 'clean'
-        for line in stdout:
+        for line in stdout.split('\n'):
+	    if not line or line.endswith('.egg-info'):
+		continue
             if line[0] == 'C':
                 ## there is file with conflict
                 status = 'conflict'
