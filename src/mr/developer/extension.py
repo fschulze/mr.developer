@@ -163,6 +163,9 @@ class Extension(object):
                                verbose=root_logger.level <= 10,
                                update=always_checkout)
 
+        # get updated info after checkout
+        (develop, develeggs, versions) = self.get_develop_info()
+
         if versions:
             import zc.buildout.easy_install
             zc.buildout.easy_install.default_versions(dict(versions))

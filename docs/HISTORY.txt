@@ -1,12 +1,64 @@
 Changelog
 =========
 
-1.7 - Unreleased
+1.10 - Unreleased
+-----------------
+
+* Possibility to checkout/update tags instead of HEAD in CVS
+  [sargo]
+
+* Tests for CVS integration
+  [sargo]
+
+1.9 - 2010-01-11
 ----------------
 
-* Possibility to checkout/update tags instead of HEAD in CVS [sargo]
+* Added dry-run option to ``purge`` command.
+  [fschulze]
 
-* Tests for CVS integration [sargo]
+* Fix purging on windows.
+  [kleist]
+
+* Fix compatibility with Python < 2.6.
+  [fschulze, vincentfretin]
+
+* Fix `all` answer for ``update`` command.
+  [fschulze]
+
+1.8 - 2010-01-10
+----------------
+
+* Added threading for parallel checkouts.
+  [fschulze, jensens]
+
+* Ask whether to update dirty packages during checkout.
+  [fschulze]
+
+* When you answered `yes` when asked whether to update a dirty package, then
+  all further questions had been answered with `yes` as well, this is now
+  fixed.
+  [fschulze]
+
+* Added `all` option when asked to update dirty packages.
+  [fschulze]
+
+* Added help for all commands to PyPI description.
+  [fschulze]
+
+* Added option to ``help`` command which outputs the help for all commands in
+  reStructuredText format.
+  [fschulze]
+
+* Don't abort after user answered `no` on whether to update a package, just
+  skip that package.
+  [fschulze]
+
+1.7 - 2009-11-26
+----------------
+
+* Fix a problem where a package wasn't added to the develop packages on auto
+  checkout.
+  [fschulze]
 
 1.6 - 2009-11-21
 ----------------

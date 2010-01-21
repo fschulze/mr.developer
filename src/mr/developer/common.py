@@ -1,7 +1,9 @@
 from ConfigParser import RawConfigParser
 import logging
 import os
+import Queue
 import sys
+import threading
 
 
 logger = logging.getLogger("mr.developer")
@@ -25,10 +27,10 @@ class WCError(Exception):
 workingcopytypes = {}
 
 class BaseWorkingCopy(object):
-    def __new__(cls, kind):
-        wc = object.__new__(cls)
-        workingcopytypes[kind] = wc
-        return wc
+    def __init__(self, source):
+        self._output = []
+        self.output = self._output.append
+        self.source = source
 
     def should_update(self, source, **kwargs):
         update = source.get('update', kwargs.get('update', False))
@@ -42,31 +44,104 @@ class BaseWorkingCopy(object):
         return update
 
 
+def yesno(question, default=True, all=True):
+    if default:
+        question = "%s [Yes/no" % question
+        answers = {
+            False: ('n', 'no'),
+            True: ('', 'y', 'yes'),
+        }
+    else:
+        question = "%s [yes/No" % question
+        answers = {
+            False: ('', 'n', 'no'),
+            True: ('y', 'yes'),
+        }
+    if all:
+        answers['all'] = ('a', 'all')
+        question = "%s/all] " % question
+    else:
+        question = "%s] " % question
+    while 1:
+        answer = raw_input(question).lower()
+        for option in answers:
+            if answer in answers[option]:
+                return option
+        if all:
+            print >>sys.stderr, "You have to answer with y, yes, n, no, a or all."
+        else:
+            print >>sys.stderr, "You have to answer with y, yes, n or no."
+
+
 class WorkingCopies(object):
     def __init__(self, sources):
         self.sources = sources
+        self.threads = 5
+        self.errors = False
+
+    def process(self, queue):
+        output_lock = threading.Lock()
+        def worker():
+            while True:
+                if self.errors:
+                    return
+                try:
+                    wc, action, source, kwargs = queue.get_nowait()
+                except Queue.Empty:
+                    return
+                try:
+                    output = action(source, **kwargs)
+                except WCError, e:
+                    output_lock.acquire()
+                    for lvl, msg in wc._output:
+                        lvl(msg)
+                    for l in e.args[0].split('\n'):
+                        logger.error(l)
+                    self.errors = True
+                    output_lock.release()
+                else:
+                    output_lock.acquire()
+                    for lvl, msg in wc._output:
+                        lvl(msg)
+                    if kwargs.get('verbose', False) and output is not None and output.strip():
+                        print output
+                    output_lock.release()
+        threads = []
+        for i in range(self.threads):
+            thread = threading.Thread(target=worker)
+            thread.start()
+            threads.append(thread)
+        for thread in threads:
+            thread.join()
+        if self.errors:
+            logger.error("There have been errors, see messages above.")
+            sys.exit(1)
 
     def checkout(self, packages, **kwargs):
-        errors = False
+        queue = Queue.Queue()
         for name in packages:
+            kw = kwargs.copy()
             if name not in self.sources:
                 logger.error("Checkout failed. No source defined for '%s'." % name)
                 sys.exit(1)
             source = self.sources[name]
-            try:
-                kind = source['kind']
-                wc = workingcopytypes.get(kind)
-                if wc is None:
-                    logger.error("Unknown repository type '%s'." % kind)
-                    sys.exit(1)
-                output = wc.checkout(source, **kwargs)
-                if kwargs.get('verbose', False) and output is not None and output.strip():
-                    print output
-            except WCError, e:
-                for l in e.args[0].split('\n'):
-                    logger.error(l)
+            kind = source['kind']
+            wc = workingcopytypes.get(kind)(source)
+            if wc is None:
+                logger.error("Unknown repository type '%s'." % kind)
                 sys.exit(1)
-        return errors
+            if wc.status(source) != 'clean' and not kw.get('force', False):
+                print >>sys.stderr, "The package '%s' is dirty." % name
+                answer = yesno("Do you want to update it anyway?", default=False, all=True)
+                if answer:
+                    kw['force'] = True
+                    if answer == 'all':
+                        kwargs['force'] = True
+                else:
+                    logger.info("Skipped update of '%s'." % name)
+                    continue
+            queue.put_nowait((wc, wc.checkout, source, kw))
+        self.process(queue)
 
     def matches(self, source):
         name = source['name']
@@ -76,7 +151,7 @@ class WorkingCopies(object):
         source = self.sources[name]
         try:
             kind = source['kind']
-            wc = workingcopytypes.get(kind)
+            wc = workingcopytypes.get(kind)(source)
             if wc is None:
                 logger.error("Unknown repository type '%s'." % kind)
                 sys.exit(1)
@@ -94,7 +169,7 @@ class WorkingCopies(object):
         source = self.sources[name]
         try:
             kind = source['kind']
-            wc = workingcopytypes.get(kind)
+            wc = workingcopytypes.get(kind)(source)
             if wc is None:
                 logger.error("Unknown repository type '%s'." % kind)
                 sys.exit(1)
@@ -105,23 +180,29 @@ class WorkingCopies(object):
             sys.exit(1)
 
     def update(self, packages, **kwargs):
+        queue = Queue.Queue()
         for name in packages:
+            kw = kwargs.copy()
             if name not in self.sources:
                 continue
             source = self.sources[name]
-            try:
-                kind = source['kind']
-                wc = workingcopytypes.get(kind)
-                if wc is None:
-                    logger.error("Unknown repository type '%s'." % kind)
-                    sys.exit(1)
-                output = wc.update(source, **kwargs)
-                if kwargs.get('verbose', False) and output is not None and output.strip():
-                    print output
-            except WCError, e:
-                for l in e.args[0].split('\n'):
-                    logger.error(l)
+            kind = source['kind']
+            wc = workingcopytypes.get(kind)(source)
+            if wc is None:
+                logger.error("Unknown repository type '%s'." % kind)
                 sys.exit(1)
+            if wc.status(source) != 'clean' and not kw.get('force', False):
+                print >>sys.stderr, "The package '%s' is dirty." % name
+                answer = yesno("Do you want to update it anyway?", default=False, all=True)
+                if answer:
+                    kw['force'] = True
+                    if answer == 'all':
+                        kwargs['force'] = True
+                else:
+                    logger.info("Skipped update of '%s'." % name)
+                    continue
+            queue.put_nowait((wc, wc.update, source, kw))
+        self.process(queue)
 
 
 def parse_buildout_args(args):

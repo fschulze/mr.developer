@@ -1,13 +1,11 @@
 from mr.developer import common
 import os
 import subprocess
-import sys
 
 logger = common.logger
 
 class CVSError(common.WCError):
     pass
-
 
 def build_cvs_command(command, name, url, tag='', cvs_root=''):
     """
@@ -42,7 +40,7 @@ def build_cvs_command(command, name, url, tag='', cvs_root=''):
     return cmd
         
 
-class CVSWorkingCopy(common.BaseWorkingCopy):        
+class CVSWorkingCopy(common.BaseWorkingCopy):
     def cvs_command(self, source, command, **kwargs):
         name = source['name']
         path = source['path']
@@ -77,7 +75,7 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
             if update:
                 self.update(source, **kwargs)
             elif self.matches(source):
-                logger.info('Skipped checkout of existing package %r.' % name)
+                self.output((logger.info, 'Skipped checkout of existing package %r.' % name))
             else:
                 raise CVSError(
                     'Source URL for existing package %r differs. '
@@ -137,26 +135,13 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
     def update(self, source, **kwargs):
         name = source['name']
         path = source['path']
-        force = kwargs.get('force', False)
-        status = self.status(source)
-        if status != 'clean' and not force:
-            print >>sys.stderr, "The package '%s' is dirty." % name
-            while 1:
-                answer = raw_input("Do you want to update it anyway [y/N]? ")
-                if answer.lower() in ('', 'n', 'no'):
-                    break
-                elif answer.lower() in ('y', 'yes'):
-                    force = True
-                    break
-                else:
-                    print >>sys.stderr, "You have to answer with y, yes, n or no."
         if not self.matches(source):
             raise CVSError(
                 "Can't update package %r, because its URL doesn't match." %
                 name)
-        if status != 'clean' and not force:
+        if self.status(source) != 'clean' and not kwargs.get('force', False):
             raise CVSError(
                 "Can't update package %r, because it's dirty." % name)
         return self.cvs_command(source, 'update', **kwargs)
 
-wc = CVSWorkingCopy('cvs')
+common.workingcopytypes['cvs'] = CVSWorkingCopy

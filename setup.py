@@ -1,7 +1,7 @@
 from setuptools import setup
 import os, sys
 
-version = '1.7'
+version = '1.10'
 
 install_requires = [
   'setuptools',
@@ -15,6 +15,7 @@ setup(name='mr.developer',
       version=version,
       description="A zc.buildout extension to ease the development of large projects with lots of packages.",
       long_description=open("README.txt").read() + "\n\n" +
+                       open(os.path.join("docs", "HELP.txt")).read() +
                        open(os.path.join("docs", "HISTORY.txt")).read(),
       # Get more strings from http://www.python.org/pypi?%3Aaction=list_classifiers
       classifiers=[

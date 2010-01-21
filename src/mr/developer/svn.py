@@ -7,7 +7,6 @@ import getpass
 import os
 import re
 import subprocess
-import sys
 
 logger = common.logger
 
@@ -25,9 +24,11 @@ class SVNCertificateError(SVNError):
 
 
 class SVNWorkingCopy(common.BaseWorkingCopy):
+    _svn_info_cache = {}
+    _svn_auth_cache = {}
+
     def __init__(self, *args, **kwargs):
-        self._svn_info_cache = {}
-        self._svn_auth_cache = {}
+        common.BaseWorkingCopy.__init__(self, *args, **kwargs)
         self.accept_invalid_certs = True
 
     def _svn_auth_get(self, url):
@@ -71,9 +72,9 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
         path = source['path']
         url = source['url']
         if os.path.exists(path):
-            logger.info("Skipped checkout of existing package '%s'." % name)
+            self.output((logger.info, "Skipped checkout of existing package '%s'." % name))
             return
-        logger.info("Checking out '%s' with subversion." % name)
+        self.output((logger.info, "Checking out '%s' with subversion." % name))
         args = ["svn", "checkout", url, path]
         stdout, stderr, returncode = self._svn_communicate(args, url, **kwargs)
         if returncode != 0:
@@ -148,7 +149,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
         name = source['name']
         path = source['path']
         url = source['url']
-        logger.info("Switching '%s' with subversion." % name)
+        self.output((logger.info, "Switching '%s' with subversion." % name))
         args = ["svn", "switch", url, path]
         rev = source.get('revision', source.get('rev'))
         if rev is not None and not rev.startswith('>'):
@@ -163,7 +164,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
         name = source['name']
         path = source['path']
         url = source['url']
-        logger.info("Updating '%s' with subversion." % name)
+        self.output((logger.info, "Updating '%s' with subversion." % name))
         args = ["svn", "update", path]
         rev = source.get('revision', source.get('rev'))
         if rev is not None and not rev.startswith('>'):
@@ -193,7 +194,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
                 if update:
                     self.update(source, **kwargs)
                 else:
-                    logger.info("Skipped checkout of existing package '%s'." % name)
+                    self.output((logger.info, "Skipped checkout of existing package '%s'." % name))
             else:
                 if self.status(source) == 'clean':
                     return self.svn_switch(source, **kwargs)
@@ -264,17 +265,6 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
         path = source['path']
         force = kwargs.get('force', False)
         status = self.status(source)
-        if status != 'clean' and not force:
-            print >>sys.stderr, "The package '%s' is dirty." % name
-            while 1:
-                answer = raw_input("Do you want to update it anyway [y/N]? ")
-                if answer.lower() in ('', 'n', 'no'):
-                    break
-                elif answer.lower() in ('y', 'yes'):
-                    force = True
-                    break
-                else:
-                    print >>sys.stderr, "You have to answer with y, yes, n or no."
         if not self.matches(source):
             if force or status == 'clean':
                 return self.svn_switch(source, **kwargs)
@@ -284,4 +274,4 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
             raise SVNError("Can't update package '%s', because it's dirty." % name)
         return self.svn_update(source, **kwargs)
 
-wc = SVNWorkingCopy('svn')
+common.workingcopytypes['svn'] = SVNWorkingCopy

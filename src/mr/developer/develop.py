@@ -2,11 +2,13 @@ from mr.developer.common import logger, memoize, WorkingCopies, Config
 from mr.developer.extension import Extension
 from zc.buildout.buildout import Buildout
 import atexit
+import errno
 import logging
 import optparse
 import os
 import re
 import shutil
+import stat
 import subprocess
 import sys
 import textwrap
@@ -232,31 +234,62 @@ class CmdHelp(Command):
     def __init__(self, develop):
         Command.__init__(self, develop)
         self.parser = optparse.OptionParser(
-            usage="%prog help [<command>]",
+            usage="%prog help [options] [<command>]",
             description="Show help on the given command or about the whole script if none given.",
             formatter=HelpFormatter())
+        self.parser.add_option("", "--rst", dest="rst",
+                               action="store_true", default=False,
+                               help="""Print help for all commands in reStructuredText format.""")
 
     def __call__(self):
         develop = self.develop
-        if len(sys.argv) != 3 or sys.argv[2] not in develop.commands:
-            print("usage: %s <command> [options] [args]" % os.path.basename(sys.argv[0]))
-            print("\nType '%s help <command>' for help on a specific command." % os.path.basename(sys.argv[0]))
-            print("\nAvailable commands:")
-            f_to_name = {}
-            for name, f in develop.commands.iteritems():
-                f_to_name.setdefault(f, []).append(name)
-            for cmd in sorted(x for x in dir(develop) if x.startswith('cmd_')):
-                name = cmd[4:]
-                if name == 'pony':
-                    continue
-                f = getattr(develop, cmd)
-                aliases = [x for x in f_to_name[f] if x != name]
-                if len(aliases):
-                    print("    %s (%s)" % (name, ", ".join(aliases)))
+        options, args = self.parser.parse_args(sys.argv[2:])
+        if len(args) and args[0] in develop.commands:
+            print develop.commands[args[0]].parser.format_help()
+            return
+        f_to_name = {}
+        for name, f in develop.commands.iteritems():
+            f_to_name.setdefault(f, []).append(name)
+        cmds = {}
+        for cmd in (x for x in dir(develop) if x.startswith('cmd_')):
+            name = cmd[4:]
+            if name == 'pony':
+                continue
+            f = getattr(develop, cmd)
+            aliases = [x for x in f_to_name[f] if x != name]
+            cmds[name] = dict(
+                aliases=aliases,
+                cmd=f,
+            )
+        if options.rst:
+            print "Commands"
+            print "========"
+            print
+            print "The following is a list of all commands and their options."
+            print
+            for name in sorted(cmds):
+                cmd = cmds[name]
+                if len(cmd['aliases']):
+                    header = "%s (%s)" % (name, ", ".join(cmd['aliases']))
+                else:
+                    header = name
+                print header
+                print "-"*len(header)
+                print
+                print "::"
+                print
+                for line in cmd['cmd'].parser.format_help().split('\n'):
+                    print "    %s" % line
+                print
+        else:
+            print self.parser.format_help()
+            print("Available commands:")
+            for name in sorted(cmds):
+                cmd = cmds[name]
+                if len(cmd['aliases']):
+                    print("    %s (%s)" % (name, ", ".join(cmd['aliases'])))
                 else:
                     print("    %s" % name)
-        else:
-            print develop.commands[sys.argv[2]].parser.format_help()
 
 
 class CmdInfo(Command):
@@ -434,6 +467,17 @@ class CmdPurge(Command):
 
                 Only 'svn' packages can be purged, because other repositories may contain unrecoverable files even when not marked as 'dirty'."""),
             formatter=HelpFormatter())
+        self.parser.add_option("-n", "--dry-run", dest="dry_run",
+                               action="store_true", default=False,
+                               help="""Don't actually remove anything, just print the paths which would be removed.""")
+
+    def handle_remove_readonly(self, func, path, exc):
+        excvalue = exc[1]
+        if func in (os.rmdir, os.remove) and excvalue.errno == errno.EACCES:
+            os.chmod(path, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO) # 0777
+            func(path)
+        else:
+            raise
 
     def __call__(self):
         options, args = self.parser.parse_args(sys.argv[2:])
@@ -442,6 +486,8 @@ class CmdPurge(Command):
         packages = packages - self.develop.auto_checkout
         packages = packages - set(self.develop.develeggs)
         workingcopies = WorkingCopies(self.develop.sources)
+        if options.dry_run:
+            logger.info("Dry run, nothing will be removed.")
         for name in packages:
             source = self.develop.sources[name]
             path = source['path']
@@ -454,7 +500,10 @@ class CmdPurge(Command):
                 logger.warn("The package '%s' is dirty and will not be removed." % name)
                 continue
             logger.info("Removing package '%s' at '%s'." % (name, path))
-            shutil.rmtree(source['path'])
+            if not options.dry_run:
+                shutil.rmtree(source['path'],
+                              ignore_errors=False,
+                              onerror=self.handle_remove_readonly)
 
 
 class CmdRebuild(Command):

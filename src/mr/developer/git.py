@@ -1,7 +1,6 @@
 from mr.developer import common
 import os
 import subprocess
-import sys
 
 
 logger = common.logger
@@ -17,9 +16,9 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         path = source['path']
         url = source['url']
         if os.path.exists(path):
-            logger.info("Skipped cloning of existing package '%s'." % name)
+            self.output((logger.info, "Skipped cloning of existing package '%s'." % name))
             return
-        logger.info("Cloning '%s' with git." % name)
+        self.output((logger.info, "Cloning '%s' with git." % name))
         cmd = subprocess.Popen(["git", "clone", "--quiet", url, path],
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
@@ -32,7 +31,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
     def git_update(self, source, **kwargs):
         name = source['name']
         path = source['path']
-        logger.info("Updating '%s' with git." % name)
+        self.output((logger.info, "Updating '%s' with git." % name))
         cmd = subprocess.Popen(["git", "pull"],
                                cwd=path,
                                stdout=subprocess.PIPE,
@@ -51,7 +50,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
             if update:
                 self.update(source, **kwargs)
             elif self.matches(source):
-                logger.info("Skipped checkout of existing package '%s'." % name)
+                self.output((logger.info, "Skipped checkout of existing package '%s'." % name))
             else:
                 raise GitError("Checkout URL for existing package '%s' differs. Expected '%s'." % (name, source['url']))
         else:
@@ -90,23 +89,10 @@ class GitWorkingCopy(common.BaseWorkingCopy):
     def update(self, source, **kwargs):
         name = source['name']
         path = source['path']
-        force = kwargs.get('force', False)
-        status = self.status(source)
-        if status != 'clean' and not force:
-            print >>sys.stderr, "The package '%s' is dirty." % name
-            while 1:
-                answer = raw_input("Do you want to update it anyway [y/N]? ")
-                if answer.lower() in ('', 'n', 'no'):
-                    break
-                elif answer.lower() in ('y', 'yes'):
-                    force = True
-                    break
-                else:
-                    print >>sys.stderr, "You have to answer with y, yes, n or no."
         if not self.matches(source):
             raise GitError("Can't update package '%s', because it's URL doesn't match." % name)
-        if status != 'clean' and not force:
+        if self.status(source) != 'clean' and not kwargs.get('force', False):
             raise GitError("Can't update package '%s', because it's dirty." % name)
         return self.git_update(source, **kwargs)
 
-wc = GitWorkingCopy('git')
+common.workingcopytypes['git'] = GitWorkingCopy

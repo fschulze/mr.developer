@@ -1,0 +1,245 @@
+Commands
+========
+
+The following is a list of all commands and their options.
+
+activate (a)
+------------
+
+::
+
+    Usage: develop activate [options] [<package-regexps>]
+    
+    Add package to the list of development packages.
+    Options:
+      -h, --help           show this help message and exit
+      -a, --auto-checkout  Only considers packages declared by auto-checkout. If
+                           you don't specify a <package-regexps> then all declared
+                           packages are processed.
+      -c, --checked-out    Only considers packages currently checked out. If you
+                           don't specify a <package-regexps> then all checked out
+                           packages are processed.
+      -d, --develop        Only considers packages currently in development mode.
+                           If you don't specify a <package-regexps> then all
+                           develop packages are processed.
+    
+
+checkout (co)
+-------------
+
+::
+
+    Usage: develop checkout [options] <package-regexps>
+    
+    Make a checkout of the packages matching the regular expressions and add them
+    to the list of development packages.
+    Options:
+      -h, --help           show this help message and exit
+      -a, --auto-checkout  Only considers packages declared by auto-checkout. If
+                           you don't specify a <package-regexps> then all declared
+                           packages are processed.
+      -v, --verbose        Show output of VCS command.
+    
+
+deactivate (d)
+--------------
+
+::
+
+    Usage: develop deactivate [options] <package-regexps>
+    
+    Remove package from the list of development packages.
+    Options:
+      -h, --help           show this help message and exit
+      -a, --auto-checkout  Only considers packages declared by auto-checkout. If
+                           you don't specify a <package-regexps> then all declared
+                           packages are processed.
+      -c, --checked-out    Only considers packages currently checked out. If you
+                           don't specify a <package-regexps> then all checked out
+                           packages are processed.
+      -d, --develop        Only considers packages currently in development mode.
+                           If you don't specify a <package-regexps> then all
+                           develop packages are processed.
+    
+
+help (h)
+--------
+
+::
+
+    Usage: develop help [options] [<command>]
+    
+    Show help on the given command or about the whole script if none given.
+    Options:
+      -h, --help  show this help message and exit
+      --rst       Print help for all commands in reStructuredText format.
+    
+
+info
+----
+
+::
+
+    Usage: develop info [options] [<package-regexps>]
+    
+    Lists informations about packages, filtered if <package-regexps> is given.
+    Options:
+      -h, --help           show this help message and exit
+      -a, --auto-checkout  Only considers packages declared by auto-checkout. If
+                           you don't specify a <package-regexps> then all declared
+                           packages are processed.
+      -c, --checked-out    Only considers packages currently checked out. If you
+                           don't specify a <package-regexps> then all declared
+                           packages are processed.
+      -d, --develop        Only considers packages currently in development mode.
+                           If you don't specify a <package-regexps> then all
+                           declared packages are processed.
+    
+      Output options:
+        The following options are used to print just the info you want, the order
+        they are specified reflects the order in which the information will be
+        printed.
+        --name             Prints the name of the package.
+        -p, --path         Prints the absolute path of the package.
+        --type             Prints the repository type of the package.
+        --url              Prints the URL of the package.
+    
+
+list (ls)
+---------
+
+::
+
+    Usage: develop list [options] [<package-regexps>]
+    
+    Lists tracked packages, filtered if <package-regexps> is given.
+    Options:
+      -h, --help           show this help message and exit
+      -a, --auto-checkout  Only show packages in auto-checkout list.
+      -c, --checked-out    Only considers packages currently checked out. If you
+                           don't specify a <package-regexps> then all checked out
+                           packages are processed.
+      -d, --develop        Only considers packages currently in development mode.
+                           If you don't specify a <package-regexps> then all
+                           develop packages are processed.
+      -l, --long           Show URL and kind of package.
+      -s, --status         Show checkout status.
+                           The first column in the output shows the checkout
+                           status:
+                               '#' available for checkout
+                               ' ' in auto-checkout list and checked out
+                               '~' not in auto-checkout list, but checked out
+                               '!' in auto-checkout list, but not checked out
+                               'C' the repository URL doesn't match
+    
+
+purge
+-----
+
+::
+
+    Usage: develop purge [options] [<package-regexps>]
+    
+    Remove checked out packages which aren't active anymore.
+    
+    Only 'svn' packages can be purged, because other repositories may contain
+    unrecoverable files even when not marked as 'dirty'.
+    Options:
+      -h, --help     show this help message and exit
+      -n, --dry-run  Don't actually remove anything, just print the paths which
+                     would be removed.
+    
+
+rebuild (rb)
+------------
+
+::
+
+    Usage: develop rebuild [options]
+    
+    Run buildout with the last used arguments.
+    Options:
+      -h, --help     show this help message and exit
+      -n, --dry-run  Don't actually run buildout, just show the last used
+                     arguments.
+    
+
+reset
+-----
+
+::
+
+    Usage: develop reset [options] [<package-regexps>]
+    
+    Resets the packages develop status. This is useful when switching to a new
+    buildout configuration.
+    Options:
+      -h, --help           show this help message and exit
+      -a, --auto-checkout  Only considers packages declared by auto-checkout. If
+                           you don't specify a <package-regexps> then all declared
+                           packages are processed.
+      -c, --checked-out    Only considers packages currently checked out. If you
+                           don't specify a <package-regexps> then all checked out
+                           packages are processed.
+      -d, --develop        Only considers packages currently in development mode.
+                           If you don't specify a <package-regexps> then all
+                           develop packages are processed.
+    
+
+status (stat, st)
+-----------------
+
+::
+
+    Usage: develop status [options] [<package-regexps>]
+    
+    Shows the status of tracked packages, filtered if <package-regexps> is given.
+    The first column in the output shows the checkout status:
+        ' ' in auto-checkout list
+        '~' not in auto-checkout list
+        '!' in auto-checkout list, but not checked out
+        'C' the repository URL doesn't match
+    The second column shows the working copy status:
+        ' ' no changes
+        'M' local modifications or untracked files
+    The third column shows the development status:
+        ' ' activated
+        '-' deactivated
+        '!' deactivated, but the package is in the auto-checkout list
+        'A' activated, but not in list of development packages (run buildout)
+        'D' deactivated, but still in list of development packages (run buildout)
+    Options:
+      -h, --help           show this help message and exit
+      -a, --auto-checkout  Only considers packages declared by auto-checkout. If
+                           you don't specify a <package-regexps> then all declared
+                           packages are processed.
+      -c, --checked-out    Only considers packages currently checked out. If you
+                           don't specify a <package-regexps> then all checked out
+                           packages are processed.
+      -d, --develop        Only considers packages currently in development mode.
+                           If you don't specify a <package-regexps> then all
+                           develop packages are processed.
+      -v, --verbose        Show output of VCS command.
+    
+
+update (up)
+-----------
+
+::
+
+    Usage: develop update [options] [<package-regexps>]
+    
+    Updates all known packages currently checked out. If <package-regexps> are
+    given, then the set is limited to the matching packages.
+    Options:
+      -h, --help           show this help message and exit
+      -a, --auto-checkout  Only considers packages declared by auto-checkout. If
+                           you don't specify a <package-regexps> then all declared
+                           packages are processed.
+      -d, --develop        Only considers packages currently in development mode.
+                           If you don't specify a <package-regexps> then all
+                           develop packages are processed.
+      -f, --force          Force update even if the working copy is dirty.
+      -v, --verbose        Show output of VCS command.
+    
+
