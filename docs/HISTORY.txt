@@ -10,6 +10,9 @@ Changelog
 * Tests for CVS integration
   [sargo]
 
+* Better checking of CVS package purity.
+  [sargo]
+
 1.9 - 2010-01-11
 ----------------
 
