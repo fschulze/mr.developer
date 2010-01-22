@@ -52,7 +52,7 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
         tag = source.get('tag')
         cvs_root = source.get('cvs_root')
         
-        logger.info('Running %s %r from CVS.' % (command, name))            
+        self.output((logger.info, 'Running %s %r from CVS.' % (command, name)))
         cmd = build_cvs_command(command, name, url, tag, cvs_root)
 
         ## because CVS can not work on absolute paths, we must execute cvs commands
