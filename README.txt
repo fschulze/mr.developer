@@ -85,6 +85,11 @@ The different repository kinds accept some specific options.
     updated. If it's ``false``, then it will never be updated, even if the
     global ``always-checkout`` option is set.
 
+    The ``egg`` option makes it possible to manage packages which are not
+    eggs with ``egg=false``. All commands like ``update`` work as expected,
+    but the package isn't added to the ``develop`` buildout option and the
+    ``activate`` and ``deactivate`` commands skip the package.
+
   ``svn``
     The ``<url>`` is one of the urls supported by subversion.
 

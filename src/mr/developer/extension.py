@@ -85,6 +85,11 @@ class Extension(object):
                     value = os.path.join(value, name)
                     if not os.path.isabs(value):
                         value = os.path.join(self.buildout_dir, value)
+                if key == 'egg':
+                    if value.lower() in ('true', 'yes', 'on'):
+                        value = True
+                    elif value.lower() in ('false', 'no', 'off'):
+                        value = False
                 source[key] = value
             if 'path' not in source:
                 source['path'] = os.path.join(sources_dir, name)
@@ -126,7 +131,8 @@ class Extension(object):
             develeggs[tail] = path
         config_develop = self.get_config().develop
         for name in sources:
-            if name not in develeggs:
+            source = sources[name]
+            if source.get('egg', True) and name not in develeggs:
                 path = sources[name]['path']
                 status = config_develop.get(name, name in auto_checkout)
                 if os.path.exists(path) and status:

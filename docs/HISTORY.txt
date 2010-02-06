@@ -4,6 +4,9 @@ Changelog
 1.10 - Unreleased
 -----------------
 
+* Added ``egg`` package option (Issue #6).
+  [fschulze]
+
 * By setting ``always-checkout = force``, all packages will be updated
   without asking when dirty.
   [fschulze]

@@ -148,6 +148,9 @@ class CmdActivate(Command):
             if not source.exists():
                 logger.warning("The package '%s' matched, but isn't checked out." % name)
                 continue
+            if not source.get('egg', True):
+                logger.warning("The package '%s' isn't an egg." % name)
+                continue
             config.develop[name] = True
             logger.info("Activated '%s'." % name)
             changed = True
@@ -182,6 +185,9 @@ class CmdCheckout(Command):
             workingcopies = WorkingCopies(self.develop.sources)
             workingcopies.checkout(sorted(packages), verbose=options.verbose)
             for name in sorted(packages):
+                source = self.develop.sources[name]
+                if not source.get('egg', True):
+                    continue
                 config.develop[name] = True
                 logger.info("Activated '%s'." % name)
             logger.warn("Don't forget to run buildout again, so the checked out packages are used as develop eggs.")
@@ -220,6 +226,9 @@ class CmdDeactivate(Command):
             source = self.develop.sources[name]
             if not source.exists():
                 logger.warning("The package '%s' matched, but isn't checked out." % name)
+                continue
+            if not source.get('egg', True):
+                logger.warning("The package '%s' isn't an egg." % name)
                 continue
             if config.develop.get(name) != False:
                 config.develop[name] = False
@@ -636,15 +645,23 @@ class CmdStatus(Command):
                 if name in develeggs:
                     print " ",
                 else:
-                    print "A",
+                    if source.get('egg', True):
+                        print "A",
+                    else:
+                        print " ",
             else:
                 if name not in develeggs:
-                    if name in auto_checkout:
+                    if not source.get('egg', True):
+                        print " ",
+                    elif name in auto_checkout:
                         print "!",
                     else:
                         print "-",
                 else:
-                    print "D",
+                    if source.get('egg', True):
+                        print "D",
+                    else:
+                        print " ",
             print name
             if options.verbose:
                 output = output.strip()
