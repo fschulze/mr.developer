@@ -130,7 +130,9 @@ class WorkingCopies(object):
             if wc is None:
                 logger.error("Unknown repository type '%s'." % kind)
                 sys.exit(1)
-            if wc.status(source) != 'clean' and not kw.get('force', False):
+            if not os.path.exists(source['path']):
+                pass
+            elif wc.status(source) != 'clean' and not kw.get('force', False):
                 print >>sys.stderr, "The package '%s' is dirty." % name
                 answer = yesno("Do you want to update it anyway?", default=False, all=True)
                 if answer:

@@ -4,6 +4,8 @@ Changelog
 1.10 - Unreleased
 -----------------
 
+* Fix checkout of packages (Issues #9 and #11).
+  [fschulze]
 
 1.9 - 2010-01-11
 ----------------
