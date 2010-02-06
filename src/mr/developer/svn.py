@@ -7,6 +7,7 @@ import getpass
 import os
 import re
 import subprocess
+import sys
 
 logger = common.logger
 
@@ -30,6 +31,36 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
     def __init__(self, *args, **kwargs):
         common.BaseWorkingCopy.__init__(self, *args, **kwargs)
         self.accept_invalid_certs = True
+        self._svn_check_version()
+
+    def _svn_check_version(self):
+        try:
+            cmd = subprocess.Popen(["svn", "--version"],
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+        except OSError, e:
+            if getattr(e, 'errno', None) == 2:
+                logger.error("Couldn't find 'svn' executable in your PATH.")
+                sys.exit(1)
+            raise
+        stdout, stderr = cmd.communicate()
+        lines = stdout.split('\n')
+        version = None
+        if len(lines):
+            version = re.search(r'(\d+)\.(\d+)(\.\d+)?', lines[0])
+            if version is not None:
+                version = version.groups()
+                if len(version) == 3:
+                    version = (int(version[0]), int(version[1]), int(version[2][1:]))
+                else:
+                    version = (int(version[0]), int(version[1]))
+        if (cmd.returncode != 0) or (version is None):
+            logger.error("Couldn't determine the version of 'svn' command.")
+            logger.error("Subversion output:\n%s\n%s" % (stdout, stderr))
+            sys.exit(1)
+        if (version < (1, 5)):
+            logger.error("The installed 'svn' command is too old, expected 1.5 or newer, got %s." % ".".join([str(x) for x in version]))
+            sys.exit(1)
 
     def _svn_auth_get(self, url):
         for root in self._svn_auth_cache:

@@ -4,6 +4,10 @@ Changelog
 1.10 - Unreleased
 -----------------
 
+* Check ``svn`` version and output helpful error messages if it's too old or
+  can't be determined (Issue #13).
+  [fschulze]
+
 * Error messages instead of tracebacks when source definitions are wrong.
   [fschulze]
 

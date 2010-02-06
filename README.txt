@@ -50,8 +50,8 @@ The different parts have the following meaning:
     This is the package name.
 
   ``<kind>``
-    The kind of repository. Currently supported are one of ``svn``, ``hg``,
-    ``git``, ``cvs`` or ``fs``.
+    The kind of repository. Currently supported are one of ``svn`` (>= 1.5),
+    ``hg``, ``git``, ``cvs`` or ``fs``.
 
   ``<url>``
     The location of the repository. This value is specific to the version
