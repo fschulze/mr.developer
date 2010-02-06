@@ -40,7 +40,7 @@ class Extension(object):
         for name in section:
             info = section[name].split()
             options = []
-            option_matcher = re.compile(r'[a-zA-Z0-9]+=.*')
+            option_matcher = re.compile(r'[a-zA-Z0-9-]+=.*')
             for index, item in reversed(list(enumerate(info))):
                 if option_matcher.match(item):
                     del info[index]
@@ -85,6 +85,9 @@ class Extension(object):
                     value = os.path.join(value, name)
                     if not os.path.isabs(value):
                         value = os.path.join(self.buildout_dir, value)
+                if key == 'full-path':
+                    if not os.path.isabs(value):
+                        value = os.path.join(self.buildout_dir, value)
                 if key == 'egg':
                     if value.lower() in ('true', 'yes', 'on'):
                         value = True
@@ -92,7 +95,10 @@ class Extension(object):
                         value = False
                 source[key] = value
             if 'path' not in source:
-                source['path'] = os.path.join(sources_dir, name)
+                if 'full-path' in source:
+                    source['path'] = source['full-path']
+                else:
+                    source['path'] = os.path.join(sources_dir, name)
 
             sources[name] = source
 

@@ -4,6 +4,9 @@ Changelog
 1.10 - Unreleased
 -----------------
 
+* Added ``full-path`` package option.
+  [fschulze]
+
 * Added ``egg`` package option (Issue #6).
   [fschulze]
 

@@ -80,6 +80,9 @@ The different repository kinds accept some specific options.
     package will be checked out. The name of the package will be appended to
     the base path.
 
+    With ``full-path`` you can set the directory where the package will be
+    checked out. This is the actual destination, nothing will be added.
+
     The ``update`` option allows you to specify whether a package will be
     updated during buildout or not. If it's ``true``, then it will always be
     updated. If it's ``false``, then it will never be updated, even if the
