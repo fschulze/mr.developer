@@ -33,6 +33,9 @@ class BaseWorkingCopy(object):
         self.source = source
 
     def should_update(self, source, **kwargs):
+        offline = kwargs.get('offline', False)
+        if offline:
+            return False
         update = source.get('update', kwargs.get('update', False))
         if not isinstance(update, bool):
             if update.lower() in ('true', 'yes'):

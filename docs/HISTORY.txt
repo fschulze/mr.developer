@@ -4,6 +4,9 @@ Changelog
 1.10 - Unreleased
 -----------------
 
+* Basic support for buildout offline mode (-o). Not all cases are handled yet.
+  [fschulze]
+
 * Added ``full-path`` package option.
   [fschulze]
 

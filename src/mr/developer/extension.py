@@ -194,9 +194,11 @@ class Extension(object):
             if pkg in sources:
                 packages.add(pkg)
 
+        offline = self.buildout['buildout']['offline'].lower() == 'true'
         workingcopies.checkout(sorted(packages),
                                verbose=root_logger.level <= 10,
-                               update=always_checkout)
+                               update=always_checkout,
+                               offline=offline)
 
         # get updated info after checkout
         (develop, develeggs, versions) = self.get_develop_info()
