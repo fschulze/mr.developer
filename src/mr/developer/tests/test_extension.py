@@ -143,6 +143,16 @@ class TestExtensionClass(TestCase):
         })
         sources = self.extension.get_sources()
 
+    def testRepositoryKindChecking(self):
+        self.buildout['sources'].update({
+            'pkg.bar': 'dummy://foo/trunk svn',
+        })
+        self.assertRaises(SystemExit, self.extension.get_sources)
+        self.buildout['sources'].update({
+            'pkg.bar': 'foo dummy://foo/trunk',
+        })
+        self.assertRaises(SystemExit, self.extension.get_sources)
+
     def testSourcePathParsing(self):
         self.buildout['sources'].update({
             'pkg.bar': 'svn dummy://foo/trunk',

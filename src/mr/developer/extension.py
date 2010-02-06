@@ -1,4 +1,4 @@
-from mr.developer.common import memoize, WorkingCopies, Config
+from mr.developer.common import memoize, WorkingCopies, Config, workingcopytypes
 import logging
 import os
 import sys
@@ -38,7 +38,13 @@ class Extension(object):
         section = self.buildout.get(sources_section, {})
         for name in section:
             info = section[name].split()
+            if len(info) < 2:
+                logger.error("The source definition of '%s' needs at least the repository kind and URL." % name)
+                sys.exit(1)
             kind = info[0]
+            if kind not in workingcopytypes:
+                logger.error("Unknown repository type '%s' for source '%s'." % (kind, name))
+                sys.exit(1)
             url = info[1]
 
             for rewrite in self.get_config().rewrites:

@@ -4,6 +4,9 @@ Changelog
 1.10 - Unreleased
 -----------------
 
+* Error messages instead of tracebacks when source definitions are wrong.
+  [fschulze]
+
 * Fix checkout of packages (Issues #9 and #11).
   [fschulze]
 
