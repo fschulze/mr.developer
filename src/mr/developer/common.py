@@ -119,6 +119,16 @@ class WorkingCopies(object):
 
     def checkout(self, packages, **kwargs):
         queue = Queue.Queue()
+        if 'update' in kwargs:
+            if kwargs['update'].lower() in ('true', 'yes', 'on', 'force'):
+                if kwargs['update'].lower() == 'force':
+                    kwargs['force'] = True
+                kwargs['update'] = True
+            elif kwargs['update'].lower() in ('false', 'no', 'off'):
+                kwargs['update'] = False
+            else:
+                logger.error("Unknown value '%s' for always-checkout option." % kwargs['update'])
+                sys.exit(1)
         for name in packages:
             kw = kwargs.copy()
             if name not in self.sources:

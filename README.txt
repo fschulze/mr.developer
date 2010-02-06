@@ -38,7 +38,8 @@ section:
   ``always-checkout``
     This defaults to ``false``. If it's ``true``, then all packages specified
     by ``auto-checkout`` and currently in develop mode are updated during the
-    buildout run.
+    buildout run. If set to ``force``, then packages are updated even when
+    they are dirty instead of asking interactively.
 
 The format of the section with the repository information is::
 

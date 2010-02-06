@@ -4,6 +4,10 @@ Changelog
 1.10 - Unreleased
 -----------------
 
+* By setting ``always-checkout = force``, all packages will be updated
+  without asking when dirty.
+  [fschulze]
+
 * The ``[path]`` part of sources is replaced by ``path=PATH`` syntax and
   throws a warning when used.
   [fschulze]
