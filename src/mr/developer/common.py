@@ -291,7 +291,7 @@ def parse_buildout_args(args):
             # We've run out of command-line options and option assignnemnts
             # The rest should be commands, so we'll stop here
             break
-    return options, settings
+    return options, settings, args
 
 
 class Config(object):
@@ -323,7 +323,7 @@ class Config(object):
                 elif arg.startswith('"') and arg.endswith('"'):
                     arg = arg[1:-1].replace('\\"', '"')
                 self.buildout_args.append(arg)
-        (self.buildout_options, self.buildout_settings) = \
+        (self.buildout_options, self.buildout_settings, _) = \
             parse_buildout_args(self.buildout_args[1:])
         if self._config.has_option('mr.developer', 'rewrites'):
             for rewrite in self._config.get('mr.developer', 'rewrites').split('\n'):
@@ -343,7 +343,10 @@ class Config(object):
 
         if not self._config.has_section('buildout'):
             self._config.add_section('buildout')
-        self._config.set('buildout', 'args', "\n".join(repr(x) for x in self.buildout_args))
+        options, settings, args = parse_buildout_args(self.buildout_args[1:])
+        # don't store the options when a command was in there
+        if not len(args):
+            self._config.set('buildout', 'args', "\n".join(repr(x) for x in self.buildout_args))
 
         if not self._config.has_section('mr.developer'):
             self._config.add_section('mr.developer')

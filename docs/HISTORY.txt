@@ -4,6 +4,9 @@ Changelog
 1.10 - Unreleased
 -----------------
 
+* Don't store the buildout options if they contain a command.
+  [fschulze]
+
 * Basic support for buildout offline mode (-o). Not all cases are handled yet.
   [fschulze]
 
