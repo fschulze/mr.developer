@@ -1,6 +1,7 @@
 from mr.developer.common import memoize, WorkingCopies, Config, workingcopytypes
 import logging
 import os
+import re
 import sys
 
 
@@ -38,6 +39,13 @@ class Extension(object):
         section = self.buildout.get(sources_section, {})
         for name in section:
             info = section[name].split()
+            options = []
+            option_matcher = re.compile(r'[a-zA-Z0-9]+=.*')
+            for index, item in reversed(list(enumerate(info))):
+                if option_matcher.match(item):
+                    del info[index]
+                    options.append(item)
+            options.reverse()
             if len(info) < 2:
                 logger.error("The source definition of '%s' needs at least the repository kind and URL." % name)
                 sys.exit(1)
@@ -51,27 +59,36 @@ class Extension(object):
                 if len(rewrite) == 2 and url.startswith(rewrite[0]):
                     url = "%s%s" % (rewrite[1], url[len(rewrite[0]):])
 
+            path = None
             if len(info) > 2:
                 if '=' not in info[2]:
+                    logger.warn("You should use 'path=%s' to set the path." % info[2])
                     path = os.path.join(info[2], name)
                     if not os.path.isabs(path):
                         path = os.path.join(self.buildout_dir, path)
-                    options = info[3:]
+                    options[:0] = info[3:]
                 else:
-                    path = os.path.join(sources_dir, name)
-                    options = info[2:]
-            else:
-                path = os.path.join(sources_dir, name)
-                options = []
+                    options[:0] = info[2:]
 
-            source = Source(kind=kind, name=name, url=url, path=path)
+            if path is None:
+                source = Source(kind=kind, name=name, url=url)
+            else:
+                source = Source(kind=kind, name=name, url=url, path=path)
+
             for option in options:
                 key, value = option.split('=', 1)
                 if not key:
                     raise ValueError("Option with no name '%s'." % option)
                 if key in source:
                     raise ValueError("Key '%s' already in source info." % key)
+                if key == 'path':
+                    value = os.path.join(value, name)
+                    if not os.path.isabs(value):
+                        value = os.path.join(self.buildout_dir, value)
                 source[key] = value
+            if 'path' not in source:
+                source['path'] = os.path.join(sources_dir, name)
+
             sources[name] = source
 
         return sources

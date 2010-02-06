@@ -42,7 +42,7 @@ section:
 
 The format of the section with the repository information is::
 
-  <name> = <kind> <url> [path] [key=value]
+  <name> = <kind> [key=value] <url> [path] [key=value]
 
 The different parts have the following meaning:
 
@@ -58,6 +58,9 @@ The different parts have the following meaning:
     control system used.
 
   ``[path]``
+    .. important::
+       This is replaced by ``path=PATH`` syntax.
+
     The (optional) base directory where the package will be checked out.
 
     The name of the package will be appended.
@@ -65,13 +68,17 @@ The different parts have the following meaning:
     If it's not set, then ``sources-dir`` will be used.
 
   ``[key=value]``
-    You can add options with this, which are specific to the version control
-    system used. There are is no whitespace allowed in `key`, `value` or
-    around the equal sign.
+    You can add options for each individual package with this. There are is no
+    whitespace allowed in ``key``, ``value`` and around the equal sign. For a
+    description of the options see below.
 
 The different repository kinds accept some specific options.
 
   Common options
+    The ``path`` option allows you to set the base directory where the
+    package will be checked out. The name of the package will be appended to
+    the base path.
+
     The ``update`` option allows you to specify whether a package will be
     updated during buildout or not. If it's ``true``, then it will always be
     updated. If it's ``false``, then it will never be updated, even if the

@@ -4,6 +4,13 @@ Changelog
 1.10 - Unreleased
 -----------------
 
+* The ``[path]`` part of sources is replaced by ``path=PATH`` syntax and
+  throws a warning when used.
+  [fschulze]
+
+* Per package options are now allowed before the URL.
+  [fschulze]
+
 * Check ``svn`` version and output helpful error messages if it's too old or
   can't be determined (Issue #13).
   [fschulze]
