@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.10 - Unreleased
+1.10 - 2010-02-06
 -----------------
 
 * Don't store the buildout options if they contain a command.
