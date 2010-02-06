@@ -194,7 +194,7 @@ class Extension(object):
             if pkg in sources:
                 packages.add(pkg)
 
-        offline = self.buildout['buildout']['offline'].lower() == 'true'
+        offline = self.buildout['buildout'].get('offline', '').lower() == 'true'
         workingcopies.checkout(sorted(packages),
                                verbose=root_logger.level <= 10,
                                update=always_checkout,

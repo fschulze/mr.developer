@@ -123,7 +123,9 @@ class WorkingCopies(object):
     def checkout(self, packages, **kwargs):
         queue = Queue.Queue()
         if 'update' in kwargs:
-            if kwargs['update'].lower() in ('true', 'yes', 'on', 'force'):
+            if isinstance(kwargs['update'], bool):
+                pass
+            elif kwargs['update'].lower() in ('true', 'yes', 'on', 'force'):
                 if kwargs['update'].lower() == 'force':
                     kwargs['force'] = True
                 kwargs['update'] = True

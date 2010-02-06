@@ -11,5 +11,11 @@ class TestParseBuildoutArgs(TestCase):
             self.assertEquals(len(option), 3)
 
     def testTimeoutValue(self):
-        options, settings = self.parse_buildout_args(['-t', '5'])
+        options, settings, args = self.parse_buildout_args(['-t', '5'])
         self.checkOptions(options)
+
+    def testCommands(self):
+        options, settings, args = self.parse_buildout_args(['-t', '5'])
+        self.assertEquals(len(args), 0)
+        options, settings, args = self.parse_buildout_args(['-t', '5', 'install', 'partname'])
+        self.assertEquals(len(args), 2)
