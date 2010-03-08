@@ -4,7 +4,9 @@ Changelog
 1.11 - Unreleased
 -----------------
 
-
+* Only checkout/update packages in auto-checkout or with ``update = true``
+  option when running buildout.
+  [fschulze]
 
 1.10 - 2010-02-06
 -----------------
