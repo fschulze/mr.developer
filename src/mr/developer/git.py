@@ -11,15 +11,39 @@ class GitError(common.WCError):
 
 
 class GitWorkingCopy(common.BaseWorkingCopy):
+    def git_switch_branch(self, source, stdout, stderr):
+        name = source['name']
+        path = source['path']
+        branch = source['branch']
+        # This should go smoothly for both existing local mirrors and for
+        # unexisting ones: git automagically creates the local branch if it
+        # sees it exists in the origin
+        cmd = subprocess.Popen(["git", "checkout", branch],
+                               cwd=path,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
+        local_stdout, local_stderr = cmd.communicate()
+        if cmd.returncode != 0:
+            raise GitError("git checkout of branch '%s' failed.\n%s" % (branch, stderr))
+        return (stdout + local_stdout,
+                stderr + local_stderr)
+
     def git_checkout(self, source, **kwargs):
         name = source['name']
         path = source['path']
         url = source['url']
+        branch = source.get('branch', None)
         if os.path.exists(path):
             self.output((logger.info, "Skipped cloning of existing package '%s'." % name))
             return
         self.output((logger.info, "Cloning '%s' with git." % name))
-        cmd = subprocess.Popen(["git", "clone", "--quiet", url, path],
+        argv = ["git", "clone", "--quiet", url, path]
+        if branch is not None:
+            # I'm not too willing to go into the oddities of this, but to check
+            # out a branch via subprocess.Popen you have to pass the parameter
+            # without the space
+            argv.insert(2, '-b%s' % branch)
+        cmd = subprocess.Popen(argv,
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
@@ -39,6 +63,8 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise GitError("git pull for '%s' failed.\n%s" % (name, stderr))
+        if 'branch' in source:
+            stdout, stderr = self.git_switch_branch(source, stdout, stderr)
         if kwargs.get('verbose', False):
             return stdout
 
