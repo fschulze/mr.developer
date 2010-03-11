@@ -15,6 +15,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
     def __init__(self, source):
         super(GitWorkingCopy, self).__init__(source)
         # determines git version as API has been jumping up and down
+        # this could also be ran at import time.
         cmd = subprocess.Popen(["git", "--version"],
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
@@ -34,6 +35,9 @@ class GitWorkingCopy(common.BaseWorkingCopy):
             # git 1.6, smart enough to figure out
             argv = ["git", "checkout", branch]
         else:
+            # we have to see if the wanted branch is already local or
+            # not. Basically we will now analyze the output of the command that
+            # shows all branches (even remotes)
             cmd = subprocess.Popen(["git", "branch", "-a"],
                                    cwd=path,
                                    stdout=subprocess.PIPE,
@@ -43,15 +47,13 @@ class GitWorkingCopy(common.BaseWorkingCopy):
                 raise GitError("git branch failed.\n%s" % (branch, stderr))
             stdout_in += stdout
             stderr_in += stderr
-            # branch euristics start: either the branch is local already and we are
-            # safe (think update) or if it's remote the handling changes from git
-            # 1.5 to 1.6: with 1.6 being smart enough to figure out
             if re.search("^(\*| ) "+re.escape(branch)+"$", stdout, re.M):
+                # the branch is local, normal checkout will work
                 argv = ["git", "checkout", branch]
             elif re.search("^  origin\/"+re.escape(branch)+"$", stdout, re.M):
-                # git 1.5: the funny -b switch is because I'm not totally sure of
-                # how well parsing goes here
+                # the branch is not local, normal checkout won't work here
                 argv = ["git", "checkout", "-b", branch, "origin/%s" % branch]
+        # runs the checkout with predetermined arguments
         cmd = subprocess.Popen(argv,
                                cwd=path,
                                stdout=subprocess.PIPE,
@@ -70,6 +72,9 @@ class GitWorkingCopy(common.BaseWorkingCopy):
             self.output((logger.info, "Skipped cloning of existing package '%s'." % name))
             return
         self.output((logger.info, "Cloning '%s' with git." % name))
+        # here, but just on 1.6, if a branch was provided we could checkout it
+        # directly via the -b <branchname> option instead of doing a separate
+        # checkout later: I however think it outweighs the benefits
         cmd = subprocess.Popen(["git", "clone", "--quiet", url, path],
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
@@ -115,6 +120,8 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         name = source['name']
         path = source['path']
         if self.git_version == "1.6":
+            # This is the old matching code: it does not work on 1.5 due to the
+            # lack of the -v switch
             cmd = subprocess.Popen(["git", "remote", "-v"],
                                    cwd=path,
                                    stdout=subprocess.PIPE,
@@ -124,6 +131,9 @@ class GitWorkingCopy(common.BaseWorkingCopy):
                 raise GitError("git remote for '%s' failed.\n%s" % (name, stderr))
             return (source['url'] in stdout.split())
         else:
+            # what we do here is first get the list of remotes, then do a
+            # remote show <remotename> on each: if one matches we return true,
+            # else we return false at the end (early bailout)
             cmd = subprocess.Popen(["git", "remote"],
                                    cwd=path,
                                    stdout=subprocess.PIPE,
