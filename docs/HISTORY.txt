@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.11 - Unreleased
+1.11 - 2010-03-14
 -----------------
 
 * Handle untrusted server certificates by asking the user what to do.
