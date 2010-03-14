@@ -29,7 +29,7 @@ class GitSVNCertificateError(GitSVNError):
 class GitSVNWorkingCopy(SVNWorkingCopy):
 
     def svn_checkout(self, source, **kwargs):
-        result = self._svn_error_wrapper(self._svn_checkout, source, **kwargs)
+        result = super(GitSVNWorkingCopy, self).svn_checkout(source, **kwargs)
         name = source['name']
         path = source['path']
         self.output((logger.info, "Gitifying '%s'." % name))
