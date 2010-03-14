@@ -1,6 +1,12 @@
 Changelog
 =========
 
+next
+----
+
+* added ``--version`` command.
+  [tomster]
+
 1.10 - 2010-02-06
 -----------------
 

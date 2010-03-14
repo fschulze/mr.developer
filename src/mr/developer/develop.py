@@ -2,6 +2,7 @@ from mr.developer.common import logger, memoize, WorkingCopies, Config
 from mr.developer.extension import Extension
 from zc.buildout.buildout import Buildout
 import atexit
+import pkg_resources
 import errno
 import logging
 import optparse
@@ -755,6 +756,9 @@ class Develop(object):
     def restore_original_dir(self):
         os.chdir(self.original_dir)
 
+    def _version(self):
+        print pkg_resources.get_distribution("mr.developer").version
+
     @property
     def commands(self):
         commands = getattr(self, '_commands', None)
@@ -766,6 +770,7 @@ class Develop(object):
                 commands[key[4:]] = getattr(self, key)
             if key.startswith('alias_'):
                 commands[key[6:]] = getattr(self, key)
+        commands['--version'] = self._version
         return commands
 
     def unknown(self):
