@@ -18,18 +18,9 @@ class GitSVNError(common.WCError):
     pass
 
 
-class GitSVNAuthorizationError(GitSVNError):
-    pass
-
-
-class GitSVNCertificateError(GitSVNError):
-    pass
-
-
 class GitSVNWorkingCopy(SVNWorkingCopy):
 
-    def svn_checkout(self, source, **kwargs):
-        result = super(GitSVNWorkingCopy, self).svn_checkout(source, **kwargs)
+    def gitify_init(self, source, **kwargs):
         name = source['name']
         path = source['path']
         self.output((logger.info, "Gitifying '%s'." % name))
@@ -43,11 +34,27 @@ class GitSVNWorkingCopy(SVNWorkingCopy):
         if kwargs.get('verbose', False):
             return stdout
 
+    def svn_checkout(self, source, **kwargs):
+        super(GitSVNWorkingCopy, self).svn_checkout(source, **kwargs)
+        return self.gitify_init(source, **kwargs)
+
     def svn_switch(self, source, **kwargs):
-        return self._svn_error_wrapper(self._svn_switch, source, **kwargs)
+        super(GitSVNWorkingCopy, self).svn_switch(source, **kwargs)
+        return self.gitify_init(source, **kwargs)
 
     def svn_update(self, source, **kwargs):
-        return self._svn_error_wrapper(self._svn_update, source, **kwargs)
+        name = source['name']
+        path = source['path']
+        self.output((logger.info, "Updating '%s' with gitify." % name))
+        cmd = subprocess.Popen(["gitify", "update"],
+            cwd=path,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
+        stdout, stderr = cmd.communicate()
+        if cmd.returncode != 0:
+            raise GitSVNError("gitify update for '%s' failed.\n%s" % (name, stdout))
+        if kwargs.get('verbose', False):
+            return stdout
 
     def status(self, source, **kwargs):
         name = source['name']
