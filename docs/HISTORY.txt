@@ -4,6 +4,9 @@ Changelog
 1.13 - Unreleased
 -----------------
 
+* Added ``-v``/``--version`` option.
+  [tomster, fschulze]
+
 * Use the much nicer argparse library instead of optparse.
   [fschulze]
 

@@ -3,6 +3,7 @@ from mr.developer.extension import Extension
 from zc.buildout.buildout import Buildout
 import argparse
 import atexit
+import pkg_resources
 import errno
 import logging
 import os
@@ -723,6 +724,10 @@ class Develop(object):
         ch.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
         logger.addHandler(ch)
         self.parser = ArgumentParser()
+        version = pkg_resources.get_distribution("mr.developer").version
+        self.parser.add_argument('-v', '--version',
+                                 action='version',
+                                 version='mr.developer %s' % version)
         self.parsers = self.parser.add_subparsers(title="commands", metavar="")
         CmdActivate(self)
         CmdCheckout(self)
