@@ -17,10 +17,10 @@ class GitWorkingCopy(common.BaseWorkingCopy):
     git-version dependant
     """
     
-    def git_checkout(self, source, **kwargs):
-        name = source['name']
-        path = source['path']
-        url = source['url']
+    def git_checkout(self, **kwargs):
+        name = self.source['name']
+        path = self.source['path']
+        url = self.source['url']
         if os.path.exists(path):
             self.output((logger.info, "Skipped cloning of existing package '%s'." % name))
             return
@@ -34,8 +34,8 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise GitError("git cloning for '%s' failed.\n%s" % (name, stderr))
-        if 'branch' in source:
-            stdout, stderr = self.git_switch_branch(source, stdout, stderr)
+        if 'branch' in self.source:
+            stdout, stderr = self.git_switch_branch(stdout, stderr)
         if kwargs.get('verbose', False):
             return stdout
 
@@ -50,8 +50,8 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise GitError("git pull for '%s' failed.\n%s" % (name, stderr))
-        if 'branch' in source:
-            stdout, stderr = self.git_switch_branch(source, stdout, stderr)
+        if 'branch' in self.source:
+            stdout, stderr = self.git_switch_branch(stdout, stderr)
         if kwargs.get('verbose', False):
             return stdout
 
@@ -69,9 +69,9 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         else:
             return self.git_checkout(**kwargs)
 
-    def status(self, source, **kwargs):
-        name = source['name']
-        path = source['path']
+    def status(self, **kwargs):
+        name = self.source['name']
+        path = self.source['path']
         cmd = subprocess.Popen(["git", "status"],
                                cwd=path,
                                stdout=subprocess.PIPE,
@@ -101,10 +101,10 @@ class Git15WorkingCopy(GitWorkingCopy):
     """The git 1.5 specific API
     """
 
-    def git_switch_branch(self, source, stdout_in, stderr_in):
-        name = source['name']
-        path = source['path']
-        branch = source['branch']
+    def git_switch_branch(self, stdout_in, stderr_in):
+        name = self.source['name']
+        path = self.source['path']
+        branch = self.source['branch']
         cmd = subprocess.Popen(["git", "branch", "-a"],
                                cwd=path,
                                stdout=subprocess.PIPE,
@@ -131,9 +131,9 @@ class Git15WorkingCopy(GitWorkingCopy):
         return (stdout_in + stdout,
                 stderr_in + stderr)
 
-    def matches(self, source):
-        name = source['name']
-        path = source['path']
+    def matches(self):
+        name = self.source['name']
+        path = self.source['path']
         # what we do here is first get the list of remotes, then do a
         # remote show <remotename> on each: if one matches we return true,
         # else we return false at the end (early bailout)
@@ -153,7 +153,7 @@ class Git15WorkingCopy(GitWorkingCopy):
                 stdout, stderr = cmd.communicate()
                 if cmd.returncode != 0:
                     raise GitError("git remote show %s for '%s' failed.\n%s" % (remote, name, stderr))
-                if source['url'] in stdout:
+                if self.source['url'] in stdout:
                     return True
         return False
 
@@ -162,10 +162,10 @@ class Git16WorkingCopy(GitWorkingCopy):
     """The git 1.6 specific API
     """
 
-    def git_switch_branch(self, source, stdout_in, stderr_in):
-        name = source['name']
-        path = source['path']
-        branch = source['branch']
+    def git_switch_branch(self, stdout_in, stderr_in):
+        name = self.source['name']
+        path = self.source['path']
+        branch = self.source['branch']
         # git 1.6, smart enough to figure out
         cmd = subprocess.Popen(["git", "checkout", branch],
                                cwd=path,
@@ -177,9 +177,9 @@ class Git16WorkingCopy(GitWorkingCopy):
         return (stdout_in + stdout,
                 stderr_in + stderr)
 
-    def matches(self, source):
-        name = source['name']
-        path = source['path']
+    def matches(self):
+        name = self.source['name']
+        path = self.source['path']
         # This is the old matching code: it does not work on 1.5 due to the
         # lack of the -v switch
         cmd = subprocess.Popen(["git", "remote", "-v"],
@@ -189,7 +189,7 @@ class Git16WorkingCopy(GitWorkingCopy):
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise GitError("git remote for '%s' failed.\n%s" % (name, stderr))
-        return (source['url'] in stdout.split())
+        return (self.source['url'] in stdout.split())
 
     
 def gitWorkingCopyFactory(source):
