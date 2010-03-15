@@ -57,36 +57,10 @@ class GitSVNWorkingCopy(SVNWorkingCopy):
             return stdout
 
     def status(self, source, **kwargs):
-        name = source['name']
-        path = source['path']
-        cmd = subprocess.Popen(["svn", "status", "--xml", path],
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
-        stdout, stderr = cmd.communicate()
-        if cmd.returncode != 0:
-            raise GitSVNError("Subversion status for '%s' failed.\n%s" % (name, stderr))
-        info = etree.fromstring(stdout)
-        clean = True
-        for target in info.findall('target'):
-            for entry in target.findall('entry'):
-                status = entry.find('wc-status')
-                if status is not None and status.get('item') != 'external':
-                    clean = False
-                    break
-        if clean:
-            status = 'clean'
+        svn_status = super(GitSVNWorkingCopy, self).status(source, **kwargs)
+        if svn_status == 'clean':
+            return common.workingcopytypes['git'](source).status(source, **kwargs)
         else:
-            status = 'dirty'
-        if kwargs.get('verbose', False):
-            cmd = subprocess.Popen(["svn", "status", path],
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
-            stdout, stderr = cmd.communicate()
-            if cmd.returncode != 0:
-                raise GitSVNError("Subversion status for '%s' failed.\n%s" % (name, stderr))
-            return status, stdout
-        else:
-            return status
-
+            return svn_status
 
 common.workingcopytypes['gitsvn'] = GitSVNWorkingCopy
