@@ -32,11 +32,11 @@ class BaseWorkingCopy(object):
         self.output = self._output.append
         self.source = source
 
-    def should_update(self, source, **kwargs):
+    def should_update(self, **kwargs):
         offline = kwargs.get('offline', False)
         if offline:
             return False
-        update = source.get('update', kwargs.get('update', False))
+        update = self.source.get('update', kwargs.get('update', False))
         if not isinstance(update, bool):
             if update.lower() in ('true', 'yes'):
                 update = True
@@ -76,6 +76,10 @@ def yesno(question, default=True, all=True):
             print >>sys.stderr, "You have to answer with y, yes, n or no."
 
 
+input_lock = threading.Lock()
+output_lock = threading.Lock()
+
+
 class WorkingCopies(object):
     def __init__(self, sources):
         self.sources = sources
@@ -83,17 +87,16 @@ class WorkingCopies(object):
         self.errors = False
 
     def process(self, queue):
-        output_lock = threading.Lock()
         def worker():
             while True:
                 if self.errors:
                     return
                 try:
-                    wc, action, source, kwargs = queue.get_nowait()
+                    wc, action, kwargs = queue.get_nowait()
                 except Queue.Empty:
                     return
                 try:
-                    output = action(source, **kwargs)
+                    output = action(**kwargs)
                 except WCError, e:
                     output_lock.acquire()
                     for lvl, msg in wc._output:
@@ -145,10 +148,10 @@ class WorkingCopies(object):
             if wc is None:
                 logger.error("Unknown repository type '%s'." % kind)
                 sys.exit(1)
-            update = wc.should_update(source, **kwargs)
+            update = wc.should_update(**kwargs)
             if not source.exists():
                 pass
-            elif update and wc.status(source) != 'clean' and not kw.get('force', False):
+            elif update and wc.status() != 'clean' and not kw.get('force', False):
                 print >>sys.stderr, "The package '%s' is dirty." % name
                 answer = yesno("Do you want to update it anyway?", default=False, all=True)
                 if answer:
@@ -158,7 +161,7 @@ class WorkingCopies(object):
                 else:
                     logger.info("Skipped update of '%s'." % name)
                     continue
-            queue.put_nowait((wc, wc.checkout, source, kw))
+            queue.put_nowait((wc, wc.checkout, kw))
         self.process(queue)
 
     def matches(self, source):
@@ -173,7 +176,7 @@ class WorkingCopies(object):
             if wc is None:
                 logger.error("Unknown repository type '%s'." % kind)
                 sys.exit(1)
-            return wc.matches(source)
+            return wc.matches()
         except WCError, e:
             for l in e.args[0].split('\n'):
                 logger.error(l)
@@ -191,7 +194,7 @@ class WorkingCopies(object):
             if wc is None:
                 logger.error("Unknown repository type '%s'." % kind)
                 sys.exit(1)
-            return wc.status(source, **kwargs)
+            return wc.status(**kwargs)
         except WCError, e:
             for l in e.args[0].split('\n'):
                 logger.error(l)
@@ -209,7 +212,7 @@ class WorkingCopies(object):
             if wc is None:
                 logger.error("Unknown repository type '%s'." % kind)
                 sys.exit(1)
-            if wc.status(source) != 'clean' and not kw.get('force', False):
+            if wc.status() != 'clean' and not kw.get('force', False):
                 print >>sys.stderr, "The package '%s' is dirty." % name
                 answer = yesno("Do you want to update it anyway?", default=False, all=True)
                 if answer:
@@ -219,7 +222,7 @@ class WorkingCopies(object):
                 else:
                     logger.info("Skipped update of '%s'." % name)
                     continue
-            queue.put_nowait((wc, wc.update, source, kw))
+            queue.put_nowait((wc, wc.update, kw))
         self.process(queue)
 
 

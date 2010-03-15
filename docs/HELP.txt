@@ -8,10 +8,15 @@ activate (a)
 
 ::
 
-    Usage: develop activate [options] [<package-regexps>]
+    usage: develop activate [-h] [-a] [-c] [-d]
+                            package-regexp [package-regexp ...]
     
-    Add package to the list of development packages.
-    Options:
+    Add packages to the list of development packages.
+    
+    positional arguments:
+      package-regexp       A regular expression to match package names.
+    
+    optional arguments:
       -h, --help           show this help message and exit
       -a, --auto-checkout  Only considers packages declared by auto-checkout. If
                            you don't specify a <package-regexps> then all declared
@@ -29,11 +34,15 @@ checkout (co)
 
 ::
 
-    Usage: develop checkout [options] <package-regexps>
+    usage: develop checkout [-h] [-a] [-v] package-regexp [package-regexp ...]
     
     Make a checkout of the packages matching the regular expressions and add them
     to the list of development packages.
-    Options:
+    
+    positional arguments:
+      package-regexp       A regular expression to match package names.
+    
+    optional arguments:
       -h, --help           show this help message and exit
       -a, --auto-checkout  Only considers packages declared by auto-checkout. If
                            you don't specify a <package-regexps> then all declared
@@ -46,10 +55,15 @@ deactivate (d)
 
 ::
 
-    Usage: develop deactivate [options] <package-regexps>
+    usage: develop deactivate [-h] [-a] [-c] [-d]
+                              package-regexp [package-regexp ...]
     
-    Remove package from the list of development packages.
-    Options:
+    Remove packages from the list of development packages.
+    
+    positional arguments:
+      package-regexp       A regular expression to match package names.
+    
+    optional arguments:
       -h, --help           show this help message and exit
       -a, --auto-checkout  Only considers packages declared by auto-checkout. If
                            you don't specify a <package-regexps> then all declared
@@ -67,10 +81,14 @@ help (h)
 
 ::
 
-    Usage: develop help [options] [<command>]
+    usage: develop help [-h] [--rst] [command]
     
     Show help on the given command or about the whole script if none given.
-    Options:
+    
+    positional arguments:
+      command     The command you want to see the help of.
+    
+    optional arguments:
       -h, --help  show this help message and exit
       --rst       Print help for all commands in reStructuredText format.
     
@@ -80,10 +98,15 @@ info
 
 ::
 
-    Usage: develop info [options] [<package-regexps>]
+    usage: develop info [-h] [-a] [-c] [-d] [--name] [-p] [--type] [--url]
+                        [package-regexp [package-regexp ...]]
     
-    Lists informations about packages, filtered if <package-regexps> is given.
-    Options:
+    Lists informations about packages.
+    
+    positional arguments:
+      package-regexp       A regular expression to match package names.
+    
+    optional arguments:
       -h, --help           show this help message and exit
       -a, --auto-checkout  Only considers packages declared by auto-checkout. If
                            you don't specify a <package-regexps> then all declared
@@ -95,14 +118,15 @@ info
                            If you don't specify a <package-regexps> then all
                            declared packages are processed.
     
-      Output options:
-        The following options are used to print just the info you want, the order
-        they are specified reflects the order in which the information will be
-        printed.
-        --name             Prints the name of the package.
-        -p, --path         Prints the absolute path of the package.
-        --type             Prints the repository type of the package.
-        --url              Prints the URL of the package.
+    Output options:
+      The following options are used to print just the info you want, the order
+      they are specified reflects the order in which the information will be
+      printed.
+    
+      --name               Prints the name of the package.
+      -p, --path           Prints the absolute path of the package.
+      --type               Prints the repository type of the package.
+      --url                Prints the URL of the package.
     
 
 list (ls)
@@ -110,10 +134,15 @@ list (ls)
 
 ::
 
-    Usage: develop list [options] [<package-regexps>]
+    usage: develop list [-h] [-a] [-c] [-d] [-l] [-s]
+                        [package-regexp [package-regexp ...]]
     
-    Lists tracked packages, filtered if <package-regexps> is given.
-    Options:
+    Lists tracked packages.
+    
+    positional arguments:
+      package-regexp       A regular expression to match package names.
+    
+    optional arguments:
       -h, --help           show this help message and exit
       -a, --auto-checkout  Only show packages in auto-checkout list.
       -c, --checked-out    Only considers packages currently checked out. If you
@@ -138,16 +167,20 @@ purge
 
 ::
 
-    Usage: develop purge [options] [<package-regexps>]
+    usage: develop purge [-h] [-n] [package-regexp [package-regexp ...]]
     
     Remove checked out packages which aren't active anymore.
     
     Only 'svn' packages can be purged, because other repositories may contain
     unrecoverable files even when not marked as 'dirty'.
-    Options:
-      -h, --help     show this help message and exit
-      -n, --dry-run  Don't actually remove anything, just print the paths which
-                     would be removed.
+    
+    positional arguments:
+      package-regexp  A regular expression to match package names.
+    
+    optional arguments:
+      -h, --help      show this help message and exit
+      -n, --dry-run   Don't actually remove anything, just print the paths which
+                      would be removed.
     
 
 rebuild (rb)
@@ -155,10 +188,11 @@ rebuild (rb)
 
 ::
 
-    Usage: develop rebuild [options]
+    usage: develop rebuild [-h] [-n]
     
     Run buildout with the last used arguments.
-    Options:
+    
+    optional arguments:
       -h, --help     show this help message and exit
       -n, --dry-run  Don't actually run buildout, just show the last used
                      arguments.
@@ -169,11 +203,15 @@ reset
 
 ::
 
-    Usage: develop reset [options] [<package-regexps>]
+    usage: develop reset [-h] [-a] [-c] [-d] [package-regexp [package-regexp ...]]
     
     Resets the packages develop status. This is useful when switching to a new
     buildout configuration.
-    Options:
+    
+    positional arguments:
+      package-regexp       A regular expression to match package names.
+    
+    optional arguments:
       -h, --help           show this help message and exit
       -a, --auto-checkout  Only considers packages declared by auto-checkout. If
                            you don't specify a <package-regexps> then all declared
@@ -191,7 +229,8 @@ status (stat, st)
 
 ::
 
-    Usage: develop status [options] [<package-regexps>]
+    usage: develop status [-h] [-a] [-c] [-d] [-v]
+                          [package-regexp [package-regexp ...]]
     
     Shows the status of tracked packages, filtered if <package-regexps> is given.
     The first column in the output shows the checkout status:
@@ -208,7 +247,11 @@ status (stat, st)
         '!' deactivated, but the package is in the auto-checkout list
         'A' activated, but not in list of development packages (run buildout)
         'D' deactivated, but still in list of development packages (run buildout)
-    Options:
+    
+    positional arguments:
+      package-regexp       A regular expression to match package names.
+    
+    optional arguments:
       -h, --help           show this help message and exit
       -a, --auto-checkout  Only considers packages declared by auto-checkout. If
                            you don't specify a <package-regexps> then all declared
@@ -227,11 +270,15 @@ update (up)
 
 ::
 
-    Usage: develop update [options] [<package-regexps>]
+    usage: develop update [-h] [-a] [-d] [-f] [-v]
+                          [package-regexp [package-regexp ...]]
     
-    Updates all known packages currently checked out. If <package-regexps> are
-    given, then the set is limited to the matching packages.
-    Options:
+    Updates all known packages currently checked out.
+    
+    positional arguments:
+      package-regexp       A regular expression to match package names.
+    
+    optional arguments:
       -h, --help           show this help message and exit
       -a, --auto-checkout  Only considers packages declared by auto-checkout. If
                            you don't specify a <package-regexps> then all declared

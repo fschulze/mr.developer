@@ -39,9 +39,9 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         if kwargs.get('verbose', False):
             return stdout
 
-    def git_update(self, source, **kwargs):
-        name = source['name']
-        path = source['path']
+    def git_update(self, **kwargs):
+        name = self.source['name']
+        path = self.source['path']
         self.output((logger.info, "Updating '%s' with git." % name))
         cmd = subprocess.Popen(["git", "pull"],
                                cwd=path,
@@ -55,19 +55,19 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         if kwargs.get('verbose', False):
             return stdout
 
-    def checkout(self, source, **kwargs):
-        name = source['name']
-        path = source['path']
-        update = self.should_update(source, **kwargs)
+    def checkout(self, **kwargs):
+        name = self.source['name']
+        path = self.source['path']
+        update = self.should_update(**kwargs)
         if os.path.exists(path):
             if update:
-                self.update(source, **kwargs)
-            elif self.matches(source):
+                self.update(**kwargs)
+            elif self.matches():
                 self.output((logger.info, "Skipped checkout of existing package '%s'." % name))
             else:
-                raise GitError("Checkout URL for existing package '%s' differs. Expected '%s'." % (name, source['url']))
+                raise GitError("Checkout URL for existing package '%s' differs. Expected '%s'." % (name, self.source['url']))
         else:
-            return self.git_checkout(source, **kwargs)
+            return self.git_checkout(**kwargs)
 
     def status(self, source, **kwargs):
         name = source['name']
@@ -87,14 +87,14 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         else:
             return status
 
-    def update(self, source, **kwargs):
-        name = source['name']
-        path = source['path']
-        if not self.matches(source):
+    def update(self, **kwargs):
+        name = self.source['name']
+        path = self.source['path']
+        if not self.matches():
             raise GitError("Can't update package '%s', because it's URL doesn't match." % name)
-        if self.status(source) != 'clean' and not kwargs.get('force', False):
+        if self.status() != 'clean' and not kwargs.get('force', False):
             raise GitError("Can't update package '%s', because it's dirty." % name)
-        return self.git_update(source, **kwargs)
+        return self.git_update(**kwargs)
 
 
 class Git15WorkingCopy(GitWorkingCopy):

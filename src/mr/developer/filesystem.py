@@ -7,34 +7,34 @@ class FilesystemError(common.WCError):
     pass
 
 class FilesystemWorkingCopy(common.BaseWorkingCopy):
-    def checkout(self, source, **kwargs):
-        name = source['name']
-        path = source['path']
+    def checkout(self, **kwargs):
+        name = self.source['name']
+        path = self.source['path']
         if os.path.exists(path):
-            if self.matches(source):
+            if self.matches():
                 self.output((logger.info, 'Filesystem package %r doesn\'t need a checkout.' % name))
             else:
                 raise FilesystemError(
                     'Directory name for existing package %r differs. '
-                    'Expected %r.' % (name, source['url']))
+                    'Expected %r.' % (name, self.source['url']))
         else:
             raise FilesystemError(
                 'Directory for package %r doesn\'t exist.' % name)
         return ''
 
-    def matches(self, source):
-        return os.path.split(source['path'])[1] == source['url']
+    def matches(self):
+        return os.path.split(self.source['path'])[1] == self.source['url']
 
-    def status(self, source, **kwargs):
+    def status(self, **kwargs):
         return 'clean'
 
-    def update(self, source, **kwargs):
-        name = source['name']
-        path = source['path']
-        if not self.matches(source):
+    def update(self, **kwargs):
+        name = self.source['name']
+        path = self.source['path']
+        if not self.matches():
             raise FilesystemError(
                 'Directory name for existing package %r differs. '
-                'Expected %r.' % (name, source['url']))
+                'Expected %r.' % (name, self.source['url']))
         self.output((logger.info, 'Filesystem package %r doesn\'t need update.' % name))
         return ''
 
