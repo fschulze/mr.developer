@@ -4,7 +4,8 @@ Changelog
 1.13 - Unreleased
 -----------------
 
-
+* Use the much nicer argparse library instead of optparse.
+  [fschulze]
 
 1.12 - 2010-03-15
 -----------------
