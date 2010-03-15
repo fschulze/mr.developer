@@ -14,9 +14,9 @@ class CVSError(common.WCError):
 def build_cvs_command(command, name, url, tag='', cvs_root=''):
     """
     Create CVS commands.
-    
+
     Examples::
-    
+
         >>> build_cvs_command('checkout', 'package.name', 'python/package.name')
         ['cvs', 'checkout', '-P', '-f', '-d', 'package.name', 'python/package.name']
         >>> build_cvs_command('update', 'package.name', 'python/package.name')
@@ -27,7 +27,7 @@ def build_cvs_command(command, name, url, tag='', cvs_root=''):
         ['cvs', 'update', '-P', '-r', 'package_name_0-1-0', '-d', 'package.name']
         >>> build_cvs_command('checkout', 'package.name', 'python/package.name', cvs_root=':pserver:user@127.0.0.1:/repos')
         ['cvs', '-d', ':pserver:user@127.0.0.1:/repos', 'checkout', '-P', '-f', '-d', 'package.name', 'python/package.name']
-        
+
     """
     cmd = ['cvs']
     if cvs_root:
@@ -40,9 +40,9 @@ def build_cvs_command(command, name, url, tag='', cvs_root=''):
     cmd.extend(['-d', name])
     if command == 'checkout':
         cmd.append(url)
-    
+
     return cmd
-        
+
 
 class CVSWorkingCopy(common.BaseWorkingCopy):
     def cvs_command(self, command, **kwargs):
@@ -51,7 +51,7 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
         url = self.source['url']
         tag = self.source.get('tag')
         cvs_root = self.source.get('cvs_root')
-        
+
         self.output((logger.info, 'Running %s %r from CVS.' % (command, name)))
         cmd = build_cvs_command(command, name, url, tag, cvs_root)
 
@@ -65,7 +65,7 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
             stdout, stderr = cmd.communicate()
         finally:
             os.chdir(old_cwd)
-            
+
         if cmd.returncode != 0:
             raise CVSError('CVS %s for %r failed.\n%s' % (command, name, stderr))
         if kwargs.get('verbose', False):
@@ -88,36 +88,36 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
             return self.cvs_command('checkout', **kwargs)
 
     def matches(self):
-	def normalize_root(text):
-	    """
-	    Removes username from CVS Root path.
-	    """
-	    return RE_ROOT.sub(r'\1\3', text)
+        def normalize_root(text):
+            """
+            Removes username from CVS Root path.
+            """
+            return RE_ROOT.sub(r'\1\3', text)
 
-	name = self.source['name']
+        name = self.source['name']
         path = self.source['path']
-        
+
         repo_file = os.path.join(path, 'CVS', 'Repository')
         if not os.path.exists(repo_file):
             raise CVSError('Can not find CVS/Repository file in %s.' % path)
-        repo = open(repo_file).read().strip()        
-        
+        repo = open(repo_file).read().strip()
+
         cvs_root = self.source.get('cvs_root')
         if cvs_root:
             root_file = os.path.join(path, 'CVS', 'Root')
-            root = open(root_file).read().strip()            
+            root = open(root_file).read().strip()
             if normalize_root(cvs_root) != normalize_root(root):
                 return False
-        
+
         return (self.source['url'] == repo)
 
     def status(self, **kwargs):
         name = self.source['name']
         path = self.source['path']
-        
-	## packages before checkout is clean
-	if not os.path.exists(path):
-	    return 'clean'
+
+        ## packages before checkout is clean
+        if not os.path.exists(path):
+            return 'clean'
 
         ## because CVS can not work on absolute paths, we must execute cvs commands
         ## in parent directory of destination
@@ -130,11 +130,11 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
             stdout, stderr = cmd.communicate()
         finally:
             os.chdir(old_cwd)
-        
+
         status = 'clean'
         for line in stdout.split('\n'):
-	    if not line or line.endswith('.egg-info'):
-		continue
+            if not line or line.endswith('.egg-info'):
+                continue
             if line[0] == 'C':
                 ## there is file with conflict
                 status = 'conflict'
@@ -142,7 +142,7 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
             if line[0] in ('M', '?', 'A', 'R'):
                 ## some files are localy modified
                 status = 'modified'
-                
+
         if kwargs.get('verbose', False):
             return status, stdout
         else:
