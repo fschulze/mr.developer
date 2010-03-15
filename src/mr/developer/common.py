@@ -76,6 +76,10 @@ def yesno(question, default=True, all=True):
             print >>sys.stderr, "You have to answer with y, yes, n or no."
 
 
+input_lock = threading.Lock()
+output_lock = threading.Lock()
+
+
 class WorkingCopies(object):
     def __init__(self, sources):
         self.sources = sources
@@ -83,7 +87,6 @@ class WorkingCopies(object):
         self.errors = False
 
     def process(self, queue):
-        output_lock = threading.Lock()
         def worker():
             while True:
                 if self.errors:
@@ -145,9 +148,10 @@ class WorkingCopies(object):
             if wc is None:
                 logger.error("Unknown repository type '%s'." % kind)
                 sys.exit(1)
+            update = wc.should_update(source, **kwargs)
             if not source.exists():
                 pass
-            elif wc.status(source) != 'clean' and not kw.get('force', False):
+            elif update and wc.status(source) != 'clean' and not kw.get('force', False):
                 print >>sys.stderr, "The package '%s' is dirty." % name
                 answer = yesno("Do you want to update it anyway?", default=False, all=True)
                 if answer:

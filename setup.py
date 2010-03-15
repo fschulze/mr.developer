@@ -1,7 +1,7 @@
 from setuptools import setup
 import os, sys
 
-version = '1.10dev-gitsvn'
+version = '1.13dev-gitsvn'
 
 install_requires = [
   'setuptools',

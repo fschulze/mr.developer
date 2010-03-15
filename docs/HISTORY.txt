@@ -1,11 +1,31 @@
 Changelog
 =========
 
-next
-----
+1.13 - Unreleased
+-----------------
 
 * added ``--version`` command.
   [tomster]
+
+1.12 - 2010-03-15
+-----------------
+
+* Fix svn checkout.
+  [fschulze]
+
+1.11 - 2010-03-14
+-----------------
+
+* Handle untrusted server certificates by asking the user what to do.
+  [fschulze]
+
+* Properly handle user input for authorization by using locks to prevent
+  problems with parallel checkouts.
+  [fschulze]
+
+* Only checkout/update packages in auto-checkout or with ``update = true``
+  option when running buildout.
+  [fschulze]
 
 1.10 - 2010-02-06
 -----------------
