@@ -12,9 +12,9 @@ class GitSVNError(common.WCError):
 
 class GitSVNWorkingCopy(SVNWorkingCopy):
 
-    def gitify_init(self, source, **kwargs):
-        name = source['name']
-        path = source['path']
+    def gitify_init(self, **kwargs):
+        name = self.source['name']
+        path = self.source['path']
         self.output((logger.info, "Gitifying '%s'." % name))
         cmd = subprocess.Popen(["gitify", "init"],
             cwd=path,
@@ -26,17 +26,17 @@ class GitSVNWorkingCopy(SVNWorkingCopy):
         if kwargs.get('verbose', False):
             return stdout
 
-    def svn_checkout(self, source, **kwargs):
-        super(GitSVNWorkingCopy, self).svn_checkout(source, **kwargs)
-        return self.gitify_init(source, **kwargs)
+    def svn_checkout(self, **kwargs):
+        super(GitSVNWorkingCopy, self).svn_checkout(**kwargs)
+        return self.gitify_init(**kwargs)
 
-    def svn_switch(self, source, **kwargs):
-        super(GitSVNWorkingCopy, self).svn_switch(source, **kwargs)
-        return self.gitify_init(source, **kwargs)
+    def svn_switch(self, **kwargs):
+        super(GitSVNWorkingCopy, self).svn_switch(**kwargs)
+        return self.gitify_init(**kwargs)
 
-    def svn_update(self, source, **kwargs):
-        name = source['name']
-        path = source['path']
+    def svn_update(self, **kwargs):
+        name = self.source['name']
+        path = self.source['path']
         self.output((logger.info, "Updating '%s' with gitify." % name))
         cmd = subprocess.Popen(["gitify", "update"],
             cwd=path,
@@ -48,10 +48,10 @@ class GitSVNWorkingCopy(SVNWorkingCopy):
         if kwargs.get('verbose', False):
             return stdout
 
-    def status(self, source, **kwargs):
-        svn_status = super(GitSVNWorkingCopy, self).status(source, **kwargs)
+    def status(self, **kwargs):
+        svn_status = super(GitSVNWorkingCopy, self).status(**kwargs)
         if svn_status == 'clean':
-            return common.workingcopytypes['git'](source).status(source, **kwargs)
+            return common.workingcopytypes['git'](source).status(**kwargs)
         else:
             return svn_status
 

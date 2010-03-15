@@ -45,12 +45,12 @@ def build_cvs_command(command, name, url, tag='', cvs_root=''):
         
 
 class CVSWorkingCopy(common.BaseWorkingCopy):
-    def cvs_command(self, source, command, **kwargs):
-        name = source['name']
-        path = source['path']
-        url = source['url']
-        tag = source.get('tag')
-        cvs_root = source.get('cvs_root')
+    def cvs_command(self, command, **kwargs):
+        name = self.source['name']
+        path = self.source['path']
+        url = self.source['url']
+        tag = self.source.get('tag')
+        cvs_root = self.source.get('cvs_root')
         
         self.output((logger.info, 'Running %s %r from CVS.' % (command, name)))
         cmd = build_cvs_command(command, name, url, tag, cvs_root)
@@ -71,49 +71,49 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
         if kwargs.get('verbose', False):
             return stdout
 
-    def checkout(self, source, **kwargs):
-        name = source['name']
-        path = source['path']
-        update = self.should_update(source, **kwargs)
+    def checkout(self, **kwargs):
+        name = self.source['name']
+        path = self.source['path']
+        update = self.should_update(**kwargs)
         if os.path.exists(path):
             if update:
-                self.update(source, **kwargs)
-            elif self.matches(source):
+                self.update(**kwargs)
+            elif self.matches():
                 self.output((logger.info, 'Skipped checkout of existing package %r.' % name))
             else:
                 raise CVSError(
                     'Source URL for existing package %r differs. '
-                    'Expected %r.' % (name, source['url']))
+                    'Expected %r.' % (name, self.source['url']))
         else:
-            return self.cvs_command(source, 'checkout', **kwargs)
+            return self.cvs_command('checkout', **kwargs)
 
-    def matches(self, source):
+    def matches(self):
 	def normalize_root(text):
 	    """
 	    Removes username from CVS Root path.
 	    """
 	    return RE_ROOT.sub(r'\1\3', text)
 
-	name = source['name']
-        path = source['path']
+	name = self.source['name']
+        path = self.source['path']
         
         repo_file = os.path.join(path, 'CVS', 'Repository')
         if not os.path.exists(repo_file):
             raise CVSError('Can not find CVS/Repository file in %s.' % path)
         repo = open(repo_file).read().strip()        
         
-        cvs_root = source.get('cvs_root')
+        cvs_root = self.source.get('cvs_root')
         if cvs_root:
             root_file = os.path.join(path, 'CVS', 'Root')
             root = open(root_file).read().strip()            
             if normalize_root(cvs_root) != normalize_root(root):
                 return False
         
-        return (source['url'] == repo)
+        return (self.source['url'] == repo)
 
-    def status(self, source, **kwargs):
-        name = source['name']
-        path = source['path']
+    def status(self, **kwargs):
+        name = self.source['name']
+        path = self.source['path']
         
 	## packages before checkout is clean
 	if not os.path.exists(path):
@@ -148,16 +148,16 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
         else:
             return status
 
-    def update(self, source, **kwargs):
-        name = source['name']
-        path = source['path']
-        if not self.matches(source):
+    def update(self, **kwargs):
+        name = self.source['name']
+        path = self.source['path']
+        if not self.matches():
             raise CVSError(
                 "Can't update package %r, because its URL doesn't match." %
                 name)
-        if self.status(source) != 'clean' and not kwargs.get('force', False):
+        if self.status() != 'clean' and not kwargs.get('force', False):
             raise CVSError(
                 "Can't update package %r, because it's dirty." % name)
-        return self.cvs_command(source, 'update', **kwargs)
+        return self.cvs_command('update', **kwargs)
 
 common.workingcopytypes['cvs'] = CVSWorkingCopy

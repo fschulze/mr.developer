@@ -11,10 +11,10 @@ class GitError(common.WCError):
 
 
 class GitWorkingCopy(common.BaseWorkingCopy):
-    def git_checkout(self, source, **kwargs):
-        name = source['name']
-        path = source['path']
-        url = source['url']
+    def git_checkout(self, **kwargs):
+        name = self.source['name']
+        path = self.source['path']
+        url = self.source['url']
         if os.path.exists(path):
             self.output((logger.info, "Skipped cloning of existing package '%s'." % name))
             return
@@ -28,9 +28,9 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         if kwargs.get('verbose', False):
             return stdout
 
-    def git_update(self, source, **kwargs):
-        name = source['name']
-        path = source['path']
+    def git_update(self, **kwargs):
+        name = self.source['name']
+        path = self.source['path']
         self.output((logger.info, "Updating '%s' with git." % name))
         cmd = subprocess.Popen(["git", "pull"],
                                cwd=path,
@@ -42,23 +42,23 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         if kwargs.get('verbose', False):
             return stdout
 
-    def checkout(self, source, **kwargs):
-        name = source['name']
-        path = source['path']
-        update = self.should_update(source, **kwargs)
+    def checkout(self, **kwargs):
+        name = self.source['name']
+        path = self.source['path']
+        update = self.should_update(**kwargs)
         if os.path.exists(path):
             if update:
-                self.update(source, **kwargs)
-            elif self.matches(source):
+                self.update(**kwargs)
+            elif self.matches():
                 self.output((logger.info, "Skipped checkout of existing package '%s'." % name))
             else:
-                raise GitError("Checkout URL for existing package '%s' differs. Expected '%s'." % (name, source['url']))
+                raise GitError("Checkout URL for existing package '%s' differs. Expected '%s'." % (name, self.source['url']))
         else:
-            return self.git_checkout(source, **kwargs)
+            return self.git_checkout(**kwargs)
 
-    def matches(self, source):
-        name = source['name']
-        path = source['path']
+    def matches(self):
+        name = self.source['name']
+        path = self.source['path']
         cmd = subprocess.Popen(["git", "remote", "-v"],
                                cwd=path,
                                stdout=subprocess.PIPE,
@@ -66,11 +66,11 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise GitError("git remote for '%s' failed.\n%s" % (name, stderr))
-        return (source['url'] in stdout.split())
+        return (self.source['url'] in stdout.split())
 
-    def status(self, source, **kwargs):
-        name = source['name']
-        path = source['path']
+    def status(self, **kwargs):
+        name = self.source['name']
+        path = self.source['path']
         cmd = subprocess.Popen(["git", "status"],
                                cwd=path,
                                stdout=subprocess.PIPE,
@@ -86,13 +86,13 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         else:
             return status
 
-    def update(self, source, **kwargs):
-        name = source['name']
-        path = source['path']
-        if not self.matches(source):
+    def update(self, **kwargs):
+        name = self.source['name']
+        path = self.source['path']
+        if not self.matches():
             raise GitError("Can't update package '%s', because it's URL doesn't match." % name)
-        if self.status(source) != 'clean' and not kwargs.get('force', False):
+        if self.status() != 'clean' and not kwargs.get('force', False):
             raise GitError("Can't update package '%s', because it's dirty." % name)
-        return self.git_update(source, **kwargs)
+        return self.git_update(**kwargs)
 
 common.workingcopytypes['git'] = GitWorkingCopy
