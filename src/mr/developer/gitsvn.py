@@ -1,15 +1,7 @@
 from mr.developer import common
-try:
-    import xml.etree.ElementTree as etree
-except ImportError:
-    import elementtree.ElementTree as etree
-import getpass
-import os
-import re
-import subprocess
-import sys
-
 from mr.developer.svn import SVNWorkingCopy
+import subprocess
+
 
 logger = common.logger
 
