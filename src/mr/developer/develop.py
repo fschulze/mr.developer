@@ -163,10 +163,7 @@ class CmdCheckout(Command):
 
     def __call__(self, args):
         config = self.develop.config
-        if len(args) == 0 and not args.auto_checkout:
-            print self.parser.format_help()
-            sys.exit(0)
-        packages = self.get_packages(args,
+        packages = self.get_packages(getattr(args, 'package-regexp'),
                                      auto_checkout=args.auto_checkout)
         try:
             workingcopies = WorkingCopies(self.develop.sources)
