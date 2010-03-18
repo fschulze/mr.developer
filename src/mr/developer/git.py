@@ -16,6 +16,20 @@ class GitWorkingCopy(common.BaseWorkingCopy):
     """The git working copy base class, it holds methods that are not
     git-version dependant
     """
+
+    def git_merge_rbranch(self, stdout_in, stderr_in):
+        name = self.source['name']
+        path = self.source['path']
+        branch = self.source['branch']
+        cmd = subprocess.Popen(["git", "merge", "origin/%s" % branch],
+                               cwd=path,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
+        stdout, stderr = cmd.communicate()
+        if cmd.returncode != 0:
+            raise GitError("git merge of remote branch 'origin/%s' failed.\n%s" % (branch, stderr))
+        return (stdout_in + stdout,
+                stderr_in + stderr)
     
     def git_checkout(self, **kwargs):
         name = self.source['name']
@@ -52,6 +66,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
             raise GitError("git pull for '%s' failed.\n%s" % (name, stderr))
         if 'branch' in self.source:
             stdout, stderr = self.git_switch_branch(stdout, stderr)
+            stdout, stderr = self.git_merge_rbranch(stdout, stderr)
         if kwargs.get('verbose', False):
             return stdout
 
