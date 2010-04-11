@@ -42,7 +42,7 @@ section:
     they are dirty instead of asking interactively.
 
   ``always-accept-server-certificate``
-    This defaults to ``false``. If it's ``true'', then invalid server
+    This defaults to ``false``. If it's ``true``, then invalid server
     certificates are accepted without asking for subversion repositories.
 
 The format of the section with the repository information is::
