@@ -18,7 +18,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         if os.path.exists(path):
             self.output((logger.info, "Skipped cloning of existing package '%s'." % name))
             return
-        self.output((logger.info, "Cloning '%s' with git." % name))
+        self.output((logger.info, "Cloned '%s' with git." % name))
         cmd = subprocess.Popen(["git", "clone", "--quiet", url, path],
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
@@ -31,7 +31,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
     def git_update(self, **kwargs):
         name = self.source['name']
         path = self.source['path']
-        self.output((logger.info, "Updating '%s' with git." % name))
+        self.output((logger.info, "Updated '%s' with git." % name))
         cmd = subprocess.Popen(["git", "pull"],
                                cwd=path,
                                stdout=subprocess.PIPE,

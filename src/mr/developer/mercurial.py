@@ -15,7 +15,7 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         if os.path.exists(path):
             self.output((logger.info, 'Skipped cloning of existing package %r.' % name))
             return
-        self.output((logger.info, 'Cloning %r with mercurial.' % name))
+        self.output((logger.info, 'Cloned %r with mercurial.' % name))
         cmd = subprocess.Popen(
             ['hg', 'clone', '--quiet', '--noninteractive', url, path],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -29,7 +29,7 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
     def hg_pull(self, **kwargs):
         name = self.source['name']
         path = self.source['path']
-        self.output((logger.info, 'Updating %r with mercurial.' % name))
+        self.output((logger.info, 'Updated %r with mercurial.' % name))
         cmd = subprocess.Popen(['hg', 'pull', '-u'], cwd=path,
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()

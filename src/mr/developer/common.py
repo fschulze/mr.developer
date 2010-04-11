@@ -161,6 +161,7 @@ class WorkingCopies(object):
                 else:
                     logger.info("Skipped update of '%s'." % name)
                     continue
+            logger.info("Queued '%s' for checkout.", name)
             queue.put_nowait((wc, wc.checkout, kw))
         self.process(queue)
 
@@ -222,6 +223,7 @@ class WorkingCopies(object):
                 else:
                     logger.info("Skipped update of '%s'." % name)
                     continue
+            logger.info("Queued '%s' for update.", name)
             queue.put_nowait((wc, wc.update, kw))
         self.process(queue)
 

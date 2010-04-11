@@ -242,17 +242,17 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
         if os.path.exists(path):
             self.output((logger.info, "Skipped checkout of existing package '%s'." % name))
             return
-        self.output((logger.info, "Checking out '%s' with subversion." % name))
+        self.output((logger.info, "Checked out '%s' with subversion." % name))
         return self._svn_error_wrapper(self._svn_checkout, **kwargs)
 
     def svn_switch(self, **kwargs):
         name = self.source['name']
-        self.output((logger.info, "Switching '%s' with subversion." % name))
+        self.output((logger.info, "Switched '%s' with subversion." % name))
         return self._svn_error_wrapper(self._svn_switch, **kwargs)
 
     def svn_update(self, **kwargs):
         name = self.source['name']
-        self.output((logger.info, "Updating '%s' with subversion." % name))
+        self.output((logger.info, "Updated '%s' with subversion." % name))
         return self._svn_error_wrapper(self._svn_update, **kwargs)
 
     def checkout(self, **kwargs):

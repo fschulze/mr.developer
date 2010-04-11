@@ -4,6 +4,11 @@ Changelog
 1.13 - Unreleased
 -----------------
 
+* Tell the user which packages are queued for update or checkout, so one can
+  check which packages are still updating now that the output is only printed
+  after everything is done due to parallel checkouts.
+  [fschulze]
+
 * Added ``always-accept-server-certificate`` option. When set in the
   ``[buildout]`` section, then invalid certificates are always accepted for
   subversion repositories.
