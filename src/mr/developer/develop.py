@@ -746,7 +746,7 @@ class Develop(object):
         try:
             self.buildout_dir = find_base()
         except IOError, e:
-            self.cmd_help()
+            self.parser.print_help()
             print
             logger.error("You are not in a path which has mr.developer installed (%s)." % e)
             return
