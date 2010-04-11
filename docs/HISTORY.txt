@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.13 - Unreleased
+1.13 - 2010-04-11
 -----------------
 
 * Tell the user which packages are queued for update or checkout, so one can
