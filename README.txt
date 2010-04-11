@@ -41,6 +41,10 @@ section:
     buildout run. If set to ``force``, then packages are updated even when
     they are dirty instead of asking interactively.
 
+  ``always-accept-server-certificate``
+    This defaults to ``false``. If it's ``true'', then invalid server
+    certificates are accepted without asking for subversion repositories.
+
 The format of the section with the repository information is::
 
   <name> = <kind> [key=value] <url> [path] [key=value]

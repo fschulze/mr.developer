@@ -149,6 +149,9 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
         if not kwargs.get('verbose', False):
             args[2:2] = ["--quiet"]
         accept_invalid_cert = self._svn_accept_invalid_cert_get(url)
+        if 'always_accept_server_certificate' in kwargs:
+            if kwargs['always_accept_server_certificate']:
+                accept_invalid_cert = True
         if accept_invalid_cert is True:
             args[2:2] = ["--trust-server-cert"]
         elif accept_invalid_cert is False:

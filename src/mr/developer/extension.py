@@ -161,6 +161,19 @@ class Extension(object):
                 develop.append(path)
         return develop, develeggs, versions
 
+    def get_always_accept_server_certificate(self):
+        always_accept_server_certificate = self.buildout['buildout'].get('always-accept-server-certificate', False)
+        if isinstance(always_accept_server_certificate, bool):
+            pass
+        elif always_accept_server_certificate.lower() in ('true', 'yes', 'on'):
+            always_accept_server_certificate = True
+        elif always_accept_server_certificate.lower() in ('false', 'no', 'off'):
+            always_accept_server_certificate = False
+        else:
+            logger.error("Unknown value '%s' for always-accept-server-certificate option." % always_accept_server_certificate)
+            sys.exit(1)
+        return always_accept_server_certificate
+
     def add_fake_part(self):
         if FAKE_PART_ID in self.buildout._raw:
             logger.error("The buildout already has a '%s' section, this shouldn't happen" % FAKE_PART_ID)
@@ -186,6 +199,7 @@ class Extension(object):
         root_logger = logging.getLogger()
         workingcopies = self.get_workingcopies()
         always_checkout = self.buildout['buildout'].get('always-checkout', False)
+        always_accept_server_certificate = self.get_always_accept_server_certificate()
         (develop, develeggs, versions) = self.get_develop_info()
 
         packages = set(auto_checkout)
@@ -198,6 +212,7 @@ class Extension(object):
         workingcopies.checkout(sorted(packages),
                                verbose=root_logger.level <= 10,
                                update=always_checkout,
+                               always_accept_server_certificate=always_accept_server_certificate,
                                offline=offline)
 
         # get updated info after checkout

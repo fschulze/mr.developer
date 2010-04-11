@@ -4,6 +4,11 @@ Changelog
 1.13 - Unreleased
 -----------------
 
+* Added ``always-accept-server-certificate`` option. When set in the
+  ``[buildout]`` section, then invalid certificates are always accepted for
+  subversion repositories.
+  [fschulze]
+
 * Added ``-v``/``--version`` option.
   [tomster, fschulze]
 

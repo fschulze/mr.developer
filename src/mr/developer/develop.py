@@ -167,7 +167,9 @@ class CmdCheckout(Command):
                                      auto_checkout=args.auto_checkout)
         try:
             workingcopies = WorkingCopies(self.develop.sources)
-            workingcopies.checkout(sorted(packages), verbose=args.verbose)
+            workingcopies.checkout(sorted(packages),
+                                   verbose=args.verbose,
+                                   always_accept_server_certificate=self.develop.always_accept_server_certificate)
             for name in sorted(packages):
                 source = self.develop.sources[name]
                 if not source.get('egg', True):
@@ -711,7 +713,8 @@ class CmdUpdate(Command):
         workingcopies = WorkingCopies(self.develop.sources)
         workingcopies.update(sorted(packages),
                              force=args.force,
-                             verbose=args.verbose)
+                             verbose=args.verbose,
+                             always_accept_server_certificate=self.develop.always_accept_server_certificate)
 
 
 class Develop(object):
@@ -762,6 +765,7 @@ class Develop(object):
         extension = Extension(buildout)
         self.sources = extension.get_sources()
         self.auto_checkout = extension.get_auto_checkout()
+        self.always_accept_server_certificate = extension.get_always_accept_server_certificate()
         develop, self.develeggs, versions = extension.get_develop_info()
 
         args.func(args)
