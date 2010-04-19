@@ -53,6 +53,39 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         if kwargs.get('verbose', False):
             return stdout
 
+    def git_switch_branch(self, stdout_in, stderr_in):
+        name = self.source['name']
+        path = self.source['path']
+        branch = self.source['branch']
+        rbp = self.__class__._remote_branch_prefix
+        cmd = subprocess.Popen(["git", "branch", "-a"],
+                               cwd=path,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
+        stdout, stderr = cmd.communicate()
+        if cmd.returncode != 0:
+            raise GitError("'git branch -a' failed.\n%s" % (branch, stderr))
+        stdout_in += stdout
+        stderr_in += stderr
+        if re.search("^(\*| ) "+re.escape(branch)+"$", stdout, re.M):
+            # the branch is local, normal checkout will work
+            argv = ["git", "checkout", branch]
+        elif re.search(
+            "^  "+re.escape(rbp)+"\/"+re.escape(branch)+"$", stdout, re.M
+        ):
+            # the branch is not local, normal checkout won't work here
+            argv = ["git", "checkout", "-b", branch, "%s/%s" % (rbp, branch)]
+        # runs the checkout with predetermined arguments
+        cmd = subprocess.Popen(argv,
+                               cwd=path,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
+        stdout, stderr = cmd.communicate()
+        if cmd.returncode != 0:
+            raise GitError("git checkout of branch '%s' failed.\n%s" % (branch, stderr))
+        return (stdout_in + stdout,
+                stderr_in + stderr)
+
     def git_update(self, **kwargs):
         name = self.source['name']
         path = self.source['path']
@@ -116,35 +149,7 @@ class Git15WorkingCopy(GitWorkingCopy):
     """The git 1.5 specific API
     """
 
-    def git_switch_branch(self, stdout_in, stderr_in):
-        name = self.source['name']
-        path = self.source['path']
-        branch = self.source['branch']
-        cmd = subprocess.Popen(["git", "branch", "-a"],
-                               cwd=path,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
-        stdout, stderr = cmd.communicate()
-        if cmd.returncode != 0:
-            raise GitError("'git branch -a' failed.\n%s" % (branch, stderr))
-        stdout_in += stdout
-        stderr_in += stderr
-        if re.search("^(\*| ) "+re.escape(branch)+"$", stdout, re.M):
-            # the branch is local, normal checkout will work
-            argv = ["git", "checkout", branch]
-        elif re.search("^  origin\/"+re.escape(branch)+"$", stdout, re.M):
-            # the branch is not local, normal checkout won't work here
-            argv = ["git", "checkout", "-b", branch, "origin/%s" % branch]
-        # runs the checkout with predetermined arguments
-        cmd = subprocess.Popen(argv,
-                               cwd=path,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
-        stdout, stderr = cmd.communicate()
-        if cmd.returncode != 0:
-            raise GitError("git checkout of branch '%s' failed.\n%s" % (branch, stderr))
-        return (stdout_in + stdout,
-                stderr_in + stderr)
+    _remote_branch_prefix = "origin"
 
     def matches(self):
         name = self.source['name']
@@ -177,20 +182,7 @@ class Git16WorkingCopy(GitWorkingCopy):
     """The git 1.6 specific API
     """
 
-    def git_switch_branch(self, stdout_in, stderr_in):
-        name = self.source['name']
-        path = self.source['path']
-        branch = self.source['branch']
-        # git 1.6, smart enough to figure out
-        cmd = subprocess.Popen(["git", "checkout", branch],
-                               cwd=path,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
-        stdout, stderr = cmd.communicate()
-        if cmd.returncode != 0:
-            raise GitError("git checkout of branch '%s' failed.\n%s" % (branch, stderr))
-        return (stdout_in + stdout,
-                stderr_in + stderr)
+    _remote_branch_prefix = "remotes/origin"
 
     def matches(self):
         name = self.source['name']
