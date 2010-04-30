@@ -229,14 +229,14 @@ def gitWorkingCopyFactory(source):
         sys.exit(1)
     version = m.groups()
 
-    if len(version) == 4:
+    if version[3] is not None:
         version = (
             int(version[0]),
             int(version[1]),
             int(version[2][1:]),
             int(version[3][1:])
         )
-    elif len(version) == 3:
+    elif version[2] is not None:
         version = (
             int(version[0]),
             int(version[1]),
