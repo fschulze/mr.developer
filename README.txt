@@ -56,7 +56,7 @@ The different parts have the following meaning:
 
   ``<kind>``
     The kind of repository. Currently supported are one of ``svn`` (>= 1.5),
-    ``hg``, ``git``, ``cvs`` or ``fs``.
+    ``hg``, ``git``, ``bzr``, ``cvs`` or ``fs``.
 
   ``<url>``
     The location of the repository. This value is specific to the version
@@ -113,6 +113,9 @@ The different repository kinds accept some specific options.
     master.
 
   ``hg``
+    Currently no additional options.
+
+  ``bzr``
     Currently no additional options.
 
   ``cvs``
