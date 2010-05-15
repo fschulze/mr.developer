@@ -4,6 +4,9 @@ Changelog
 1.14 - Unreleased
 -----------------
 
+* Added bzr support.
+  [tseaver]
+
 * Added git branch support.
   [shywolf9982, fschulze]
 
