@@ -4,7 +4,8 @@ Changelog
 1.14 - Unreleased
 -----------------
 
-
+* Added git branch support.
+  [shywolf9982, fschulze]
 
 1.13 - 2010-04-11
 -----------------

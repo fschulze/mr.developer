@@ -109,7 +109,8 @@ The different repository kinds accept some specific options.
     when the current revision is lower.
 
   ``git``
-    Currently no additional options.
+    The ``branch`` option allows you to use a specific branch instead of
+    master.
 
   ``hg``
     Currently no additional options.
