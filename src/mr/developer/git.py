@@ -39,17 +39,13 @@ class GitWorkingCopy(common.BaseWorkingCopy):
             self.output((logger.info, "Skipped cloning of existing package '%s'." % name))
             return
         self.output((logger.info, "Cloned '%s' with git." % name))
-        # here, but just on 1.6, if a branch was provided we could checkout it
-        # directly via the -b <branchname> option instead of doing a separate
-        # checkout later: I however think it outweighs the benefits
         cmd = subprocess.Popen(["git", "clone", "--quiet", url, path],
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise GitError("git cloning for '%s' failed.\n%s" % (name, stderr))
-        if 'branch' in self.source:
-            stdout, stderr = self.git_switch_branch(stdout, stderr)
+        stdout, stderr = self.git_switch_branch(stdout, stderr)
         if kwargs.get('verbose', False):
             return stdout
 
@@ -90,16 +86,18 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         name = self.source['name']
         path = self.source['path']
         self.output((logger.info, "Updated '%s' with git." % name))
-        cmd = subprocess.Popen(["git", "pull"],
+        # Fetch simply pulls down the packs from the source, but does not
+        # attempt to merge the remote branches (intended as the refs present in
+        # your local repo after the fetch) with the local ones
+        cmd = subprocess.Popen(["git", "fetch"],
                                cwd=path,
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise GitError("git pull for '%s' failed.\n%s" % (name, stderr))
-        if 'branch' in self.source:
-            stdout, stderr = self.git_switch_branch(stdout, stderr)
-            stdout, stderr = self.git_merge_rbranch(stdout, stderr)
+        stdout, stderr = self.git_switch_branch(stdout, stderr)
+        stdout, stderr = self.git_merge_rbranch(stdout, stderr)
         if kwargs.get('verbose', False):
             return stdout
 
@@ -244,6 +242,11 @@ def gitWorkingCopyFactory(source):
         )
     else:
         version = (int(version[0]), int(version[1]))
+
+    # git ALWAYS has branches. In case it was omitted in the source line, we
+    # assume "master" is the right branch, coherently with the git model
+    if not 'branch' in source:
+        source['branch'] = 'master'
         
     if version < (1,5):
         logger.error(
