@@ -1,6 +1,12 @@
 Changelog
 =========
 
+Unreleased
+----------
+
+* Fix CVS update.
+  [sargo]
+
 1.14 - 2010-05-15
 -----------------
 
