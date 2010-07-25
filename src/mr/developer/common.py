@@ -2,6 +2,7 @@ from ConfigParser import RawConfigParser
 import logging
 import os
 import Queue
+import subprocess
 import sys
 import threading
 
@@ -113,12 +114,21 @@ class WorkingCopies(object):
                         print output
                     output_lock.release()
         threads = []
+        if sys.version_info < (2, 6):
+            # work around a race condition in subprocess
+            _old_subprocess_cleanup = subprocess._cleanup
+            def _cleanup():
+                pass
+            subprocess._cleanup = _cleanup
         for i in range(self.threads):
             thread = threading.Thread(target=worker)
             thread.start()
             threads.append(thread)
         for thread in threads:
             thread.join()
+        if sys.version_info < (2, 6):
+            subprocess._cleanup = _old_subprocess_cleanup
+            subprocess._cleanup()
         if self.errors:
             logger.error("There have been errors, see messages above.")
             sys.exit(1)
