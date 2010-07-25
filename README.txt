@@ -181,3 +181,9 @@ HTTPS certificates
 
 The best way to handle https certificates at the moment, is to accept them
 permanently when checking out the source manually.
+
+Mercurial reports mismatching URL
+---------------------------------
+
+This happens if you use lp:// URLs from launchpad. The problem is, that hg
+reports the actual URL, not the lp shortcut.
