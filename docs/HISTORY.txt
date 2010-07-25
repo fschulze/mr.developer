@@ -4,7 +4,8 @@ Changelog
 1.16 - Unreleased
 -----------------
 
-
+* Only warn if the svn version is too old.
+  [fschulze]
 
 1.15 - 2010-07-25
 -----------------
