@@ -4,6 +4,10 @@ Changelog
 1.15 - Unreleased
 -----------------
 
+* Use ``always-checkout`` option from buildout config for ``update`` command.
+  This fixes issue #18.
+  [fschulze]
+
 * Fix ``OSError: [Errno 10] No child processes`` errors in Python 2.4 and 2.5.
   (Issue #12)
   [fschulze]
