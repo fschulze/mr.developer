@@ -27,12 +27,12 @@ def build_cvs_command(command, name, url, tag='', cvs_root=''):
         ['cvs', 'update', '-P', '-r', 'package_name_0-1-0']
         >>> build_cvs_command('checkout', 'package.name', 'python/package.name', cvs_root=':pserver:user@127.0.0.1:/repos')
         ['cvs', '-d', ':pserver:user@127.0.0.1:/repos', 'checkout', '-P', '-f', '-d', 'package.name', 'python/package.name']
-	>>> build_cvs_command('status', 'package.name', 'python/package.name')
-	['cvs', '-q', '-n', 'update']
+        >>> build_cvs_command('status', 'package.name', 'python/package.name')
+        ['cvs', '-q', '-n', 'update']
 
     """
     if command == 'status':
-	return  ['cvs', '-q', '-n', 'update']
+        return  ['cvs', '-q', '-n', 'update']
 
     cmd = ['cvs']
     if cvs_root:
@@ -63,8 +63,8 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
         ## because CVS can not work on absolute paths, we must execute cvs commands
         ## in destination or in parent directory of destination
         old_cwd = os.getcwd()
-	if command == 'checkout':
-	    path = os.path.dirname(path)
+        if command == 'checkout':
+            path = os.path.dirname(path)
         os.chdir(path)
 
         try:
@@ -126,8 +126,8 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
         if not os.path.exists(path):
             return 'clean'
 
-	status = 'clean'
-	stdout  = self.cvs_command('status', verbose=True)
+        status = 'clean'
+        stdout  = self.cvs_command('status', verbose=True)
         for line in stdout.split('\n'):
             if not line or line.endswith('.egg-info'):
                 continue
