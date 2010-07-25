@@ -8,6 +8,9 @@ Changelog
   (Issue #12)
   [fschulze]
 
+* Fix CVS update.
+  [sargo]
+
 1.14 - 2010-05-15
 -----------------
 
