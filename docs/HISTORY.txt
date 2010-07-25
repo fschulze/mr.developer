@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.15 - Unreleased
+1.15 - 2010-07-25
 -----------------
 
 * Use ``always-checkout`` option from buildout config for ``update`` command.
