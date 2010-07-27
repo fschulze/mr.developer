@@ -711,8 +711,9 @@ class CmdUpdate(Command):
                                      checked_out=True,
                                      develop=args.develop)
         workingcopies = WorkingCopies(self.develop.sources)
+        force = args.force or self.develop.always_checkout
         workingcopies.update(sorted(packages),
-                             force=args.force,
+                             force=force,
                              verbose=args.verbose,
                              always_accept_server_certificate=self.develop.always_accept_server_certificate)
 
@@ -765,6 +766,7 @@ class Develop(object):
         extension = Extension(buildout)
         self.sources = extension.get_sources()
         self.auto_checkout = extension.get_auto_checkout()
+        self.always_checkout = extension.get_always_checkout()
         self.always_accept_server_certificate = extension.get_always_accept_server_certificate()
         develop, self.develeggs, versions = extension.get_develop_info()
 

@@ -125,6 +125,9 @@ class Extension(object):
 
         return auto_checkout
 
+    def get_always_checkout(self):
+        return self.buildout['buildout'].get('always-checkout', False)
+
     def get_develop_info(self):
         auto_checkout = self.get_auto_checkout()
         sources = self.get_sources()
@@ -198,7 +201,7 @@ class Extension(object):
 
         root_logger = logging.getLogger()
         workingcopies = self.get_workingcopies()
-        always_checkout = self.buildout['buildout'].get('always-checkout', False)
+        always_checkout = self.get_always_checkout()
         always_accept_server_certificate = self.get_always_accept_server_certificate()
         (develop, develeggs, versions) = self.get_develop_info()
 

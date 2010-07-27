@@ -20,15 +20,20 @@ def build_cvs_command(command, name, url, tag='', cvs_root=''):
         >>> build_cvs_command('checkout', 'package.name', 'python/package.name')
         ['cvs', 'checkout', '-P', '-f', '-d', 'package.name', 'python/package.name']
         >>> build_cvs_command('update', 'package.name', 'python/package.name')
-        ['cvs', 'update', '-P', '-f', '-d', 'package.name']
+        ['cvs', 'update', '-P', '-f', '-d']
         >>> build_cvs_command('checkout', 'package.name', 'python/package.name', tag='package_name_0-1-0')
         ['cvs', 'checkout', '-P', '-r', 'package_name_0-1-0', '-d', 'package.name', 'python/package.name']
         >>> build_cvs_command('update', 'package.name', 'python/package.name', tag='package_name_0-1-0')
-        ['cvs', 'update', '-P', '-r', 'package_name_0-1-0', '-d', 'package.name']
+        ['cvs', 'update', '-P', '-r', 'package_name_0-1-0']
         >>> build_cvs_command('checkout', 'package.name', 'python/package.name', cvs_root=':pserver:user@127.0.0.1:/repos')
         ['cvs', '-d', ':pserver:user@127.0.0.1:/repos', 'checkout', '-P', '-f', '-d', 'package.name', 'python/package.name']
+        >>> build_cvs_command('status', 'package.name', 'python/package.name')
+        ['cvs', '-q', '-n', 'update']
 
     """
+    if command == 'status':
+        return  ['cvs', '-q', '-n', 'update']
+
     cmd = ['cvs']
     if cvs_root:
         cmd.extend(['-d', cvs_root])
@@ -37,9 +42,9 @@ def build_cvs_command(command, name, url, tag='', cvs_root=''):
         cmd.extend(['-r', tag])
     else:
         cmd.append('-f')
-    cmd.extend(['-d', name])
+    cmd.append('-d')
     if command == 'checkout':
-        cmd.append(url)
+        cmd.extend([name, url])
 
     return cmd
 
@@ -56,9 +61,11 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
         cmd = build_cvs_command(command, name, url, tag, cvs_root)
 
         ## because CVS can not work on absolute paths, we must execute cvs commands
-        ## in parent directory of destination
+        ## in destination or in parent directory of destination
         old_cwd = os.getcwd()
-        os.chdir(os.path.dirname(path))
+        if command == 'checkout':
+            path = os.path.dirname(path)
+        os.chdir(path)
 
         try:
             cmd = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -119,19 +126,8 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
         if not os.path.exists(path):
             return 'clean'
 
-        ## because CVS can not work on absolute paths, we must execute cvs commands
-        ## in parent directory of destination
-        old_cwd = os.getcwd()
-        os.chdir(path)
-        try:
-            cmd = subprocess.Popen(
-                ['cvs', '-q', '-n', 'update'], cwd=path, stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE)
-            stdout, stderr = cmd.communicate()
-        finally:
-            os.chdir(old_cwd)
-
         status = 'clean'
+        stdout  = self.cvs_command('status', verbose=True)
         for line in stdout.split('\n'):
             if not line or line.endswith('.egg-info'):
                 continue

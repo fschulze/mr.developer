@@ -1,6 +1,26 @@
 Changelog
 =========
 
+1.16 - Unreleased
+-----------------
+
+* Only warn if the svn version is too old.
+  [fschulze]
+
+1.15 - 2010-07-25
+-----------------
+
+* Use ``always-checkout`` option from buildout config for ``update`` command.
+  This fixes issue #18.
+  [fschulze]
+
+* Fix ``OSError: [Errno 10] No child processes`` errors in Python 2.4 and 2.5.
+  (Issue #12)
+  [fschulze]
+
+* Fix CVS update.
+  [sargo]
+
 1.14 - 2010-05-15
 -----------------
 
