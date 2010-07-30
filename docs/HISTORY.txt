@@ -4,6 +4,9 @@ Changelog
 1.16 - Unreleased
 -----------------
 
+* Fix saving buildout options on Windows. Issue #24
+  [fschulze]
+
 * Only warn if the svn version is too old.
   [fschulze]
 

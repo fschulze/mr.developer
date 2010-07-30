@@ -194,7 +194,7 @@ class Extension(object):
         config = self.get_config()
 
         # store arguments when running from buildout
-        if os.path.split(self.executable)[1] == 'buildout':
+        if os.path.split(self.executable)[1] in ('buildout', 'buildout-script.py'):
             config.buildout_args = list(sys.argv)
 
         auto_checkout = self.get_auto_checkout()
