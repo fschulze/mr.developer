@@ -24,7 +24,7 @@ def build_cvs_command(command, name, url, tag='', cvs_root=''):
         >>> build_cvs_command('checkout', 'package.name', 'python/package.name', tag='package_name_0-1-0')
         ['cvs', 'checkout', '-P', '-r', 'package_name_0-1-0', '-d', 'package.name', 'python/package.name']
         >>> build_cvs_command('update', 'package.name', 'python/package.name', tag='package_name_0-1-0')
-        ['cvs', 'update', '-P', '-r', 'package_name_0-1-0']
+        ['cvs', 'update', '-P', '-r', 'package_name_0-1-0', '-d']
         >>> build_cvs_command('checkout', 'package.name', 'python/package.name', cvs_root=':pserver:user@127.0.0.1:/repos')
         ['cvs', '-d', ':pserver:user@127.0.0.1:/repos', 'checkout', '-P', '-f', '-d', 'package.name', 'python/package.name']
         >>> build_cvs_command('status', 'package.name', 'python/package.name')
