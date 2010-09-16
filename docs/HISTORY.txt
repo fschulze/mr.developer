@@ -4,6 +4,10 @@ Changelog
 1.16 - Unreleased
 -----------------
 
+* Fix ``NameError: global name 'source' is not defined`` when using gitsvn
+  and running ``status`` command.
+  [markvl]
+
 * Add handling of new ``-s`` command line option of zc.buildout 1.5, this
   fixes issue #29.
   [fschulze]
