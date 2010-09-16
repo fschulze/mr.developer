@@ -8,7 +8,7 @@ Changelog
   fixes issue #29.
   [fschulze]
 
-* Don't pass the PYTHONPATH onwards to mercurial, this fixes Issue #28
+* Don't pass the PYTHONPATH onwards to mercurial, this fixes issue #28
   [fschulze, Christian Zagrodnick]
 
 * Fix saving buildout options on Windows. Issue #24
