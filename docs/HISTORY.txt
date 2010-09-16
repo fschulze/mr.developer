@@ -4,6 +4,9 @@ Changelog
 1.16 - Unreleased
 -----------------
 
+* Don't pass the PYTHONPATH onwards to mercurial, this fixes Issue #28
+  [fschulze, Christian Zagrodnick]
+
 * Fix saving buildout options on Windows. Issue #24
   [fschulze]
 

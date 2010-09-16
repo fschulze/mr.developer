@@ -16,9 +16,11 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
             self.output((logger.info, 'Skipped cloning of existing package %r.' % name))
             return
         self.output((logger.info, 'Cloned %r with mercurial.' % name))
+        env = dict(os.environ)
+        env.pop('PYTHONPATH', None)
         cmd = subprocess.Popen(
             ['hg', 'clone', '--quiet', '--noninteractive', url, path],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise MercurialError(
@@ -30,8 +32,10 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         name = self.source['name']
         path = self.source['path']
         self.output((logger.info, 'Updated %r with mercurial.' % name))
+        env = dict(os.environ)
+        env.pop('PYTHONPATH', None)
         cmd = subprocess.Popen(['hg', 'pull', '-u'], cwd=path,
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise MercurialError(
@@ -58,9 +62,11 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
     def matches(self):
         name = self.source['name']
         path = self.source['path']
+        env = dict(os.environ)
+        env.pop('PYTHONPATH', None)
         cmd = subprocess.Popen(
             ['hg', 'showconfig', 'paths.default'], cwd=path,
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise MercurialError(
@@ -70,9 +76,11 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
     def status(self, **kwargs):
         name = self.source['name']
         path = self.source['path']
+        env = dict(os.environ)
+        env.pop('PYTHONPATH', None)
         cmd = subprocess.Popen(
-            ['hg', 'status'], cwd=path, stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE)
+            ['hg', 'status'], cwd=path,
+            env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         status = stdout and 'dirty' or 'clean'
         if kwargs.get('verbose', False):
