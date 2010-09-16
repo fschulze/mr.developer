@@ -4,6 +4,10 @@ Changelog
 1.16 - Unreleased
 -----------------
 
+* Add handling of new ``-s`` command line option of zc.buildout 1.5, this
+  fixes issue #29.
+  [fschulze]
+
 * Don't pass the PYTHONPATH onwards to mercurial, this fixes Issue #28
   [fschulze, Christian Zagrodnick]
 
