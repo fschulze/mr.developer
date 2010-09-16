@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.16 - Unreleased
+1.16 - 2010-09-16
 -----------------
 
 * Fix ``NameError: global name 'source' is not defined`` when using gitsvn
