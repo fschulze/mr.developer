@@ -56,7 +56,7 @@ The different parts have the following meaning:
 
   ``<kind>``
     The kind of repository. Currently supported are one of ``svn`` (>= 1.5),
-    ``hg``, ``git``, ``bzr``, ``cvs`` or ``fs``.
+    ``hg``, ``git``, ``bzr``, ``cvs``, ``darcs`` or ``fs``.
 
   ``<url>``
     The location of the repository. This value is specific to the version
@@ -122,6 +122,9 @@ The different repository kinds accept some specific options.
     ``cvs_root`` option can be used to override the setting of the $CVSROOT
     environment variable.
     ``tag`` option force checkout/update of given tag instead of CVS HEAD.
+
+  ``darcs``
+    Currently no additional options.
     
   ``fs``
     This allows you to add packages on the filesystem without a version
