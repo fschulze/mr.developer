@@ -23,7 +23,7 @@ class DarcsWorkingCopy(common.BaseWorkingCopy):
                                stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            raise DarcsError("darcs getting for '%s' failed.\n%s" % (name, stderr))
+            raise DarcsError("darcs get for '%s' failed.\n%s" % (name, stderr))
         if kwargs.get('verbose', False):
             return stdout
 
