@@ -17,9 +17,11 @@ class BazaarWorkingCopy(common.BaseWorkingCopy):
                 'Skipped branching existing package %r.' % name))
             return
         self.output((logger.info, 'Branched %r with bazaar.' % name))
+        env = dict(os.environ)
+        env.pop('PYTHONPATH', None)
         cmd = subprocess.Popen(
             ['bzr', 'branch', '--quiet', url, path],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise BazaarError(
@@ -31,8 +33,10 @@ class BazaarWorkingCopy(common.BaseWorkingCopy):
         name = self.source['name']
         path = self.source['path']
         self.output((logger.info, 'Updated %r with bazaar.' % name))
+        env = dict(os.environ)
+        env.pop('PYTHONPATH', None)
         cmd = subprocess.Popen(['bzr', 'pull'], cwd=path,
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise BazaarError(
@@ -60,21 +64,25 @@ class BazaarWorkingCopy(common.BaseWorkingCopy):
     def matches(self):
         name = self.source['name']
         path = self.source['path']
+        env = dict(os.environ)
+        env.pop('PYTHONPATH', None)
         cmd = subprocess.Popen(
             ['bzr', 'info'], cwd=path,
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise BazaarError(
-                'bzr showconfig for %r failed.\n%s' % (name, stderr))
+                'bzr info for %r failed.\n%s' % (name, stderr))
         return (self.source['url'] in stdout.split())
 
     def status(self, **kwargs):
         name = self.source['name']
         path = self.source['path']
+        env = dict(os.environ)
+        env.pop('PYTHONPATH', None)
         cmd = subprocess.Popen(
-            ['bzr', 'status'], cwd=path, stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE)
+            ['bzr', 'status'], cwd=path,
+            env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         status = stdout and 'dirty' or 'clean'
         if kwargs.get('verbose', False):
