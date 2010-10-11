@@ -32,10 +32,11 @@ class BazaarWorkingCopy(common.BaseWorkingCopy):
     def bzr_pull(self, **kwargs):
         name = self.source['name']
         path = self.source['path']
+        url = self.source['url']
         self.output((logger.info, 'Updated %r with bazaar.' % name))
         env = dict(os.environ)
         env.pop('PYTHONPATH', None)
-        cmd = subprocess.Popen(['bzr', 'pull'], cwd=path,
+        cmd = subprocess.Popen(['bzr', 'pull', url], cwd=path,
             env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
