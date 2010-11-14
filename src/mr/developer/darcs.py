@@ -54,27 +54,38 @@ class DarcsWorkingCopy(common.BaseWorkingCopy):
         else:
             return self.darcs_checkout(**kwargs)
 
-    def _darcs_info(self):
-        name = self.source['name']
-        path = self.source['path']
-        cmd = subprocess.Popen(["darcs", "show", "repo"],
-                               cwd=path,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
-        stdout, stderr = cmd.communicate()
-        if cmd.returncode != 0:
-            raise DarcsError("darcs info for '%s' failed.\n%s" % (name, stderr))
-        lines = stdout.splitlines()
-        d = {}
-        for line in lines:
-            k, v = line.split(': ')
-            d[k.strip()] = v.strip()
-        return d
+    def _darcs_related_repositories(self):
+        repos = os.path.join(path, '_darcs', 'prefs', 'repos')
+        if os.path.exists(repos):
+            for line in open(repos).readlines():
+                yield line.strip()
+        else:
+            name = self.source['name']
+            path = self.source['path']
+            cmd = subprocess.Popen(["darcs", "show", "repo"],
+                                   cwd=path,
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+            stdout, stderr = cmd.communicate()
+            if cmd.returncode != 0:
+                self.output((logger.error, "darcs info for '%s' failed.\n%s" % (name, stderr)))
+                return
+
+            lines = stdout.splitlines()
+            d = {}
+            for line in lines:
+                k, v = line.split(':', 1)
+                k = k.strip()
+                v = v.strip()
+                if k == 'Default Remote':
+                    yield v
+                elif k == 'Cache':
+                    for cache in v.split(', '):
+                        if cache.startswith('repo:'):
+                            yield cache[5:]
 
     def matches(self):
-        name = self.source['name']
-        infos = self._darcs_info()
-        return (self.source['url'] == infos.get('Default Remote', None))
+        return self.source['url'] in self._darcs_related_repositories()
 
     def status(self, **kwargs):
         name = self.source['name']
