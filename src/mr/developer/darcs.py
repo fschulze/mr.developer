@@ -55,13 +55,13 @@ class DarcsWorkingCopy(common.BaseWorkingCopy):
             return self.darcs_checkout(**kwargs)
 
     def _darcs_related_repositories(self):
+        name = self.source['name']
+        path = self.source['path']
         repos = os.path.join(path, '_darcs', 'prefs', 'repos')
         if os.path.exists(repos):
             for line in open(repos).readlines():
                 yield line.strip()
         else:
-            name = self.source['name']
-            path = self.source['path']
             cmd = subprocess.Popen(["darcs", "show", "repo"],
                                    cwd=path,
                                    stdout=subprocess.PIPE,
