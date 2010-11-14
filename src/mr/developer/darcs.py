@@ -18,9 +18,8 @@ class DarcsWorkingCopy(common.BaseWorkingCopy):
             self.output((logger.info, "Skipped getting of existing package '%s'." % name))
             return
         self.output((logger.info, "Getting '%s' with darcs." % name))
-        cmd = subprocess.Popen(["darcs", "get", "--quiet", url, path],
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
+        cmd = ["darcs", "get", "--quiet", "--lazy", url, path]
+        cmd = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise DarcsError("darcs get for '%s' failed.\n%s" % (name, stderr))
