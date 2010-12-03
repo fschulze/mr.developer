@@ -32,36 +32,37 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
             return stdout
         return ''
 
-    def hg_clone(self, url, name, path, verbose=False):
+    def hg_clone(self, info):
         """Run hg clone <repository url>.
         """
-        if os.path.exists(path):
-            self.output((logger.info, 'Skipped cloning of existing package %r.' % name))
+        if os.path.exists(info.path):
+            self.output((logger.info, 'Skipped cloning of existing package %r.' % info.name))
             return
-        self.output((logger.info, 'Cloned %r with mercurial.' % name))
+        self.output((logger.info, 'Cloned %r with mercurial.' % info.name))
 
         return self.hg_run_command(
-            ['hg', 'clone', '--quiet', '--noninteractive', url, path],
-            name=name, path=None, output=verbose)
+            ['hg', 'clone', '--quiet', '--noninteractive', info.url, info.path],
+            name=info.name, path=None, output=info.verbose)
 
-    def hg_pull(self, update, name, path, verbose=True):
+    def hg_pull(self, run_update, info):
         """Run hg pull [-u].
         """
-        self.output((logger.info, 'Updated %r with mercurial.' % name))
+        self.output((logger.info, 'Updated %r with mercurial.' % info.name))
         cmd_list = ['hg', 'pull']
-        if update:
+        if run_update:
             cmd_list.append('-u')
         return self.hg_run_command(
             cmd_list,
-            name=name, path=path, output=verbose)
+            name=info.name, path=info.path, output=info.verbose)
 
-    def hg_switch_branch(self, branch, name, path, verbose=True):
+    def hg_switch_branch(self, info):
         """Run hg update <branch name>.
         """
-        self.output((logger.info, 'Switch to branch %s for %r with mercurial.' % (branch, name)))
+        self.output((logger.info, 'Switch to branch %s for %r with mercurial.' % (
+                    info.branch, info.name)))
         return self.hg_run_command(
-            ['hg', 'update', branch],
-            name=name, path=path, output=verbose)
+            ['hg', 'update', info.branch],
+            name=info.name, path=info.path, output=info.verbose)
 
     def hg_get_current_branch(self, info):
         """Return current repository selected branch: hg branch.
@@ -131,10 +132,10 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
             raise MercurialError(
                 "Can't update package %r, because it's dirty." % info.name)
         if info.branch != self.hg_get_current_branch(info):
-            stdout = self.hg_pull(False, info.name, info.path, info.verbose)
-            stdout += self.hg_switch_branch(info.branch, info.name, info.path, info.verbose)
+            stdout = self.hg_pull(False, info)
+            stdout += self.hg_switch_branch(info)
         else:
-            stdout = self.hg_pull(True, info.name, info.path, info.verbose)
+            stdout = self.hg_pull(True, info)
         return stdout
 
 common.workingcopytypes['hg'] = MercurialWorkingCopy
