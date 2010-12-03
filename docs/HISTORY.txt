@@ -4,7 +4,7 @@ Changelog
 1.17 - Unreleased
 -----------------
 
-
+* Only require argparse with Python < 2.7
 
 1.16 - 2010-09-16
 -----------------

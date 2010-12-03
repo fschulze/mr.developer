@@ -6,11 +6,14 @@ version = '1.17'
 install_requires = [
   'setuptools',
   'zc.buildout',
-  'argparse',
 ]
 
 if sys.version_info < (2, 5):
     install_requires.append('elementtree')
+if sys.version_info < (2, 7):
+    install_requires.append('argparse')
+
+
 
 setup(name='mr.developer',
       version=version,
