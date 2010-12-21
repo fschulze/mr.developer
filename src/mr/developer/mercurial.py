@@ -61,7 +61,7 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         self.output((logger.info, 'Switch to branch %s for %r with mercurial.' % (
                     info.branch, info.name)))
         return self.hg_run_command(
-            ['hg', 'update', info.branch],
+            ['hg', 'update', '-r', 'branch(%r)' % info.branch],
             name=info.name, path=info.path, output=info.verbose)
 
     def hg_get_current_branch(self, info):
