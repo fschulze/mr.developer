@@ -48,7 +48,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
                                    stderr=subprocess.PIPE)
         except OSError, e:
             if getattr(e, 'errno', None) == 2:
-                logger.error("Couldn't find 'svn' executable in your PATH.")
+                logger.error("Couldn't find 'svn' executable on your PATH.")
                 sys.exit(1)
             raise
         stdout, stderr = cmd.communicate()
@@ -67,7 +67,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
             logger.error("Subversion output:\n%s\n%s" % (stdout, stderr))
             sys.exit(1)
         if (version < (1, 5)) and not _svn_version_warning:
-            logger.warning("The installed 'svn' command is too old, expected 1.5 or newer, got %s." % ".".join([str(x) for x in version]))
+            logger.warning("The installed 'svn' command is too old. Expected 1.5 or newer, got %s." % ".".join([str(x) for x in version]))
             _svn_version_warning = True
 
     def _svn_auth_get(self, url):
@@ -159,7 +159,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
         if accept_invalid_cert is True:
             args[2:2] = ["--trust-server-cert"]
         elif accept_invalid_cert is False:
-            raise SVNCertificateRejectedError("Server certificate rejected by user")
+            raise SVNCertificateRejectedError("Server certificate rejected by user.")
         args[2:2] = ["--no-auth-cache"]
         interactive_args = args[:]
         args[2:2] = ["--non-interactive"]
@@ -222,7 +222,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
             args.insert(2, '-r%s' % rev)
         stdout, stderr, returncode = self._svn_communicate(args, url, **kwargs)
         if returncode != 0:
-            raise SVNError("Subversion switch for '%s' failed.\n%s" % (name, stderr))
+            raise SVNError("Subversion switch of '%s' failed.\n%s" % (name, stderr))
         if kwargs.get('verbose', False):
             return stdout
 
@@ -236,7 +236,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
             args.insert(2, '-r%s' % rev)
         stdout, stderr, returncode = self._svn_communicate(args, url, **kwargs)
         if returncode != 0:
-            raise SVNError("Subversion update for '%s' failed.\n%s" % (name, stderr))
+            raise SVNError("Subversion update of '%s' failed.\n%s" % (name, stderr))
         if kwargs.get('verbose', False):
             return stdout
 
@@ -274,7 +274,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
                 if self.status() == 'clean':
                     return self.svn_switch(**kwargs)
                 else:
-                    raise SVNError("Can't switch package '%s' from '%s', because it's dirty." % (name, self.source['url']))
+                    raise SVNError("Can't switch package '%s' to '%s' because it's dirty." % (name, self.source['url']))
         else:
             return self.svn_checkout(**kwargs)
 
@@ -287,7 +287,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
             url = match.group(1)
             rev = match.group(2)
         if 'rev' in self.source and 'revision' in self.source:
-            raise ValueError("The source definition of '%s' contains duplicate revision option." % self.source['name'])
+            raise ValueError("The source definition of '%s' contains duplicate revision options." % self.source['name'])
         elif ('rev' in self.source or 'revision' in self.source) and match:
             raise ValueError("The url of '%s' contains a revision and there is an additional revision option." % self.source['name'])
         elif 'rev' in self.source:
@@ -343,9 +343,9 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
             if force or status == 'clean':
                 return self.svn_switch(**kwargs)
             else:
-                raise SVNError("Can't switch package '%s', because it's dirty." % name)
+                raise SVNError("Can't switch package '%s' because it's dirty." % name)
         if status != 'clean' and not force:
-            raise SVNError("Can't update package '%s', because it's dirty." % name)
+            raise SVNError("Can't update package '%s' because it's dirty." % name)
         return self.svn_update(**kwargs)
 
 common.workingcopytypes['svn'] = SVNWorkingCopy
