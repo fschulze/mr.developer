@@ -87,11 +87,11 @@ class BazaarWorkingCopy(common.BaseWorkingCopy):
         path = self.source['path']
         if not self.matches():
             raise BazaarError(
-                "Can't update package %r, because its URL doesn't match." %
+                "Can't update package %r because its URL doesn't match." %
                 name)
         if self.status() != 'clean' and not kwargs.get('force', False):
             raise BazaarError(
-                "Can't update package %r, because it's dirty." % name)
+                "Can't update package %r because it's dirty." % name)
         return self.bzr_pull(**kwargs)
 
 common.workingcopytypes['bzr'] = BazaarWorkingCopy
