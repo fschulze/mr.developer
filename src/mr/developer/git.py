@@ -47,7 +47,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
                                stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            raise GitError("git cloning for '%s' failed.\n%s" % (name, stderr))
+            raise GitError("git cloning of '%s' failed.\n%s" % (name, stderr))
         if 'branch' in self.source:
             stdout, stderr = self.git_switch_branch(stdout, stderr)
         if kwargs.get('verbose', False):
@@ -96,7 +96,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
                                stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            raise GitError("git pull for '%s' failed.\n%s" % (name, stderr))
+            raise GitError("git pull of '%s' failed.\n%s" % (name, stderr))
         if 'branch' in self.source:
             stdout, stderr = self.git_switch_branch(stdout, stderr)
             stdout, stderr = self.git_merge_rbranch(stdout, stderr)
@@ -139,9 +139,9 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         name = self.source['name']
         path = self.source['path']
         if not self.matches():
-            raise GitError("Can't update package '%s', because it's URL doesn't match." % name)
+            raise GitError("Can't update package '%s' because its URL doesn't match." % name)
         if self.status() != 'clean' and not kwargs.get('force', False):
-            raise GitError("Can't update package '%s', because it's dirty." % name)
+            raise GitError("Can't update package '%s' because it's dirty." % name)
         return self.git_update(**kwargs)
 
 
@@ -163,7 +163,7 @@ class Git15WorkingCopy(GitWorkingCopy):
                                stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            raise GitError("git remote for '%s' failed.\n%s" % (name, stderr))
+            raise GitError("git remote of '%s' failed.\n%s" % (name, stderr))
         for remote in stdout.splitlines():
             if remote != '':
                 cmd = subprocess.Popen(["git", "remote", "show", remote],
@@ -172,7 +172,7 @@ class Git15WorkingCopy(GitWorkingCopy):
                                        stderr=subprocess.PIPE)
                 stdout, stderr = cmd.communicate()
                 if cmd.returncode != 0:
-                    raise GitError("git remote show %s for '%s' failed.\n%s" % (remote, name, stderr))
+                    raise GitError("git remote show %s of '%s' failed.\n%s" % (remote, name, stderr))
                 if self.source['url'] in stdout:
                     return True
         return False
@@ -195,7 +195,7 @@ class Git16WorkingCopy(GitWorkingCopy):
                                stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            raise GitError("git remote for '%s' failed.\n%s" % (name, stderr))
+            raise GitError("git remote of '%s' failed.\n%s" % (name, stderr))
         return (self.source['url'] in stdout.split())
 
     
@@ -212,7 +212,7 @@ def gitWorkingCopyFactory(source):
                                stderr=subprocess.PIPE)
     except OSError, e:
         if getattr(e, 'errno', None) == 2:
-            logger.error("Couldn't find 'git' executable in your PATH.")
+            logger.error("Couldn't find 'git' executable on your PATH.")
             sys.exit(1)
         raise
 
