@@ -41,6 +41,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
         self._svn_check_version()
 
     def _svn_check_version(self):
+        global _svn_version_warning
         try:
             cmd = subprocess.Popen(["svn", "--version"],
                                    stdout=subprocess.PIPE,
@@ -66,7 +67,6 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
             logger.error("Subversion output:\n%s\n%s" % (stdout, stderr))
             sys.exit(1)
         if (version < (1, 5)) and not _svn_version_warning:
-            global _svn_version_warning
             logger.warning("The installed 'svn' command is too old, expected 1.5 or newer, got %s." % ".".join([str(x) for x in version]))
             _svn_version_warning = True
 
