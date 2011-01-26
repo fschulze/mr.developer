@@ -4,7 +4,11 @@ Changelog
 1.17 - Unreleased
 -----------------
 
+* Git: Default to branch ``master`` if no branch is given in the source.
+  [stefan]
 
+* Brush up the README.
+  [stefan]
 
 1.16 - 2010-09-16
 -----------------

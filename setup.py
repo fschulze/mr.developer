@@ -35,6 +35,7 @@ setup(name='mr.developer',
       include_package_data=True,
       zip_safe=False,
       install_requires=install_requires,
+      test_suite='mr.developer.tests',
       entry_points="""
       [console_scripts]
       develop = mr.developer.develop:develop
