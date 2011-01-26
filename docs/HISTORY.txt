@@ -1,7 +1,11 @@
 Changelog
 =========
 
-1.17 - Unreleased
+1.18 - Unreleased
+-----------------
+
+
+1.17 - 2011-01-26
 -----------------
 
 * Git: Default to branch ``master`` if no branch is given in the source.
