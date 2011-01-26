@@ -22,6 +22,9 @@ Changelog
 * Pass branch to bzr pull.
   [menesis]
 
+* Add support for darcs.
+  [lelit, azazel]
+
 1.16 - 2010-09-16
 -----------------
 
