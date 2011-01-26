@@ -13,8 +13,6 @@ if sys.version_info < (2, 5):
 if sys.version_info < (2, 7):
     install_requires.append('argparse')
 
-
-
 setup(name='mr.developer',
       version=version,
       description="A zc.buildout extension to ease the development of large projects with lots of packages.",
