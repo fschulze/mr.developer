@@ -13,6 +13,9 @@ Changelog
 * Create the sources-dir if it is not present.
   [janjaapdriessen]
 
+* Only require argparse with Python < 2.7.
+  [dobe]
+
 1.16 - 2010-09-16
 -----------------
 
