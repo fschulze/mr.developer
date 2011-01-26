@@ -17,6 +17,11 @@ class GitWorkingCopy(common.BaseWorkingCopy):
     git-version dependant
     """
 
+    def __init__(self, source):
+        if 'branch' not in source:
+            source['branch'] = 'master'
+        super(GitWorkingCopy, self).__init__(source)
+
     def git_merge_rbranch(self, stdout_in, stderr_in):
         name = self.source['name']
         path = self.source['path']
