@@ -10,6 +10,9 @@ Changelog
 * Brush up the README.
   [stefan]
 
+* Create the sources-dir if it is not present.
+  [janjaapdriessen]
+
 1.16 - 2010-09-16
 -----------------
 
