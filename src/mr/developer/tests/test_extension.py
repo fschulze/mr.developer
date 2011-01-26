@@ -269,3 +269,23 @@ class TestExtension(TestCase):
         from mr.developer.extension import extension
         extension(self.buildout)
         self.failUnless('.mr.developer.cfg' in os.listdir(self.tempdir))
+
+
+class TestSourcesDir(TestCase):
+    def setUp(self):
+        self.tempdir = tempfile.mkdtemp()
+
+    def test_sources_dir_created(self):
+        buildout = MockBuildout(dict(
+            buildout = {
+                'directory': self.tempdir,
+                'parts': '',
+                'sources-dir': 'develop',
+            },
+            sources={},
+        ))
+        from mr.developer.extension import extension
+        self.failIf('develop' in os.listdir(self.tempdir))
+        extension(buildout)
+        self.failUnless('develop' in os.listdir(self.tempdir))
+
