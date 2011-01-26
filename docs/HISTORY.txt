@@ -16,6 +16,12 @@ Changelog
 * Only require argparse with Python < 2.7.
   [dobe]
 
+* Fixed issue #35 using bzr, similar to the fix #28 for hg in last version.
+  [menesis]
+
+* Pass branch to bzr pull.
+  [menesis]
+
 1.16 - 2010-09-16
 -----------------
 
