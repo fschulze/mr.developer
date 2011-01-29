@@ -1,5 +1,6 @@
 from mr.developer import common
 import os
+import re
 import subprocess
 
 logger = common.logger
@@ -138,4 +139,45 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
             stdout = self.hg_pull(True, info)
         return stdout
 
-common.workingcopytypes['hg'] = MercurialWorkingCopy
+
+class MercurialPre17WorkingCopy(MercurialWorkingCopy):
+
+    def hg_switch_branch(self, info):
+        """Run hg update <branch name>.
+        """
+        self.output((logger.info, 'Switch to branch %s for %r with mercurial.' % (
+                    info.branch, info.name)))
+        return self.hg_run_command(
+            ['hg', 'update', info.branch],
+            name=info.name, path=info.path, output=info.verbose)
+
+
+@apply
+def mercurialVersion():
+    """Determine mercurial version. If it is above 1.7, we can use the branch()
+    revision notation.
+    """
+    try:
+        cmd = subprocess.Popen(["hg", "--version"],
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
+        stdout, stderr = cmd.communicate()
+    except OSError, e:
+        if getattr(e, 'errno', None) == 2:
+            logger.error("Couldn't find Mercurial 'hg' executable in your PATH.")
+            sys.exit(1)
+        raise
+
+    m = re.search("\(version (\d+)\.(\d+)(\.\d+)?(\.\d+)?\)", stdout)
+    if m is None:
+        logger.error("Unable to parse mercurial version output")
+        logger.error("'hg --version' output was:\n%s\n%s" % (stdout, stderr))
+        sys.exit(1)
+    return m.groups()
+
+def mercurialWorkingCopyFactory():
+    if mercurialVersion < ('1', '7'):
+        return MercurialWorkingCopy
+    return MercurialPre17WorkingCopy
+
+common.workingcopytypes['hg'] = mercurialWorkingCopyFactory()
