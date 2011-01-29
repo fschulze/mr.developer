@@ -1,5 +1,6 @@
 from mr.developer import common
 import os
+import sys
 import re
 import subprocess
 
@@ -59,7 +60,9 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
     def hg_switch_branch(self, info):
         """Run hg update <branch name>.
         """
-        self.output((logger.info, 'Switch to branch %s for %r with mercurial.' % (
+        self.output(
+            (logger.info,
+             'Switch to branch %s for %r with mercurial.' % (
                     info.branch, info.name)))
         return self.hg_run_command(
             ['hg', 'update', '-r', 'branch(%r)' % info.branch],
@@ -91,7 +94,9 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
             if update:
                 self.update(**kwargs)
             elif self.matches(info):
-                self.output((logger.info, 'Skipped checkout of existing package %r.' % info.name))
+                self.output(
+                    (logger.info,
+                     'Skipped checkout of existing package %r.' % info.name))
             else:
                 raise MercurialError(
                     'Source URL for existing package %r differs. '
@@ -164,7 +169,8 @@ def mercurialVersion():
         stdout, stderr = cmd.communicate()
     except OSError, e:
         if getattr(e, 'errno', None) == 2:
-            logger.error("Couldn't find Mercurial 'hg' executable in your PATH.")
+            logger.error(
+                "Couldn't find Mercurial 'hg' executable in your PATH.")
             sys.exit(1)
         raise
 
@@ -177,7 +183,7 @@ def mercurialVersion():
 
 def mercurialWorkingCopyFactory():
     if mercurialVersion < ('1', '7'):
-        return MercurialWorkingCopy
-    return MercurialPre17WorkingCopy
+        return MercurialPre17WorkingCopy
+    return MercurialWorkingCopy
 
 common.workingcopytypes['hg'] = mercurialWorkingCopyFactory()
