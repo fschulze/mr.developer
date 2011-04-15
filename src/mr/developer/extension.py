@@ -33,6 +33,9 @@ class Extension(object):
         sources_dir = self.buildout['buildout'].get('sources-dir', 'src')
         if not os.path.isabs(sources_dir):
             sources_dir = os.path.join(self.buildout_dir, sources_dir)
+        if os.path.isdir(self.buildout_dir) and not os.path.isdir(sources_dir):
+            logger.info('Creating missing sources dir %s.' % sources_dir)
+            os.mkdir(sources_dir)
 
         sources = {}
         sources_section = self.buildout['buildout'].get('sources', 'sources')

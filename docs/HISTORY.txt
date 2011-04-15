@@ -1,12 +1,38 @@
 Changelog
 =========
 
-1.17 - Unreleased
+1.18 - Unreleased
 -----------------
 
-* Add support for branches in Mercurial. You can specify a branch name after a dash
-  in the repository URL. Changing a branch name in the URL afterwards branch will
-  just do a switch.
+* Add support for branches in Mercurial. You can specify a branch name
+  after a dash in the repository URL. Changing a branch name in the
+  URL afterwards branch will just do a switch.
+
+
+1.17 - 2011-01-26
+-----------------
+
+* Git: Default to branch ``master`` if no branch is given in the source.
+  [stefan]
+
+* Brush up the README.
+  [stefan]
+
+* Create the sources-dir if it is not present.
+  [janjaapdriessen]
+
+* Only require argparse with Python < 2.7.
+  [dobe]
+
+* Fixed issue #35 using bzr, similar to the fix #28 for hg in last version.
+  [menesis]
+
+* Pass branch to bzr pull.
+  [menesis]
+
+* Add support for darcs.
+  [lelit, azazel]
+>>>>>>> official/master
 
 1.16 - 2010-09-16
 -----------------

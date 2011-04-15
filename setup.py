@@ -1,16 +1,17 @@
 from setuptools import setup
 import os, sys
 
-version = '1.17'
+version = '1.18'
 
 install_requires = [
   'setuptools',
   'zc.buildout',
-  'argparse',
 ]
 
 if sys.version_info < (2, 5):
     install_requires.append('elementtree')
+if sys.version_info < (2, 7):
+    install_requires.append('argparse')
 
 setup(name='mr.developer',
       version=version,
@@ -35,6 +36,7 @@ setup(name='mr.developer',
       include_package_data=True,
       zip_safe=False,
       install_requires=install_requires,
+      test_suite='mr.developer.tests',
       entry_points="""
       [console_scripts]
       develop = mr.developer.develop:develop
