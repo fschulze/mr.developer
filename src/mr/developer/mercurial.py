@@ -158,9 +158,9 @@ class MercurialPre17WorkingCopy(MercurialWorkingCopy):
 
 
 @apply
-def mercurialVersion():
-    """Determine mercurial version. If it is above 1.7, we can use the branch()
-    revision notation.
+def mercurial_version():
+    """Determine mercurial version. If it is above 1.7, we can use the
+    branch() revision notation.
     """
     try:
         cmd = subprocess.Popen(["hg", "--version"],
@@ -171,8 +171,10 @@ def mercurialVersion():
         if getattr(e, 'errno', None) == 2:
             logger.error(
                 "Couldn't find Mercurial 'hg' executable in your PATH.")
-            sys.exit(1)
-        raise
+        else:
+            logger.error(
+                "Error while detecting Mercurial.")
+        return None
 
     m = re.search("\(version (\d+)\.(\d+)(\.\d+)?(\.\d+)?\)", stdout)
     if m is None:
@@ -181,9 +183,10 @@ def mercurialVersion():
         sys.exit(1)
     return m.groups()
 
-def mercurialWorkingCopyFactory():
-    if mercurialVersion < ('1', '7'):
-        return MercurialPre17WorkingCopy
-    return MercurialWorkingCopy
 
-common.workingcopytypes['hg'] = mercurialWorkingCopyFactory()
+if mercurial_version is not None:
+    if mercurial_version < ('1', '7'):
+        common.workingcopytypes['hg'] = MercurialPre17WorkingCopy
+    else:
+        common.workingcopytypes['hg'] = MercurialWorkingCopy
+
