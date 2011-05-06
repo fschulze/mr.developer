@@ -4,7 +4,7 @@ Changelog
 1.18 - Unreleased
 -----------------
 
-* Git: Added ``ref`` option that allows you to use a specific revision
+* Git: Added ``rev`` option that allows you to use a specific revision
   (usually a tag) instead of the HEAD.
   [maurits]
 
