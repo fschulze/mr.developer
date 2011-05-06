@@ -4,6 +4,10 @@ Changelog
 1.18 - Unreleased
 -----------------
 
+* Git: Added ``ref`` option that allows you to use a specific revision
+  (usually a tag) instead of the HEAD.
+  [maurits]
+
 
 1.17 - 2011-01-26
 -----------------

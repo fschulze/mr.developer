@@ -18,6 +18,11 @@ class GitWorkingCopy(common.BaseWorkingCopy):
     """
 
     def __init__(self, source):
+        if 'branch' in source and 'ref' in source:
+            logger.error("Cannot specify both 'branch' (%s) and 'ref' (%s) "
+                         "in source for %s",
+                         source['branch'], source['ref'], source['name'])
+            sys.exit(1)
         if 'branch' not in source:
             source['branch'] = 'master'
         super(GitWorkingCopy, self).__init__(source)
@@ -72,7 +77,10 @@ class GitWorkingCopy(common.BaseWorkingCopy):
             raise GitError("'git branch -a' failed.\n%s" % (branch, stderr))
         stdout_in += stdout
         stderr_in += stderr
-        if re.search("^(\*| ) "+re.escape(branch)+"$", stdout, re.M):
+        if 'ref' in self.source:
+            # A tag or revision was specified instead of a branch
+            argv = ["git", "checkout", self.source['ref']]
+        elif re.search("^(\*| ) "+re.escape(branch)+"$", stdout, re.M):
             # the branch is local, normal checkout will work
             argv = ["git", "checkout", branch]
         elif re.search(
@@ -80,6 +88,9 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         ):
             # the branch is not local, normal checkout won't work here
             argv = ["git", "checkout", "-b", branch, "%s/%s" % (rbp, branch)]
+        else:
+            logger.error("No such branch %r", branch)
+            sys.exit(1)
         # runs the checkout with predetermined arguments
         cmd = subprocess.Popen(argv,
                                cwd=path,
@@ -95,14 +106,22 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         name = self.source['name']
         path = self.source['path']
         self.output((logger.info, "Updated '%s' with git." % name))
-        cmd = subprocess.Popen(["git", "pull"],
+        if 'ref' in self.source:
+            # Specific revision, so we only fetch.  Pull is fetch plus
+            # merge, which is not possible here.
+            argv = ["git", "fetch"]
+        else:
+            argv = ["git", "pull"]
+        cmd = subprocess.Popen(argv,
                                cwd=path,
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise GitError("git pull of '%s' failed.\n%s" % (name, stderr))
-        if 'branch' in self.source:
+        if 'ref' in self.source:
+            stdout, stderr = self.git_switch_branch(stdout, stderr)
+        elif 'branch' in self.source:
             stdout, stderr = self.git_switch_branch(stdout, stderr)
             stdout, stderr = self.git_merge_rbranch(stdout, stderr)
         if kwargs.get('verbose', False):
