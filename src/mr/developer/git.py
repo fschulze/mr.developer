@@ -35,7 +35,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
             raise GitError("git merge of remote branch 'origin/%s' failed.\n%s" % (branch, stderr))
         return (stdout_in + stdout,
                 stderr_in + stderr)
-    
+
     def git_checkout(self, **kwargs):
         name = self.source['name']
         path = self.source['path']
@@ -203,7 +203,7 @@ class Git16WorkingCopy(GitWorkingCopy):
             raise GitError("git remote of '%s' failed.\n%s" % (name, stderr))
         return (self.source['url'] in stdout.split())
 
-    
+
 def gitWorkingCopyFactory(source):
     """This is the factory of git working copy classes: it will determine the
     version of git and load up the one with the correct API. Any returned
@@ -249,7 +249,7 @@ def gitWorkingCopyFactory(source):
         )
     else:
         version = (int(version[0]), int(version[1]))
-        
+
     if version < (1,5):
         logger.error(
             "Git version %s is unsupported, please upgrade" % \
