@@ -18,9 +18,16 @@ class GitWorkingCopy(common.BaseWorkingCopy):
     """
 
     def __init__(self, source):
+        if 'rev' in source and 'revision' in source:
+            raise ValueError("The source definition of '%s' contains "
+                             "duplicate revision options." % source['name'])
+        # 'rev' is canonical
+        if 'revision' in source:
+            source['rev'] = source['revision']
+            del source['revision']
         if 'branch' in source and 'rev' in source:
-            logger.error("Cannot specify both 'branch' (%s) and 'rev' (%s) "
-                         "in source for %s",
+            logger.error("Cannot specify both branch (%s) and rev/revision "
+                         "(%s) in source for %s",
                          source['branch'], source['rev'], source['name'])
             sys.exit(1)
         if 'branch' not in source:
