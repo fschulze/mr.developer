@@ -176,7 +176,7 @@ def mercurial_version():
                 "Error while detecting Mercurial.")
         return None
 
-    m = re.search("\(version (\d+)\.(\d+)(\.\d+)?(\.\d+)?\)", stdout)
+    m = re.search("\(version (\d+)\.(\d+)(\.\d+)?(\.\d+)?.*\)", stdout)
     if m is None:
         logger.error("Unable to parse mercurial version output")
         logger.error("'hg --version' output was:\n%s\n%s" % (stdout, stderr))
