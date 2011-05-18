@@ -163,7 +163,10 @@ def mercurial_version():
     branch() revision notation.
     """
     try:
+        env = dict(os.environ)
+        env.pop('PYTHONPATH', None)
         cmd = subprocess.Popen(["hg", "--version"],
+                               env=env,
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
