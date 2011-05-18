@@ -93,7 +93,7 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         if os.path.exists(info.path):
             if update:
                 self.update(**kwargs)
-            elif self.matches(info):
+            elif self.matches(**kwargs):
                 self.output(
                     (logger.info,
                      'Skipped checkout of existing package %r.' % info.name))
@@ -163,7 +163,10 @@ def mercurial_version():
     branch() revision notation.
     """
     try:
+        env = dict(os.environ)
+        env.pop('PYTHONPATH', None)
         cmd = subprocess.Popen(["hg", "--version"],
+                               env=env,
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
