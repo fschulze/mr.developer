@@ -93,7 +93,7 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         if os.path.exists(info.path):
             if update:
                 self.update(**kwargs)
-            elif self.matches(info):
+            elif self.matches(**kwargs):
                 self.output(
                     (logger.info,
                      'Skipped checkout of existing package %r.' % info.name))
