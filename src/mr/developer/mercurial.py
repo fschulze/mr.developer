@@ -8,10 +8,18 @@ class MercurialError(common.WCError):
     pass
 
 class MercurialWorkingCopy(common.BaseWorkingCopy):
+
+    def __init__(self, source):
+        if 'branch' not in source:
+            source['branch'] = 'default'
+        super(MercurialWorkingCopy, self).__init__(source)
+
     def hg_clone(self, **kwargs):
         name = self.source['name']
         path = self.source['path']
         url = self.source['url']
+        branch = self.source['branch']
+        
         if os.path.exists(path):
             self.output((logger.info, 'Skipped cloning of existing package %r.' % name))
             return
@@ -19,7 +27,7 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         env = dict(os.environ)
         env.pop('PYTHONPATH', None)
         cmd = subprocess.Popen(
-            ['hg', 'clone', '--quiet', '--noninteractive', url, path],
+            ['hg', 'clone', '--branch', branch, '--quiet', '--noninteractive', url, path],
             env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
@@ -29,6 +37,8 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
             return stdout
 
     def hg_pull(self, **kwargs):
+        # NOTE: we don't include the branch here as we just want to update
+        # to the head of whatever branch the developer is working on
         name = self.source['name']
         path = self.source['path']
         self.output((logger.info, 'Updated %r with mercurial.' % name))
@@ -71,6 +81,7 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         if cmd.returncode != 0:
             raise MercurialError(
                 'hg showconfig for %r failed.\n%s' % (name, stderr))
+        # now check that the working branch is the same
         return (self.source['url'] + '\n' == stdout)
 
     def status(self, **kwargs):
