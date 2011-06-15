@@ -4,6 +4,10 @@ Changelog
 1.18 - Unreleased
 -----------------
 
+* Add support for branches in Mercurial. You can specify a branch name
+  after a dash in the repository URL. Changing a branch name in the
+  URL afterwards branch will just do a switch.
+
 
 1.17 - 2011-01-26
 -----------------
@@ -28,6 +32,7 @@ Changelog
 
 * Add support for darcs.
   [lelit, azazel]
+>>>>>>> official/master
 
 1.16 - 2010-09-16
 -----------------
