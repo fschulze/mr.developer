@@ -27,7 +27,7 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         env = dict(os.environ)
         env.pop('PYTHONPATH', None)
         cmd = subprocess.Popen(
-            ['hg', 'clone', '--branch', branch, '--quiet', '--noninteractive', url, path],
+            ['hg', 'clone', '--update', branch, '--quiet', '--noninteractive', url, path],
             env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
