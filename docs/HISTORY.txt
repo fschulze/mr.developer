@@ -10,6 +10,10 @@ Changelog
 * Git: Added support for the Windows msysGit.
   [canassa (Cesar Canassa)]
 
+* Git: Added ``rev`` option that allows you to use a specific revision
+  (usually a tag) instead of the HEAD.
+  [maurits (Maurits van Rees)]
+
 1.17 - 2011-01-26
 -----------------
 

@@ -109,6 +109,11 @@ Common options
   The ``branch`` option allows you to use a specific branch instead of
   master.
 
+  The ``rev`` option allows you to use a specific revision (usually a
+  tag) instead of the HEAD.
+
+  Note that the ``branch`` and ``rev`` option are mutually exclusive.
+
 ``hg``
   The ``branch`` option allows you to use a specific branch instead of
   default.

@@ -19,6 +19,18 @@ class GitWorkingCopy(common.BaseWorkingCopy):
 
     def __init__(self, source, git_executable):
         self.git_executable = git_executable
+        if 'rev' in source and 'revision' in source:
+            raise ValueError("The source definition of '%s' contains "
+                             "duplicate revision options." % source['name'])
+        # 'rev' is canonical
+        if 'revision' in source:
+            source['rev'] = source['revision']
+            del source['revision']
+        if 'branch' in source and 'rev' in source:
+            logger.error("Cannot specify both branch (%s) and rev/revision "
+                         "(%s) in source for %s",
+                         source['branch'], source['rev'], source['name'])
+            sys.exit(1)
         if 'branch' not in source:
             source['branch'] = 'master'
         super(GitWorkingCopy, self).__init__(source)
@@ -71,7 +83,10 @@ class GitWorkingCopy(common.BaseWorkingCopy):
             raise GitError("'git branch -a' failed.\n%s" % (branch, stderr))
         stdout_in += stdout
         stderr_in += stderr
-        if re.search("^(\*| ) "+re.escape(branch)+"$", stdout, re.M):
+        if 'rev' in self.source:
+            # A tag or revision was specified instead of a branch
+            argv = ["checkout", self.source['rev']]
+        elif re.search("^(\*| ) "+re.escape(branch)+"$", stdout, re.M):
             # the branch is local, normal checkout will work
             argv = ["checkout", branch]
         elif re.search(
@@ -79,6 +94,9 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         ):
             # the branch is not local, normal checkout won't work here
             argv = ["checkout", "-b", branch, "%s/%s" % (rbp, branch)]
+        else:
+            logger.error("No such branch %r", branch)
+            sys.exit(1)
         # runs the checkout with predetermined arguments
         cmd = self.run_git(argv, cwd=path)
         stdout, stderr = cmd.communicate()
@@ -91,11 +109,19 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         name = self.source['name']
         path = self.source['path']
         self.output((logger.info, "Updated '%s' with git." % name))
-        cmd = self.run_git(["pull"], cwd=path)
+        if 'rev' in self.source:
+            # Specific revision, so we only fetch.  Pull is fetch plus
+            # merge, which is not possible here.
+            argv = ["fetch"]
+        else:
+            argv = ["pull"]
+        cmd = self.run_git(argv, cwd=path)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise GitError("git pull of '%s' failed.\n%s" % (name, stderr))
-        if 'branch' in self.source:
+        if 'rev' in self.source:
+            stdout, stderr = self.git_switch_branch(stdout, stderr)
+        elif 'branch' in self.source:
             stdout, stderr = self.git_switch_branch(stdout, stderr)
             stdout, stderr = self.git_merge_rbranch(stdout, stderr)
         if kwargs.get('verbose', False):
