@@ -16,7 +16,7 @@ if sys.version_info < (2, 7):
 setup(name='mr.developer',
       version=version,
       description="A zc.buildout extension to ease the development of large projects with lots of packages.",
-      long_description=open("README.txt").read() + "\n\n" +
+      long_description=open("README.rst").read() + "\n\n" +
                        open(os.path.join("docs", "HELP.txt")).read() +
                        open(os.path.join("docs", "HISTORY.txt")).read(),
       # Get more strings from http://www.python.org/pypi?%3Aaction=list_classifiers
