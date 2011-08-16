@@ -30,7 +30,6 @@ class FilesystemWorkingCopy(common.BaseWorkingCopy):
 
     def update(self, **kwargs):
         name = self.source['name']
-        path = self.source['path']
         if not self.matches():
             raise FilesystemError(
                 'Directory name for existing package %r differs. '

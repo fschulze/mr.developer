@@ -19,7 +19,7 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         path = self.source['path']
         url = self.source['url']
         branch = self.source['branch']
-        
+
         if os.path.exists(path):
             self.output((logger.info, 'Skipped cloning of existing package %r.' % name))
             return
@@ -85,7 +85,6 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         return (self.source['url'] + '\n' == stdout)
 
     def status(self, **kwargs):
-        name = self.source['name']
         path = self.source['path']
         env = dict(os.environ)
         env.pop('PYTHONPATH', None)
@@ -101,7 +100,6 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
 
     def update(self, **kwargs):
         name = self.source['name']
-        path = self.source['path']
         if not self.matches():
             raise MercurialError(
                 "Can't update package %r because its URL doesn't match." %

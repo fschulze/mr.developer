@@ -297,7 +297,7 @@ def parse_buildout_args(args):
                             raise ValueError("No file name specified for option", orig_op)
                 elif op_ == 't':
                     try:
-                        timeout = int(args.pop(0))
+                        int(args.pop(0))
                     except IndexError:
                         raise ValueError("No timeout value specified for option", orig_op)
                     except ValueError:

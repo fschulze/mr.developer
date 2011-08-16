@@ -72,7 +72,6 @@ class DarcsWorkingCopy(common.BaseWorkingCopy):
                 return
 
             lines = stdout.splitlines()
-            d = {}
             for line in lines:
                 k, v = line.split(':', 1)
                 k = k.strip()
@@ -88,7 +87,6 @@ class DarcsWorkingCopy(common.BaseWorkingCopy):
         return self.source['url'] in self._darcs_related_repositories()
 
     def status(self, **kwargs):
-        name = self.source['name']
         path = self.source['path']
         cmd = subprocess.Popen(["darcs", "whatsnew"],
                                cwd=path,
@@ -107,7 +105,6 @@ class DarcsWorkingCopy(common.BaseWorkingCopy):
 
     def update(self, **kwargs):
         name = self.source['name']
-        path = self.source['path']
         if not self.matches():
             raise DarcsError("Can't update package '%s' because it's URL doesn't match." % name)
         if self.status() != 'clean' and not kwargs.get('force', False):

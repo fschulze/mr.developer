@@ -42,7 +42,6 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         return subprocess.Popen(commands, **kwargs)
 
     def git_merge_rbranch(self, stdout_in, stderr_in):
-        name = self.source['name']
         path = self.source['path']
         branch = self.source['branch']
         cmd = self.run_git(["merge", "origin/%s" % branch], cwd=path)
@@ -73,7 +72,6 @@ class GitWorkingCopy(common.BaseWorkingCopy):
             return stdout
 
     def git_switch_branch(self, stdout_in, stderr_in):
-        name = self.source['name']
         path = self.source['path']
         branch = self.source['branch']
         rbp = self.__class__._remote_branch_prefix
@@ -142,7 +140,6 @@ class GitWorkingCopy(common.BaseWorkingCopy):
             return self.git_checkout(**kwargs)
 
     def status(self, **kwargs):
-        name = self.source['name']
         path = self.source['path']
         cmd = self.run_git(["status"], cwd=path)
         stdout, stderr = cmd.communicate()
@@ -158,7 +155,6 @@ class GitWorkingCopy(common.BaseWorkingCopy):
 
     def update(self, **kwargs):
         name = self.source['name']
-        path = self.source['path']
         if not self.matches():
             raise GitError("Can't update package '%s' because its URL doesn't match." % name)
         if self.status() != 'clean' and not kwargs.get('force', False):

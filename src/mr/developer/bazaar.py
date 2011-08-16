@@ -77,7 +77,6 @@ class BazaarWorkingCopy(common.BaseWorkingCopy):
         return (self.source['url'] in stdout.split())
 
     def status(self, **kwargs):
-        name = self.source['name']
         path = self.source['path']
         env = dict(os.environ)
         env.pop('PYTHONPATH', None)
@@ -93,7 +92,6 @@ class BazaarWorkingCopy(common.BaseWorkingCopy):
 
     def update(self, **kwargs):
         name = self.source['name']
-        path = self.source['path']
         if not self.matches():
             raise BazaarError(
                 "Can't update package %r because its URL doesn't match." %

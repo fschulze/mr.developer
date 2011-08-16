@@ -101,7 +101,6 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
             """
             return RE_ROOT.sub(r'\1\3', text)
 
-        name = self.source['name']
         path = self.source['path']
 
         repo_file = os.path.join(path, 'CVS', 'Repository')
@@ -119,7 +118,6 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
         return (self.source['url'] == repo)
 
     def status(self, **kwargs):
-        name = self.source['name']
         path = self.source['path']
 
         ## packages before checkout is clean
@@ -146,7 +144,6 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
 
     def update(self, **kwargs):
         name = self.source['name']
-        path = self.source['path']
         if not self.matches():
             raise CVSError(
                 "Can't update package %r, because its URL doesn't match." %
