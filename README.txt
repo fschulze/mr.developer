@@ -110,7 +110,8 @@ Common options
   master.
 
 ``hg``
-  Currently no additional options.
+  The ``branch`` option allows you to use a specific branch instead of
+  default.
 
 ``bzr``
   Currently no additional options.
