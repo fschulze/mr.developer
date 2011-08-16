@@ -3,8 +3,12 @@ Changelog
 
 1.18 - Unreleased
 -----------------
+
+* Mercurial: Added support for branches.
+  [posborne (Paul Osborne)]
+
 * Git: Added support for the Windows msysGit.
-  [canassa, Cesar Canassa]
+  [canassa (Cesar Canassa)]
 
 1.17 - 2011-01-26
 -----------------
