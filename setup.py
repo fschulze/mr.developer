@@ -8,9 +8,14 @@ install_requires = [
   'zc.buildout',
 ]
 
-if sys.version_info < (2, 5):
+try:
+    import elementtree
+except ImportError:
     install_requires.append('elementtree')
-if sys.version_info < (2, 7):
+
+try:
+    import argparse
+except ImportError:
     install_requires.append('argparse')
 
 setup(name='mr.developer',
