@@ -164,7 +164,8 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
         interactive_args = args[:]
         args[2:2] = ["--non-interactive"]
         env = dict(os.environ)
-        env['LC_ALL'] = 'C'
+        # Don't assume that files in SVN match our locale
+        env['LC_ALL'] = ''
         cmd = subprocess.Popen(args, env=env,
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
