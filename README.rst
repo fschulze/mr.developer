@@ -119,7 +119,12 @@ Common options
   default.
 
 ``bzr``
-  Currently no additional options.
+  The ``rev`` option allows you to use a specific revision.  Use of this
+  option with forced updates *will overwrite any local commits* --
+  it will not attempt a merge, regardless of whether the revision pin
+  specified is newer or older than the current committed revision. The
+  revision specified can be numeric, a tag, or other identifier matching
+  `Bazaar revision identification rules <http://goo.gl/yHxwQ>`__.
 
 ``darcs``
   Currently no additional options.

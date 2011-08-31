@@ -4,14 +4,30 @@ import subprocess
 
 logger = common.logger
 
+
+def normalize_bzr_url(url):
+    url = url.strip()
+    if url.startswith('file://'):
+        url = url[7:]   # no URI scheme-name for file URIs
+    if url.startswith('/') and url.endswith('/'):
+        url = url[:-1]  # no trailing slashes for file URIs
+    if not url.startswith('/'):
+        if not url.endswith('/'):
+            url = '%s/' % url # append trailing slash to all non-file URIs
+        url = url.replace('+junk', '%2Bjunk') # launchpad +junk branch URIs
+    return url 
+
+
 class BazaarError(common.WCError):
     pass
+
 
 class BazaarWorkingCopy(common.BaseWorkingCopy):
     def bzr_branch(self, **kwargs):
         name = self.source['name']
         path = self.source['path']
-        url = self.source['url']
+        url = normalize_bzr_url(self.source['url'])
+        rev = self.source.get('rev', self.source.get('revision', None))
         if os.path.exists(path):
             self.output((logger.info,
                 'Skipped branching existing package %r.' % name))
@@ -19,8 +35,12 @@ class BazaarWorkingCopy(common.BaseWorkingCopy):
         self.output((logger.info, 'Branched %r with bazaar.' % name))
         env = dict(os.environ)
         env.pop('PYTHONPATH', None)
+        branch_spec = [url, path] 
+        if rev:
+            #non-empty rev: assume it conforms to `bzr help revisionspec`
+            branch_spec = ['-r%s' % rev.strip()] + branch_spec
         cmd = subprocess.Popen(
-            ['bzr', 'branch', '--quiet', url, path],
+            ['bzr', 'branch', '--quiet'] + branch_spec,
             env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
@@ -32,11 +52,20 @@ class BazaarWorkingCopy(common.BaseWorkingCopy):
     def bzr_pull(self, **kwargs):
         name = self.source['name']
         path = self.source['path']
-        url = self.source['url']
+        url = normalize_bzr_url(self.source['url'])
+        rev = self.source.get('rev', self.source.get('revision', None))
         self.output((logger.info, 'Updated %r with bazaar.' % name))
         env = dict(os.environ)
         env.pop('PYTHONPATH', None)
-        cmd = subprocess.Popen(['bzr', 'pull', url], cwd=path,
+        branch_spec = [url,] 
+        if rev:
+            if kwargs.get('force', False):
+                # force means local (even committed) changes will be
+                # overwritten to accommodate upstream.
+                branch_spec += ['--overwrite']
+            #non-empty rev: assume it conforms to `bzr help revisionspec`
+            branch_spec = ['-r%s' % rev.strip()] + branch_spec
+        cmd = subprocess.Popen(['bzr', 'pull',] + branch_spec, cwd=path,
             env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
@@ -58,7 +87,8 @@ class BazaarWorkingCopy(common.BaseWorkingCopy):
             else:
                 raise BazaarError(
                     'Source URL for existing package %r differs. '
-                    'Expected %r.' % (name, self.source['url']))
+                    'Expected %r.' % (name,
+                                      normalize_bzr_url(self.source['url'])))
         else:
             return self.bzr_branch(**kwargs)
 
@@ -74,7 +104,7 @@ class BazaarWorkingCopy(common.BaseWorkingCopy):
         if cmd.returncode != 0:
             raise BazaarError(
                 'bzr info for %r failed.\n%s' % (name, stderr))
-        return (self.source['url'] in stdout.split())
+        return (normalize_bzr_url(self.source['url']) in stdout.split())
 
     def status(self, **kwargs):
         path = self.source['path']
