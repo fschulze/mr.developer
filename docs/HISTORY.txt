@@ -5,7 +5,8 @@ Changelog
 -----------------
 
 * Bugfix: Honhour buildout:develop parameters even if ending with slash
-  [lukenowak (Łukasz Nowak)]
+  [lukenowak]
+
 * Installation: Check presence of required modules instead of relying on
   version of python. [lukenowak (Łukasz Nowak)]
 
