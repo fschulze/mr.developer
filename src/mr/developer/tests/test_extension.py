@@ -250,6 +250,17 @@ class TestExtensionClass(TestCase):
         })
         self.assertRaises(ValueError, self.extension.get_sources)
 
+    def testDevelopHounred(self):
+        self.buildout['buildout']['develop'] = '/normal/develop ' \
+          '/develop/with/slash/'
+
+        (develop, develeggs, versions) = self.extension.get_develop_info()
+        self.failUnless('/normal/develop' in develop)
+        self.failUnless('/develop/with/slash/' in develop)
+        self.failUnless('slash' in develeggs)
+        self.failUnless('develop' in develeggs)
+        self.assertEqual(develeggs['slash'], '/develop/with/slash/')
+        self.assertEqual(develeggs['develop'], '/normal/develop')
 
 class TestExtension(TestCase):
     def setUp(self):

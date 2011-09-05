@@ -139,7 +139,8 @@ class Extension(object):
         versions = self.buildout.get(versions_section, {})
         develeggs = {}
         for path in develop.split():
-            head, tail = os.path.split(path)
+            # strip / from end of path
+            head, tail = os.path.split(path.rstrip('/'))
             develeggs[tail] = path
         config_develop = self.get_config().develop
         for name in sources:
