@@ -4,6 +4,8 @@ Changelog
 1.19 - Unreleased
 -----------------
 
+* Bugfix: Honhour buildout:develop parameters even if ending with slash
+  [lukenowak (Łukasz Nowak)]
 * Installation: Check presence of required modules instead of relying on
   version of python. [lukenowak (Łukasz Nowak)]
 
