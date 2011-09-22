@@ -4,6 +4,10 @@ Changelog
 1.19 - Unreleased
 -----------------
 
+* Git: Don't stop buildout after renaming/adding git remotes, i.e. when
+  actively working on a given package.
+  [witsch]
+
 * Bugfix: Honhour buildout:develop parameters even if ending with slash
   [lukenowak]
 

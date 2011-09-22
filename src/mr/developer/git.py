@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from mr.developer import common
 import os
 import subprocess
@@ -84,12 +86,11 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         if 'rev' in self.source:
             # A tag or revision was specified instead of a branch
             argv = ["checkout", self.source['rev']]
-        elif re.search("^(\*| ) "+re.escape(branch)+"$", stdout, re.M):
+        elif re.search("^(\*| ) " + re.escape(branch) + "$", stdout, re.M):
             # the branch is local, normal checkout will work
             argv = ["checkout", branch]
-        elif re.search(
-            "^  "+re.escape(rbp)+"\/"+re.escape(branch)+"$", stdout, re.M
-        ):
+        elif re.search("^  " + re.escape(rbp) + "\/" + re.escape(branch)
+                + "$", stdout, re.M):
             # the branch is not local, normal checkout won't work here
             argv = ["checkout", "-b", branch, "%s/%s" % (rbp, branch)]
         else:
@@ -135,7 +136,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
             elif self.matches():
                 self.output((logger.info, "Skipped checkout of existing package '%s'." % name))
             else:
-                raise GitError("Checkout URL for existing package '%s' differs. Expected '%s'." % (name, self.source['url']))
+                self.output((logger.warning, "Checkout URL for existing package '%s' differs. Expected '%s'." % (name, self.source['url'])))
         else:
             return self.git_checkout(**kwargs)
 
@@ -156,7 +157,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
     def update(self, **kwargs):
         name = self.source['name']
         if not self.matches():
-            raise GitError("Can't update package '%s' because its URL doesn't match." % name)
+            self.output((logger.warning, "Can't update package '%s' because its URL doesn't match." % name))
         if self.status() != 'clean' and not kwargs.get('force', False):
             raise GitError("Can't update package '%s' because it's dirty." % name)
         return self.git_update(**kwargs)
@@ -265,17 +266,16 @@ def gitWorkingCopyFactory(source):
     else:
         version = (int(version[0]), int(version[1]))
 
-    if version < (1,5):
+    if version < (1, 5):
         logger.error(
             "Git version %s is unsupported, please upgrade" % \
                 ".".join([str(v) for v in version])
         )
         sys.exit(1)
-    elif version > (1,5) and version < (1,6):
+    elif version > (1, 5) and version < (1, 6):
         return Git15WorkingCopy(source, git_executable)
     else:
         return Git16WorkingCopy(source, git_executable)
-
 
 
 common.workingcopytypes['git'] = gitWorkingCopyFactory
