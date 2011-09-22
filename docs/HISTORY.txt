@@ -12,11 +12,12 @@ Changelog
   actively working on a given package.
   [witsch (Andreas Zeidler)]
 
-* Bugfix: Honhour buildout:develop parameters even if ending with slash
+* Bugfix: Honhour buildout:develop parameters even if ending with slash.
   [lukenowak]
 
 * Installation: Check presence of required modules instead of relying on
-  version of python. [lukenowak (Łukasz Nowak)]
+  version of python.
+  [lukenowak (Łukasz Nowak)]
 
 1.18 - 2011-08-16
 -----------------
