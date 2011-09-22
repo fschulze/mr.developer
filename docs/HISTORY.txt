@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.19 - Unreleased
+1.19 - 2011-09-22
 -----------------
 
 * Git: Don't stop buildout after renaming/adding git remotes, i.e. when
