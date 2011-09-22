@@ -136,7 +136,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
             elif self.matches():
                 self.output((logger.info, "Skipped checkout of existing package '%s'." % name))
             else:
-                raise GitError("Checkout URL for existing package '%s' differs. Expected '%s'." % (name, self.source['url']))
+                self.output((logger.warning, "Checkout URL for existing package '%s' differs. Expected '%s'." % (name, self.source['url'])))
         else:
             return self.git_checkout(**kwargs)
 
@@ -157,7 +157,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
     def update(self, **kwargs):
         name = self.source['name']
         if not self.matches():
-            raise GitError("Can't update package '%s' because its URL doesn't match." % name)
+            self.output((logger.warning, "Can't update package '%s' because its URL doesn't match." % name))
         if self.status() != 'clean' and not kwargs.get('force', False):
             raise GitError("Can't update package '%s' because it's dirty." % name)
         return self.git_update(**kwargs)
