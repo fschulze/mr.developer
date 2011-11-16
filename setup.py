@@ -9,7 +9,7 @@ install_requires = [
 ]
 
 try:
-    import elementtree
+    import xml.etree
 except ImportError:
     install_requires.append('elementtree')
 
