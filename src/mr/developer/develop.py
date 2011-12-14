@@ -495,6 +495,7 @@ class CmdPurge(Command):
         packages = packages - self.develop.auto_checkout
         packages = packages - set(self.develop.develeggs)
         force = args.force
+        force_all = False
         workingcopies = WorkingCopies(self.develop.sources)
         if args.dry_run:
             logger.info("Dry run, nothing will be removed.")
@@ -510,14 +511,19 @@ class CmdPurge(Command):
             if workingcopies.status(source) != 'clean':
                 need_force = True
                 logger.warn("The package '%s' is dirty and will not be removed without --force." % name)
-            if need_force and force:
+            if need_force:
+                if not force:
+                    continue
                 # We only get here when a --force is needed and we
                 # have actually added the --force argument on the
                 # command line.
-                answer = yesno("Do you want to purge it anyway?", default=False, all=False)
-                if not answer:
-                    logger.info("Skipped purge of '%s'." % name)
-                    continue
+                if not force_all:
+                    answer = yesno("Do you want to purge it anyway?", default=False, all=True)
+                    if not answer:
+                        logger.info("Skipped purge of '%s'." % name)
+                        continue
+                    if answer == 'all':
+                        force_all = True
 
             logger.info("Removing package '%s' at '%s'." % (name, path))
             if not args.dry_run:
