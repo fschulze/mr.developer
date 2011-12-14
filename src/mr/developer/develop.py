@@ -611,6 +611,7 @@ class CmdStatus(Command):
                     '~' not in auto-checkout list
                     '!' in auto-checkout list, but not checked out
                     'C' the repository URL doesn't match
+                    '?' unknown package (only reported when package-regexp is not specified)
                 The second column shows the working copy status:
                     ' ' no changes
                     'M' local modifications or untracked files
@@ -642,18 +643,22 @@ class CmdStatus(Command):
 
     def __call__(self, args):
         auto_checkout = self.develop.auto_checkout
+        sources_dir = self.develop.sources_dir
         develeggs = self.develop.develeggs
-        packages = self.get_packages(getattr(args, 'package-regexp'),
+        package_regexp = getattr(args, 'package-regexp')
+        packages = self.get_packages(package_regexp,
                                      auto_checkout=args.auto_checkout,
                                      checked_out=args.checked_out,
                                      develop=args.develop)
         workingcopies = WorkingCopies(self.develop.sources)
+        paths = []
         for name in sorted(packages):
             source = self.develop.sources[name]
             if not source.exists():
                 if name in auto_checkout:
                     print "!", " ", name
                 continue
+            paths.append(source['path'])
             if not workingcopies.matches(source):
                 print "C",
             else:
@@ -697,6 +702,12 @@ class CmdStatus(Command):
                     for line in output.split('\n'):
                         print "   ", line
                     print
+
+        # Only report on unknown entries when we have no package regexp.
+        if not package_regexp:
+            for entry in os.listdir(sources_dir):
+                if not os.path.join(sources_dir, entry) in paths:
+                    print '?', ' ', entry
 
 
 class CmdUpdate(Command):
@@ -785,6 +796,7 @@ class Develop(object):
         root_logger.setLevel(logging.INFO)
         extension = Extension(buildout)
         self.sources = extension.get_sources()
+        self.sources_dir = extension.get_sources_dir()
         self.auto_checkout = extension.get_auto_checkout()
         self.always_checkout = extension.get_always_checkout()
         self.always_accept_server_certificate = extension.get_always_accept_server_certificate()
