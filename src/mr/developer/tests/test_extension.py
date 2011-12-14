@@ -296,8 +296,10 @@ class TestSourcesDir(TestCase):
             },
             sources={},
         ))
-        from mr.developer.extension import extension
+        from mr.developer.extension import Extension
         self.failIf('develop' in os.listdir(self.tempdir))
-        extension(buildout)
+        ext = Extension(buildout)
+        ext()
         self.failUnless('develop' in os.listdir(self.tempdir))
-
+        self.assertEqual(ext.get_sources_dir(),
+                         os.path.join(self.tempdir, 'develop'))
