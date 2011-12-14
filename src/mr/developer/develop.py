@@ -1,4 +1,4 @@
-from mr.developer.common import logger, memoize, WorkingCopies, Config
+from mr.developer.common import logger, memoize, WorkingCopies, Config, yesno
 from mr.developer.extension import Extension
 from zc.buildout.buildout import Buildout
 import argparse
@@ -473,6 +473,9 @@ class CmdPurge(Command):
         self.parser.add_argument("-n", "--dry-run", dest="dry_run",
                                action="store_true", default=False,
                                help="""Don't actually remove anything, just print the paths which would be removed.""")
+        self.parser.add_argument("-f", "--force", dest="force",
+                               action="store_true", default=False,
+                               help="""Force purge even if the working copy is dirty or unknown (non-svn).""")
         self.parser.add_argument("package-regexp", nargs="*",
                                  help="A regular expression to match package names.")
         self.parser.set_defaults(func=self)
@@ -491,6 +494,7 @@ class CmdPurge(Command):
                                      checked_out=True)
         packages = packages - self.develop.auto_checkout
         packages = packages - set(self.develop.develeggs)
+        force = args.force
         workingcopies = WorkingCopies(self.develop.sources)
         if args.dry_run:
             logger.info("Dry run, nothing will be removed.")
@@ -499,12 +503,22 @@ class CmdPurge(Command):
             path = source['path']
             if path.startswith(buildout_dir):
                 path = path[len(buildout_dir)+1:]
+            need_force = False
             if source['kind'] != 'svn':
-                logger.warn("The directory of package '%s' at '%s' might contain unrecoverable files and will not be removed." % (name, path))
-                continue
+                need_force = True
+                logger.warn("The directory of package '%s' at '%s' might contain unrecoverable files and will not be removed without --force." % (name, path))
             if workingcopies.status(source) != 'clean':
-                logger.warn("The package '%s' is dirty and will not be removed." % name)
-                continue
+                need_force = True
+                logger.warn("The package '%s' is dirty and will not be removed without --force." % name)
+            if need_force and force:
+                # We only get here when a --force is needed and we
+                # have actually added the --force argument on the
+                # command line.
+                answer = yesno("Do you want to purge it anyway?", default=False, all=False)
+                if not answer:
+                    logger.info("Skipped purge of '%s'." % name)
+                    continue
+
             logger.info("Removing package '%s' at '%s'." % (name, path))
             if not args.dry_run:
                 shutil.rmtree(source['path'],
