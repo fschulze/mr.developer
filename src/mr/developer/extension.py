@@ -29,14 +29,18 @@ class Extension(object):
         return WorkingCopies(self.get_sources())
 
     @memoize
-    def get_sources(self):
+    def get_sources_dir(self):
         sources_dir = self.buildout['buildout'].get('sources-dir', 'src')
         if not os.path.isabs(sources_dir):
             sources_dir = os.path.join(self.buildout_dir, sources_dir)
         if os.path.isdir(self.buildout_dir) and not os.path.isdir(sources_dir):
             logger.info('Creating missing sources dir %s.' % sources_dir)
             os.mkdir(sources_dir)
+        return sources_dir
 
+    @memoize
+    def get_sources(self):
+        sources_dir = self.get_sources_dir()
         sources = {}
         sources_section = self.buildout['buildout'].get('sources', 'sources')
         section = self.buildout.get(sources_section, {})

@@ -4,6 +4,15 @@ Changelog
 1.20 - Unreleased
 -----------------
 
+* In the status command report unknown packages with '?' when no
+  package-regexp has been given.
+  [maurits]
+
+* Added --force option to purge command.  Especially helpful in
+  purging non-subversion packages, which otherwise we refuse to
+  remove.  Fixes issue #71.
+  [maurits]
+
 * Do not depend on `elementtree` if there is `xml.etree` (Python >= 2.5).
 
 

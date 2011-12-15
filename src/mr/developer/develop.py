@@ -1,4 +1,4 @@
-from mr.developer.common import logger, memoize, WorkingCopies, Config
+from mr.developer.common import logger, memoize, WorkingCopies, Config, yesno
 from mr.developer.extension import Extension
 from zc.buildout.buildout import Buildout
 import argparse
@@ -473,6 +473,9 @@ class CmdPurge(Command):
         self.parser.add_argument("-n", "--dry-run", dest="dry_run",
                                action="store_true", default=False,
                                help="""Don't actually remove anything, just print the paths which would be removed.""")
+        self.parser.add_argument("-f", "--force", dest="force",
+                               action="store_true", default=False,
+                               help="""Force purge even if the working copy is dirty or unknown (non-svn).""")
         self.parser.add_argument("package-regexp", nargs="*",
                                  help="A regular expression to match package names.")
         self.parser.set_defaults(func=self)
@@ -491,6 +494,8 @@ class CmdPurge(Command):
                                      checked_out=True)
         packages = packages - self.develop.auto_checkout
         packages = packages - set(self.develop.develeggs)
+        force = args.force
+        force_all = False
         workingcopies = WorkingCopies(self.develop.sources)
         if args.dry_run:
             logger.info("Dry run, nothing will be removed.")
@@ -499,12 +504,27 @@ class CmdPurge(Command):
             path = source['path']
             if path.startswith(buildout_dir):
                 path = path[len(buildout_dir)+1:]
+            need_force = False
             if source['kind'] != 'svn':
-                logger.warn("The directory of package '%s' at '%s' might contain unrecoverable files and will not be removed." % (name, path))
-                continue
+                need_force = True
+                logger.warn("The directory of package '%s' at '%s' might contain unrecoverable files and will not be removed without --force." % (name, path))
             if workingcopies.status(source) != 'clean':
-                logger.warn("The package '%s' is dirty and will not be removed." % name)
-                continue
+                need_force = True
+                logger.warn("The package '%s' is dirty and will not be removed without --force." % name)
+            if need_force:
+                if not force:
+                    continue
+                # We only get here when a --force is needed and we
+                # have actually added the --force argument on the
+                # command line.
+                if not force_all:
+                    answer = yesno("Do you want to purge it anyway?", default=False, all=True)
+                    if not answer:
+                        logger.info("Skipped purge of '%s'." % name)
+                        continue
+                    if answer == 'all':
+                        force_all = True
+
             logger.info("Removing package '%s' at '%s'." % (name, path))
             if not args.dry_run:
                 shutil.rmtree(source['path'],
@@ -591,6 +611,7 @@ class CmdStatus(Command):
                     '~' not in auto-checkout list
                     '!' in auto-checkout list, but not checked out
                     'C' the repository URL doesn't match
+                    '?' unknown package (only reported when package-regexp is not specified)
                 The second column shows the working copy status:
                     ' ' no changes
                     'M' local modifications or untracked files
@@ -622,18 +643,22 @@ class CmdStatus(Command):
 
     def __call__(self, args):
         auto_checkout = self.develop.auto_checkout
+        sources_dir = self.develop.sources_dir
         develeggs = self.develop.develeggs
-        packages = self.get_packages(getattr(args, 'package-regexp'),
+        package_regexp = getattr(args, 'package-regexp')
+        packages = self.get_packages(package_regexp,
                                      auto_checkout=args.auto_checkout,
                                      checked_out=args.checked_out,
                                      develop=args.develop)
         workingcopies = WorkingCopies(self.develop.sources)
+        paths = []
         for name in sorted(packages):
             source = self.develop.sources[name]
             if not source.exists():
                 if name in auto_checkout:
                     print "!", " ", name
                 continue
+            paths.append(source['path'])
             if not workingcopies.matches(source):
                 print "C",
             else:
@@ -677,6 +702,12 @@ class CmdStatus(Command):
                     for line in output.split('\n'):
                         print "   ", line
                     print
+
+        # Only report on unknown entries when we have no package regexp.
+        if not package_regexp:
+            for entry in os.listdir(sources_dir):
+                if not os.path.join(sources_dir, entry) in paths:
+                    print '?', ' ', entry
 
 
 class CmdUpdate(Command):
@@ -765,6 +796,7 @@ class Develop(object):
         root_logger.setLevel(logging.INFO)
         extension = Extension(buildout)
         self.sources = extension.get_sources()
+        self.sources_dir = extension.get_sources_dir()
         self.auto_checkout = extension.get_auto_checkout()
         self.always_checkout = extension.get_always_checkout()
         self.always_accept_server_certificate = extension.get_always_accept_server_certificate()
