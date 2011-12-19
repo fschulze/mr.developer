@@ -181,7 +181,7 @@ class Git15WorkingCopy(GitWorkingCopy):
             raise GitError("git remote of '%s' failed.\n%s" % (name, stderr))
         for remote in stdout.splitlines():
             if remote != '':
-                cmd = self.run_git(["remote", "show", remote], cwd=path)
+                cmd = self.run_git(["remote", "show", "-n", remote], cwd=path)
                 stdout, stderr = cmd.communicate()
                 if cmd.returncode != 0:
                     raise GitError("git remote show %s of '%s' failed.\n%s" % (remote, name, stderr))
