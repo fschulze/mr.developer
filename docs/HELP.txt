@@ -1,7 +1,7 @@
 Commands
 ========
 
-The following is a list of all commands and their options.
+The following is a list of all ``bin/develop`` commands:
 
 activate (a)
 ------------

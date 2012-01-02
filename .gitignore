@@ -3,4 +3,6 @@ build/*
 coverage/*
 develop-eggs/*
 dist/*
+eggs/*
 *.egg-info
+.installed.cfg

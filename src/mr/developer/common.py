@@ -1,6 +1,7 @@
 from ConfigParser import RawConfigParser
 import logging
 import os
+import pkg_resources
 import Queue
 import subprocess
 import sys
@@ -248,11 +249,16 @@ def parse_buildout_args(args):
         debug = False,
     )
     options = []
+    version = pkg_resources.get_distribution("zc.buildout").version
+    if tuple(version.split('.')[:2]) <= ('1', '4'):
+        option_str = 'vqhWUoOnNDA'
+    else:
+        option_str = 'vqhWUoOnNDAs'
     while args:
         if args[0][0] == '-':
             op = orig_op = args.pop(0)
             op = op[1:]
-            while op and op[0] in 'vqhWUoOnNDA':
+            while op and op[0] in option_str:
                 if op[0] == 'v':
                     settings['verbosity'] = settings['verbosity'] + 10
                 elif op[0] == 'q':
@@ -271,6 +277,8 @@ def parse_buildout_args(args):
                     options.append(('buildout', 'newest', 'false'))
                 elif op[0] == 'D':
                     settings['debug'] = True
+                elif op[0] == 's':
+                    settings['ignore_broken_dash_s'] = True
                 else:
                     raise ValueError("Unkown option '%s'." % op[0])
                 op = op[1:]
@@ -289,7 +297,7 @@ def parse_buildout_args(args):
                             raise ValueError("No file name specified for option", orig_op)
                 elif op_ == 't':
                     try:
-                        timeout = int(args.pop(0))
+                        int(args.pop(0))
                     except IndexError:
                         raise ValueError("No timeout value specified for option", orig_op)
                     except ValueError:

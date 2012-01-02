@@ -29,11 +29,18 @@ class Extension(object):
         return WorkingCopies(self.get_sources())
 
     @memoize
-    def get_sources(self):
+    def get_sources_dir(self):
         sources_dir = self.buildout['buildout'].get('sources-dir', 'src')
         if not os.path.isabs(sources_dir):
             sources_dir = os.path.join(self.buildout_dir, sources_dir)
+        if os.path.isdir(self.buildout_dir) and not os.path.isdir(sources_dir):
+            logger.info('Creating missing sources dir %s.' % sources_dir)
+            os.mkdir(sources_dir)
+        return sources_dir
 
+    @memoize
+    def get_sources(self):
+        sources_dir = self.get_sources_dir()
         sources = {}
         sources_section = self.buildout['buildout'].get('sources', 'sources')
         section = self.buildout.get(sources_section, {})
@@ -136,7 +143,8 @@ class Extension(object):
         versions = self.buildout.get(versions_section, {})
         develeggs = {}
         for path in develop.split():
-            head, tail = os.path.split(path)
+            # strip / from end of path
+            head, tail = os.path.split(path.rstrip('/'))
             develeggs[tail] = path
         config_develop = self.get_config().develop
         for name in sources:
@@ -194,7 +202,7 @@ class Extension(object):
         config = self.get_config()
 
         # store arguments when running from buildout
-        if os.path.split(self.executable)[1] == 'buildout':
+        if os.path.split(self.executable)[1] in ('buildout', 'buildout-script.py'):
             config.buildout_args = list(sys.argv)
 
         auto_checkout = self.get_auto_checkout()

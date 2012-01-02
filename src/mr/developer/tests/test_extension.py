@@ -250,6 +250,18 @@ class TestExtensionClass(TestCase):
         })
         self.assertRaises(ValueError, self.extension.get_sources)
 
+    def testDevelopHonored(self):
+        self.buildout['buildout']['develop'] = '/normal/develop ' \
+          '/develop/with/slash/'
+
+        (develop, develeggs, versions) = self.extension.get_develop_info()
+        self.failUnless('/normal/develop' in develop)
+        self.failUnless('/develop/with/slash/' in develop)
+        self.failUnless('slash' in develeggs)
+        self.failUnless('develop' in develeggs)
+        self.assertEqual(develeggs['slash'], '/develop/with/slash/')
+        self.assertEqual(develeggs['develop'], '/normal/develop')
+
 
 class TestExtension(TestCase):
     def setUp(self):
@@ -269,3 +281,25 @@ class TestExtension(TestCase):
         from mr.developer.extension import extension
         extension(self.buildout)
         self.failUnless('.mr.developer.cfg' in os.listdir(self.tempdir))
+
+
+class TestSourcesDir(TestCase):
+    def setUp(self):
+        self.tempdir = tempfile.mkdtemp()
+
+    def test_sources_dir_created(self):
+        buildout = MockBuildout(dict(
+            buildout = {
+                'directory': self.tempdir,
+                'parts': '',
+                'sources-dir': 'develop',
+            },
+            sources={},
+        ))
+        from mr.developer.extension import Extension
+        self.failIf('develop' in os.listdir(self.tempdir))
+        ext = Extension(buildout)
+        ext()
+        self.failUnless('develop' in os.listdir(self.tempdir))
+        self.assertEqual(ext.get_sources_dir(),
+                         os.path.join(self.tempdir, 'develop'))

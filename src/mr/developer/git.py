@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from mr.developer import common
 import os
 import subprocess
@@ -17,20 +19,40 @@ class GitWorkingCopy(common.BaseWorkingCopy):
     git-version dependant
     """
 
+    def __init__(self, source, git_executable):
+        self.git_executable = git_executable
+        if 'rev' in source and 'revision' in source:
+            raise ValueError("The source definition of '%s' contains "
+                             "duplicate revision options." % source['name'])
+        # 'rev' is canonical
+        if 'revision' in source:
+            source['rev'] = source['revision']
+            del source['revision']
+        if 'branch' in source and 'rev' in source:
+            logger.error("Cannot specify both branch (%s) and rev/revision "
+                         "(%s) in source for %s",
+                         source['branch'], source['rev'], source['name'])
+            sys.exit(1)
+        if 'branch' not in source:
+            source['branch'] = 'master'
+        super(GitWorkingCopy, self).__init__(source)
+
+    def run_git(self, commands, **kwargs):
+        commands.insert(0, self.git_executable)
+        kwargs['stdout'] = subprocess.PIPE
+        kwargs['stderr'] = subprocess.PIPE
+        return subprocess.Popen(commands, **kwargs)
+
     def git_merge_rbranch(self, stdout_in, stderr_in):
-        name = self.source['name']
         path = self.source['path']
         branch = self.source['branch']
-        cmd = subprocess.Popen(["git", "merge", "origin/%s" % branch],
-                               cwd=path,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
+        cmd = self.run_git(["merge", "origin/%s" % branch], cwd=path)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise GitError("git merge of remote branch 'origin/%s' failed.\n%s" % (branch, stderr))
         return (stdout_in + stdout,
                 stderr_in + stderr)
-    
+
     def git_checkout(self, **kwargs):
         name = self.source['name']
         path = self.source['path']
@@ -39,43 +61,43 @@ class GitWorkingCopy(common.BaseWorkingCopy):
             self.output((logger.info, "Skipped cloning of existing package '%s'." % name))
             return
         self.output((logger.info, "Cloned '%s' with git." % name))
-        cmd = subprocess.Popen(["git", "clone", "--quiet", url, path],
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
+        # here, but just on 1.6, if a branch was provided we could checkout it
+        # directly via the -b <branchname> option instead of doing a separate
+        # checkout later: I however think it outweighs the benefits
+        cmd = self.run_git(["clone", "--quiet", url, path])
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            raise GitError("git cloning for '%s' failed.\n%s" % (name, stderr))
-        stdout, stderr = self.git_switch_branch(stdout, stderr)
+            raise GitError("git cloning of '%s' failed.\n%s" % (name, stderr))
+        if 'branch' in self.source:
+            stdout, stderr = self.git_switch_branch(stdout, stderr)
         if kwargs.get('verbose', False):
             return stdout
 
     def git_switch_branch(self, stdout_in, stderr_in):
-        name = self.source['name']
         path = self.source['path']
         branch = self.source['branch']
         rbp = self.__class__._remote_branch_prefix
-        cmd = subprocess.Popen(["git", "branch", "-a"],
-                               cwd=path,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
+        cmd = self.run_git(["branch", "-a"], cwd=path)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise GitError("'git branch -a' failed.\n%s" % (branch, stderr))
         stdout_in += stdout
         stderr_in += stderr
-        if re.search("^(\*| ) "+re.escape(branch)+"$", stdout, re.M):
+        if 'rev' in self.source:
+            # A tag or revision was specified instead of a branch
+            argv = ["checkout", self.source['rev']]
+        elif re.search("^(\*| ) " + re.escape(branch) + "$", stdout, re.M):
             # the branch is local, normal checkout will work
-            argv = ["git", "checkout", branch]
-        elif re.search(
-            "^  "+re.escape(rbp)+"\/"+re.escape(branch)+"$", stdout, re.M
-        ):
+            argv = ["checkout", branch]
+        elif re.search("^  " + re.escape(rbp) + "\/" + re.escape(branch)
+                + "$", stdout, re.M):
             # the branch is not local, normal checkout won't work here
-            argv = ["git", "checkout", "-b", branch, "%s/%s" % (rbp, branch)]
+            argv = ["checkout", "-b", branch, "%s/%s" % (rbp, branch)]
+        else:
+            logger.error("No such branch %r", branch)
+            sys.exit(1)
         # runs the checkout with predetermined arguments
-        cmd = subprocess.Popen(argv,
-                               cwd=path,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
+        cmd = self.run_git(argv, cwd=path)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise GitError("git checkout of branch '%s' failed.\n%s" % (branch, stderr))
@@ -86,18 +108,21 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         name = self.source['name']
         path = self.source['path']
         self.output((logger.info, "Updated '%s' with git." % name))
-        # Fetch simply pulls down the packs from the source, but does not
-        # attempt to merge the remote branches (intended as the refs present in
-        # your local repo after the fetch) with the local ones
-        cmd = subprocess.Popen(["git", "fetch"],
-                               cwd=path,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
+        if 'rev' in self.source:
+            # Specific revision, so we only fetch.  Pull is fetch plus
+            # merge, which is not possible here.
+            argv = ["fetch"]
+        else:
+            argv = ["pull"]
+        cmd = self.run_git(argv, cwd=path)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            raise GitError("git pull for '%s' failed.\n%s" % (name, stderr))
-        stdout, stderr = self.git_switch_branch(stdout, stderr)
-        stdout, stderr = self.git_merge_rbranch(stdout, stderr)
+            raise GitError("git pull of '%s' failed.\n%s" % (name, stderr))
+        if 'rev' in self.source:
+            stdout, stderr = self.git_switch_branch(stdout, stderr)
+        elif 'branch' in self.source:
+            stdout, stderr = self.git_switch_branch(stdout, stderr)
+            stdout, stderr = self.git_merge_rbranch(stdout, stderr)
         if kwargs.get('verbose', False):
             return stdout
 
@@ -111,17 +136,13 @@ class GitWorkingCopy(common.BaseWorkingCopy):
             elif self.matches():
                 self.output((logger.info, "Skipped checkout of existing package '%s'." % name))
             else:
-                raise GitError("Checkout URL for existing package '%s' differs. Expected '%s'." % (name, self.source['url']))
+                self.output((logger.warning, "Checkout URL for existing package '%s' differs. Expected '%s'." % (name, self.source['url'])))
         else:
             return self.git_checkout(**kwargs)
 
     def status(self, **kwargs):
-        name = self.source['name']
         path = self.source['path']
-        cmd = subprocess.Popen(["git", "status"],
-                               cwd=path,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
+        cmd = self.run_git(["status"], cwd=path)
         stdout, stderr = cmd.communicate()
         lines = stdout.strip().split('\n')
         if 'nothing to commit (working directory clean)' in lines[-1]:
@@ -135,11 +156,10 @@ class GitWorkingCopy(common.BaseWorkingCopy):
 
     def update(self, **kwargs):
         name = self.source['name']
-        path = self.source['path']
         if not self.matches():
-            raise GitError("Can't update package '%s', because it's URL doesn't match." % name)
+            self.output((logger.warning, "Can't update package '%s' because its URL doesn't match." % name))
         if self.status() != 'clean' and not kwargs.get('force', False):
-            raise GitError("Can't update package '%s', because it's dirty." % name)
+            raise GitError("Can't update package '%s' because it's dirty." % name)
         return self.git_update(**kwargs)
 
 
@@ -155,22 +175,16 @@ class Git15WorkingCopy(GitWorkingCopy):
         # what we do here is first get the list of remotes, then do a
         # remote show <remotename> on each: if one matches we return true,
         # else we return false at the end (early bailout)
-        cmd = subprocess.Popen(["git", "remote"],
-                               cwd=path,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
+        cmd = self.run_git(["remote"], cwd=path)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            raise GitError("git remote for '%s' failed.\n%s" % (name, stderr))
+            raise GitError("git remote of '%s' failed.\n%s" % (name, stderr))
         for remote in stdout.splitlines():
             if remote != '':
-                cmd = subprocess.Popen(["git", "remote", "show", remote],
-                                       cwd=path,
-                                       stdout=subprocess.PIPE,
-                                       stderr=subprocess.PIPE)
+                cmd = self.run_git(["remote", "show", remote], cwd=path)
                 stdout, stderr = cmd.communicate()
                 if cmd.returncode != 0:
-                    raise GitError("git remote show %s for '%s' failed.\n%s" % (remote, name, stderr))
+                    raise GitError("git remote show %s of '%s' failed.\n%s" % (remote, name, stderr))
                 if self.source['url'] in stdout:
                     return True
         return False
@@ -187,16 +201,13 @@ class Git16WorkingCopy(GitWorkingCopy):
         path = self.source['path']
         # This is the old matching code: it does not work on 1.5 due to the
         # lack of the -v switch
-        cmd = subprocess.Popen(["git", "remote", "-v"],
-                               cwd=path,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
+        cmd = self.run_git(["remote", "-v"], cwd=path)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            raise GitError("git remote for '%s' failed.\n%s" % (name, stderr))
+            raise GitError("git remote of '%s' failed.\n%s" % (name, stderr))
         return (self.source['url'] in stdout.split())
 
-    
+
 def gitWorkingCopyFactory(source):
     """This is the factory of git working copy classes: it will determine the
     version of git and load up the one with the correct API. Any returned
@@ -204,15 +215,27 @@ def gitWorkingCopyFactory(source):
     """
     # determines git version as API has been jumping up and down
     # this could also be ran at import time.
-    try:
-        cmd = subprocess.Popen(["git", "--version"],
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
-    except OSError, e:
-        if getattr(e, 'errno', None) == 2:
-            logger.error("Couldn't find 'git' executable in your PATH.")
-            sys.exit(1)
-        raise
+
+    git_executable = None
+    for command in ['git', 'git.cmd']:
+        try:
+            cmd = subprocess.Popen([command],
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+            git_executable = command
+            break
+        except OSError, e:
+            if getattr(e, 'errno', None) == 2:
+                continue
+            else:
+                raise
+    else:
+        logger.error("Couldn't find 'git' executable on your PATH.")
+        sys.exit(1)
+
+    cmd = subprocess.Popen([git_executable, '--version'],
+                           stdout=subprocess.PIPE,
+                           stderr=subprocess.PIPE)
 
     stdout, stderr = cmd.communicate()
     if cmd.returncode != 0:
@@ -243,21 +266,16 @@ def gitWorkingCopyFactory(source):
     else:
         version = (int(version[0]), int(version[1]))
 
-    # git ALWAYS has branches. In case it was omitted in the source line, we
-    # assume "master" is the right branch, coherently with the git model
-    if not 'branch' in source:
-        source['branch'] = 'master'
-        
-    if version < (1,5):
+    if version < (1, 5):
         logger.error(
             "Git version %s is unsupported, please upgrade" % \
                 ".".join([str(v) for v in version])
         )
         sys.exit(1)
-    elif version > (1,5) and version < (1,6):
-        return Git15WorkingCopy(source)
+    elif version > (1, 5) and version < (1, 6):
+        return Git15WorkingCopy(source, git_executable)
     else:
-        return Git16WorkingCopy(source)
+        return Git16WorkingCopy(source, git_executable)
 
 
 common.workingcopytypes['git'] = gitWorkingCopyFactory

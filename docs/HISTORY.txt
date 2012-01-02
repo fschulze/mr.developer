@@ -1,8 +1,88 @@
 Changelog
 =========
 
-1.16 - Unreleased
+1.20 - Unreleased
 -----------------
+
+* In the status command report unknown packages with '?' when no
+  package-regexp has been given.
+  [maurits]
+
+* Added --force option to purge command.  Especially helpful in
+  purging non-subversion packages, which otherwise we refuse to
+  remove.  Fixes issue #71.
+  [maurits]
+
+* Do not depend on `elementtree` if there is `xml.etree` (Python >= 2.5).
+
+
+1.19 - 2011-09-22
+-----------------
+
+* Git: Don't stop buildout after renaming/adding git remotes, i.e. when
+  actively working on a given package.
+  [witsch (Andreas Zeidler)]
+
+* Bugfix: Honhour buildout:develop parameters even if ending with slash.
+  [lukenowak]
+
+* Installation: Check presence of required modules instead of relying on
+  version of python.
+  [lukenowak (Łukasz Nowak)]
+
+1.18 - 2011-08-16
+-----------------
+
+* Mercurial: Added support for branches.
+  [posborne (Paul Osborne)]
+
+* Git: Added support for the Windows msysGit.
+  [canassa (Cesar Canassa)]
+
+* Git: Added ``rev`` option that allows you to use a specific revision
+  (usually a tag) instead of the HEAD.
+  [maurits (Maurits van Rees)]
+
+1.17 - 2011-01-26
+-----------------
+
+* Git: Default to branch ``master`` if no branch is given in the source.
+  [stefan]
+
+* Brush up the README.
+  [stefan]
+
+* Create the sources-dir if it is not present.
+  [janjaapdriessen]
+
+* Only require argparse with Python < 2.7.
+  [dobe]
+
+* Fixed issue #35 using bzr, similar to the fix #28 for hg in last version.
+  [menesis]
+
+* Pass branch to bzr pull.
+  [menesis]
+
+* Add support for darcs.
+  [lelit, azazel]
+
+1.16 - 2010-09-16
+-----------------
+
+* Fix ``NameError: global name 'source' is not defined`` when using gitsvn
+  and running ``status`` command.
+  [markvl]
+
+* Add handling of new ``-s`` command line option of zc.buildout 1.5, this
+  fixes issue #29.
+  [fschulze]
+
+* Don't pass the PYTHONPATH onwards to mercurial, this fixes issue #28
+  [fschulze, Christian Zagrodnick]
+
+* Fix saving buildout options on Windows. Issue #24
+  [fschulze]
 
 * Only warn if the svn version is too old.
   [fschulze]
