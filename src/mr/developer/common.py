@@ -78,42 +78,57 @@ def yesno(question, default=True, all=True):
             print >>sys.stderr, "You have to answer with y, yes, n or no."
 
 
-input_lock = threading.Lock()
-output_lock = threading.Lock()
+main_lock = input_lock = output_lock = threading.RLock()
+
+
+def worker(working_copies, queue):
+    while True:
+        if working_copies.errors:
+            return
+        try:
+            wc, action, kwargs = queue.get_nowait()
+        except Queue.Empty:
+            return
+        try:
+            output = action(**kwargs)
+        except WCError, e:
+            output_lock.acquire()
+            for lvl, msg in wc._output:
+                lvl(msg)
+            for l in e.args[0].split('\n'):
+                logger.error(l)
+            working_copies.errors = True
+            output_lock.release()
+        else:
+            output_lock.acquire()
+            for lvl, msg in wc._output:
+                lvl(msg)
+            if kwargs.get('verbose', False) and output is not None and output.strip():
+                print output
+            output_lock.release()
 
 
 class WorkingCopies(object):
     def __init__(self, sources):
         self.sources = sources
         self.threads = 5
-        self.errors = False
+        self._errors = False
+        self._lock = main_lock
+
+    def _set_errors(self, errors):
+        self._lock.acquire()
+        self._errors = errors
+        self._lock.release()
+
+    def _get_errors(self):
+        self._lock.acquire()
+        errors = self._errors
+        self._lock.release()
+        return errors
+
+    errors = property(_get_errors, _set_errors)
 
     def process(self, queue):
-        def worker():
-            while True:
-                if self.errors:
-                    return
-                try:
-                    wc, action, kwargs = queue.get_nowait()
-                except Queue.Empty:
-                    return
-                try:
-                    output = action(**kwargs)
-                except WCError, e:
-                    output_lock.acquire()
-                    for lvl, msg in wc._output:
-                        lvl(msg)
-                    for l in e.args[0].split('\n'):
-                        logger.error(l)
-                    self.errors = True
-                    output_lock.release()
-                else:
-                    output_lock.acquire()
-                    for lvl, msg in wc._output:
-                        lvl(msg)
-                    if kwargs.get('verbose', False) and output is not None and output.strip():
-                        print output
-                    output_lock.release()
         threads = []
         if sys.version_info < (2, 6):
             # work around a race condition in subprocess
@@ -122,7 +137,7 @@ class WorkingCopies(object):
                 pass
             subprocess._cleanup = _cleanup
         for i in range(self.threads):
-            thread = threading.Thread(target=worker)
+            thread = threading.Thread(target=worker, args=(self, queue))
             thread.start()
             threads.append(thread)
         for thread in threads:
