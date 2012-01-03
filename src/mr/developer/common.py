@@ -78,8 +78,7 @@ def yesno(question, default=True, all=True):
             print >>sys.stderr, "You have to answer with y, yes, n or no."
 
 
-input_lock = threading.Lock()
-output_lock = threading.Lock()
+main_lock = input_lock = output_lock = threading.RLock()
 
 
 def worker(working_copies, queue):
@@ -114,7 +113,7 @@ class WorkingCopies(object):
         self.sources = sources
         self.threads = 5
         self._errors = False
-        self._lock = threading.Lock()
+        self._lock = main_lock
 
     def _set_errors(self, errors):
         self._lock.acquire()
