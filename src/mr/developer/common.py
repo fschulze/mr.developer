@@ -11,6 +11,21 @@ import threading
 logger = logging.getLogger("mr.developer")
 
 
+# shameless copy from
+# http://stackoverflow.com/questions/377017/test-if-executable-exists-in-python
+def which(*names):
+    def is_exe(fpath):
+        return os.path.exists(fpath) and os.access(fpath, os.X_OK)
+
+    for name in names:
+        for path in os.environ["PATH"].split(os.pathsep):
+            exe_file = os.path.join(path, name)
+            if is_exe(exe_file):
+                return exe_file
+
+    return None
+
+
 def memoize(f, _marker=[]):
     def g(*args, **kwargs):
         name = '_memoize_%s' % f.__name__
@@ -112,21 +127,7 @@ class WorkingCopies(object):
     def __init__(self, sources):
         self.sources = sources
         self.threads = 5
-        self._errors = False
-        self._lock = main_lock
-
-    def _set_errors(self, errors):
-        self._lock.acquire()
-        self._errors = errors
-        self._lock.release()
-
-    def _get_errors(self):
-        self._lock.acquire()
-        errors = self._errors
-        self._lock.release()
-        return errors
-
-    errors = property(_get_errors, _set_errors)
+        self.errors = False
 
     def process(self, queue):
         threads = []

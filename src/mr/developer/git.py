@@ -10,30 +10,16 @@ import sys
 logger = common.logger
 
 
-# shameless copy from
-# http://stackoverflow.com/questions/377017/test-if-executable-exists-in-python
-def which(program):
-    def is_exe(fpath):
-        return os.path.exists(fpath) and os.access(fpath, os.X_OK)
-
-    for path in os.environ["PATH"].split(os.pathsep):
-        exe_file = os.path.join(path, program)
-        if is_exe(exe_file):
-            return exe_file
-
-    return None
-
-
 class GitError(common.WCError):
     pass
 
 
 class GitWorkingCopy(common.BaseWorkingCopy):
-    """The git working copy base class, it holds methods that are not
-    git-version dependant
+    """The git working copy.
+
+    Now supports git 1.5 and 1.6+ in a single codebase.
     """
 
-    _remote_branch_prefix = "remotes/origin"
     # TODO: make this configurable? It might not make sense however, as we
     # should make master and a lot of other conventional stuff configurable
     _upstream_name = "origin"
@@ -41,12 +27,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
     _executable_names = ['git', 'git.cmd']
 
     def __init__(self, source):
-        self.git_executable = None
-        for program in self._executable_names:
-            fullpath = which(program)
-            if fullpath is not None:
-                self.git_executable = fullpath
-                break
+        self.git_executable = common.which(*self._executable_names)
         if self.git_executable is None:
             logger.error("Cannot find git executable in PATH")
             sys.exit(1)
@@ -66,10 +47,60 @@ class GitWorkingCopy(common.BaseWorkingCopy):
             source['branch'] = 'master'
         super(GitWorkingCopy, self).__init__(source)
 
+    @common.memoize
+    def git_version(self):
+        cmd = self.run_git(['--version'])
+        stdout, stderr = cmd.communicate()
+        if cmd.returncode != 0:
+            logger.error("Could not determine git version")
+            logger.error("'git --version' output was:\n%s\n%s" % (stdout, stderr))
+            sys.exit(1)
+
+        m = re.search("git version (\d+)\.(\d+)(\.\d+)?(\.\d+)?", stdout)
+        if m is None:
+            logger.error("Unable to parse git version output")
+            logger.error("'git --version' output was:\n%s\n%s" % (stdout, stderr))
+            sys.exit(1)
+        version = m.groups()
+
+        if version[3] is not None:
+            version = (
+                int(version[0]),
+                int(version[1]),
+                int(version[2][1:]),
+                int(version[3][1:])
+            )
+        elif version[2] is not None:
+            version = (
+                int(version[0]),
+                int(version[1]),
+                int(version[2][1:])
+            )
+        else:
+            version = (int(version[0]), int(version[1]))
+        if version < (1, 5):
+            logger.error(
+                "Git version %s is unsupported, please upgrade" % \
+                    ".".join([str(v) for v in version])
+            )
+            sys.exit(1)
+        return version
+
+    @property
+    def _remote_branch_prefix(self):
+        version = self.git_version()
+        if version < (1, 6):
+            return self._upstream_name
+        else:
+            return 'remotes/%s' % self._upstream_name
+
     def run_git(self, commands, **kwargs):
         commands.insert(0, self.git_executable)
         kwargs['stdout'] = subprocess.PIPE
         kwargs['stderr'] = subprocess.PIPE
+        # This should ease things up when multiple processes are trying to send
+        # back to the main one large chunks of output
+        kwargs['bufsize'] = -1
         return subprocess.Popen(commands, **kwargs)
 
     def git_merge_rbranch(self, stdout_in, stderr_in):
