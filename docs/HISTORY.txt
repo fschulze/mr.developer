@@ -4,6 +4,12 @@ Changelog
 1.20 - Unreleased
 -----------------
 
+* Refactored thread locking.
+  [shywolf9982]
+
+* Refactored search for git executable and version handling.
+  [shywolf9982]
+
 * In the status command report unknown packages with '?' when no
   package-regexp has been given.
   [maurits]
