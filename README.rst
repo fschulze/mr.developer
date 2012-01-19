@@ -118,6 +118,9 @@ Common options
   The ``branch`` option allows you to use a specific branch instead of
   default.
 
+  The ``rev`` option allows you to force a specific revision
+  (hash, tag, branch) to be checked out after buildout
+  
 ``bzr``
   Currently no additional options.
 
