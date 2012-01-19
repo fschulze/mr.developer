@@ -30,6 +30,9 @@ Changelog
   version of python.
   [lukenowak (Łukasz Nowak)]
 
+* Fix encoding error when checking out files via SVN that don't match
+  our locale [rochecompaan (Roché Compaan)]
+
 1.18 - 2011-08-16
 -----------------
 
