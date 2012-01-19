@@ -163,9 +163,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
         args[2:2] = ["--no-auth-cache"]
         interactive_args = args[:]
         args[2:2] = ["--non-interactive"]
-        env = dict(os.environ)
-        env['LC_ALL'] = 'C'
-        cmd = subprocess.Popen(args, env=env,
+        cmd = subprocess.Popen(args,
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
@@ -174,7 +172,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
             if 'authorization failed' in lines[-1]:
                 raise SVNAuthorizationError(stderr.strip())
             if 'Server certificate verification failed: issuer is not trusted' in lines[-1]:
-                cmd = subprocess.Popen(interactive_args, env=env,
+                cmd = subprocess.Popen(interactive_args,
                                        stdin=subprocess.PIPE,
                                        stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE)

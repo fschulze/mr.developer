@@ -21,6 +21,9 @@ Changelog
 
 * Do not depend on `elementtree` if there is `xml.etree` (Python >= 2.5).
 
+* Don't set locale anymore when calling ``svn``. This may break if the output
+  is localized instead of english, I couldn't reproduce that anymore though.
+  [fschulze, rochecompaan (Roché Compaan)]
 
 1.19 - 2011-09-22
 -----------------
