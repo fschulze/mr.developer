@@ -73,6 +73,10 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
             env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
+            # hg v2.1 pull returns non-zero return code in case of
+            # no remote changes.
+            if 'no changes found' in stdout:
+                pass
             raise MercurialError(
                 'hg pull for %r failed.\n%s' % (name, stderr))
         if rev:
