@@ -1,8 +1,8 @@
 Changelog
 =========
 
-1.19md (2012-02-07)
--------------------
+1.20 - Unreleased
+-----------------
 
 * Refactored thread locking.
   [shywolf9982]
