@@ -25,6 +25,9 @@ Changelog
   is localized instead of english, I couldn't reproduce that anymore though.
   [fschulze, rochecompaan (Roché Compaan)]
 
+* Fix compatibility with mercurial v2.1
+  [janjaapdriessen (Jan-Jaap Driessen)].
+
 1.19 - 2011-09-22
 -----------------
 
