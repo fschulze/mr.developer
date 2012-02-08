@@ -75,10 +75,9 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         if cmd.returncode != 0:
             # hg v2.1 pull returns non-zero return code in case of
             # no remote changes.
-            if 'no changes found' in stdout:
-                pass
-            raise MercurialError(
-                'hg pull for %r failed.\n%s' % (name, stderr))
+            if 'no changes found' not in stdout:
+                raise MercurialError(
+                    'hg pull for %r failed.\n%s' % (name, stderr))
         if rev:
             stdout += self._update_to_rev(rev)
         if kwargs.get('verbose', False):
