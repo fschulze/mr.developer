@@ -112,6 +112,9 @@ Common options
   The ``rev`` option allows you to use a specific revision (usually a
   tag) instead of the HEAD.
 
+  The ``pushurl`` options allows you to explicitly separate push url from pull
+  url, configured by git config.
+
   Note that the ``branch`` and ``rev`` option are mutually exclusive.
 
 ``hg``
