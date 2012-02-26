@@ -1,11 +1,11 @@
 Changelog
 =========
 
-1.20 - Unreleased
+1.20 - 2012-02-26
 -----------------
 
 * Git: Added ``pushurl`` option
-  [iElectric]
+  [iElectric (Domen Kožar)]
 
 * Refactored thread locking.
   [shywolf9982]
