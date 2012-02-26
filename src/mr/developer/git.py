@@ -131,6 +131,8 @@ class GitWorkingCopy(common.BaseWorkingCopy):
             raise GitError("git cloning of '%s' failed.\n%s" % (name, stderr))
         if 'branch' in self.source:
             stdout, stderr = self.git_switch_branch(stdout, stderr)
+        if 'pushurl' in self.source:
+            stdout, stderr = self.git_set_pushurl(stdout, stderr)
         if kwargs.get('verbose', False):
             return stdout
 
@@ -235,5 +237,16 @@ class GitWorkingCopy(common.BaseWorkingCopy):
             raise GitError("Can't update package '%s' because it's dirty." % name)
         return self.git_update(**kwargs)
 
+    def git_set_pushurl(self, stdout_in, stderr_in):
+        cmd = self.run_git([
+                "config",
+                "remote.%s.pushurl" % self._upstream_name,
+                self.source['pushurl'],
+            ], cwd=self.source['path'])
+        stdout, stderr = cmd.communicate()
+
+        if cmd.returncode != 0:
+            raise GitError("git config remote.%s.pushurl %s \nfailed.\n" % (self._upstream_name, self.source['pushurl']))
+        return (stdout_in + stdout, stderr_in + stderr)
 
 common.workingcopytypes['git'] = GitWorkingCopy
