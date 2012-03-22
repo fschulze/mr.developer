@@ -4,6 +4,10 @@ Changelog
 1.21 - Unreleased
 -----------------
 
+* Read a per user config file from ~/.buildout/mr.developer.cfg in addition to
+  the regular .mr.developer.cfg in the current buildout base.
+  [fschulze]
+
 * Python 3 support by using 2to3.
   [mitchellrj (Richard Mitchell)]
 

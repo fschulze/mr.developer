@@ -338,10 +338,12 @@ def parse_buildout_args(args):
 
 class Config(object):
     def __init__(self, buildout_dir):
+        self.global_cfg_path = os.path.expanduser(
+            os.path.join('~', '.buildout', 'mr.developer.cfg'))
         self.cfg_path = os.path.join(buildout_dir, '.mr.developer.cfg')
         self._config = RawConfigParser()
         self._config.optionxform = lambda s: s
-        self._config.read(self.cfg_path)
+        self._config.read((self.global_cfg_path, self.cfg_path))
         self.develop = {}
         self.buildout_args = []
         self.rewrites = []
