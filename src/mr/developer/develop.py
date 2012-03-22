@@ -16,6 +16,8 @@ import textwrap
 
 
 def find_base():
+    if 'MRDEVELOPER_BASE' in os.environ:
+        return os.environ['MRDEVELOPER_BASE']
     path = os.getcwd()
     while path:
         if os.path.exists(os.path.join(path, '.mr.developer.cfg')):
