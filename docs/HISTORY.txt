@@ -4,6 +4,10 @@ Changelog
 1.21 - Unreleased
 -----------------
 
+* Added ``threads`` option to ``[mr.developer]`` section to set number of
+  threads used for running checkouts.
+  [fschulze]
+
 * Read a per user config file from ~/.buildout/mr.developer.cfg in addition to
   the regular .mr.developer.cfg in the current buildout base.
   [fschulze]

@@ -63,6 +63,9 @@ class Command(object):
     def __init__(self, develop):
         self.develop = develop
 
+    def get_workingcopies(self, sources):
+        return WorkingCopies(sources, threads=self.develop.config.threads)
+
     @memoize
     def get_packages(self, args, auto_checkout=False,
                      develop=False, checked_out=False):
@@ -166,7 +169,7 @@ class CmdCheckout(Command):
         packages = self.get_packages(getattr(args, 'package-regexp'),
                                      auto_checkout=args.auto_checkout)
         try:
-            workingcopies = WorkingCopies(self.develop.sources)
+            workingcopies = self.get_workingcopies(self.develop.sources)
             workingcopies.checkout(sorted(packages),
                                    verbose=args.verbose,
                                    always_accept_server_certificate=self.develop.always_accept_server_certificate)
@@ -400,7 +403,7 @@ class CmdList(Command):
                                      auto_checkout=args.auto_checkout,
                                      checked_out=args.checked_out,
                                      develop=args.develop)
-        workingcopies = WorkingCopies(sources)
+        workingcopies = self.get_workingcopies(sources)
         for name in sorted(packages):
             source = sources[name]
             if args.status:
@@ -496,7 +499,7 @@ class CmdPurge(Command):
         packages = packages - set(self.develop.develeggs)
         force = args.force
         force_all = False
-        workingcopies = WorkingCopies(self.develop.sources)
+        workingcopies = self.get_workingcopies(self.develop.sources)
         if args.dry_run:
             logger.info("Dry run, nothing will be removed.")
         for name in packages:
@@ -650,7 +653,7 @@ class CmdStatus(Command):
                                      auto_checkout=args.auto_checkout,
                                      checked_out=args.checked_out,
                                      develop=args.develop)
-        workingcopies = WorkingCopies(self.develop.sources)
+        workingcopies = self.get_workingcopies(self.develop.sources)
         paths = []
         for name in sorted(packages):
             source = self.develop.sources[name]
@@ -741,7 +744,7 @@ class CmdUpdate(Command):
                                      auto_checkout=args.auto_checkout,
                                      checked_out=True,
                                      develop=args.develop)
-        workingcopies = WorkingCopies(self.develop.sources)
+        workingcopies = self.get_workingcopies(self.develop.sources)
         force = args.force or self.develop.always_checkout
         workingcopies.update(sorted(packages),
                              force=force,

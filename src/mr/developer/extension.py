@@ -26,7 +26,9 @@ class Extension(object):
         return Config(self.buildout_dir)
 
     def get_workingcopies(self):
-        return WorkingCopies(self.get_sources())
+        return WorkingCopies(
+            self.get_sources(),
+            threads=self.get_config().threads)
 
     @memoize
     def get_sources_dir(self):

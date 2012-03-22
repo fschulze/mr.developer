@@ -197,3 +197,12 @@ Mercurial reports mismatching URL
 This happens if you use lp:// URLs from launchpad. The problem is, that hg
 reports the actual URL, not the lp shortcut.
 
+Lockups during checkouts and updates
+------------------------------------
+
+Especially on multicore machines, there is an issue that you can get lockups
+because of the parallel checkouts. You can configure the number of threads used
+for this in ``.mr.developer.cfg`` in the buildout root of your project or
+globally in ``~/.buildout/mr.developer.cfg`` through the ``threads`` option
+in the ``[mr.developer]`` section. Setting it to ``1`` should fix these issues,
+but this disables parallel checkouts and makes the process a bit slower.

@@ -124,9 +124,9 @@ def worker(working_copies, queue):
 
 
 class WorkingCopies(object):
-    def __init__(self, sources):
+    def __init__(self, sources, threads=5):
         self.sources = sources
-        self.threads = 5
+        self.threads = threads
         self.errors = False
 
     def process(self, queue):
@@ -347,6 +347,7 @@ class Config(object):
         self.develop = {}
         self.buildout_args = []
         self.rewrites = []
+        self.threads = 5
         if self._config.has_section('develop'):
             for package, value in self._config.items('develop'):
                 value = value.lower()
@@ -372,6 +373,17 @@ class Config(object):
         if self._config.has_option('mr.developer', 'rewrites'):
             for rewrite in self._config.get('mr.developer', 'rewrites').split('\n'):
                 self.rewrites.append(rewrite.split())
+        if self._config.has_option('mr.developer', 'threads'):
+            try:
+                threads = int(self._config.get('mr.developer', 'threads'))
+                if threads < 1:
+                    raise ValueError
+                self.threads = threads
+            except ValueError:
+                logger.warning(
+                    "Invalid value '%s' for 'threads' option, must be a positive number. Using default value of %s.",
+                    self._config.get('mr.developer', 'threads'),
+                    self.threads)
 
     def save(self):
         self._config.remove_section('develop')
