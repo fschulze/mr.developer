@@ -18,6 +18,10 @@ try:
 except ImportError:
     install_requires.append('argparse')
 
+extra = {}
+if sys.version_info >= (3,):
+    extra['use_2to3'] = True
+
 setup(name='mr.developer',
       version=version,
       description="A zc.buildout extension to ease the development of large projects with lots of packages.",
@@ -48,4 +52,5 @@ setup(name='mr.developer',
       [zc.buildout.extension]
       default = mr.developer.extension:extension
       """,
+      **extra
       )
