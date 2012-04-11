@@ -26,6 +26,8 @@ class FilesystemWorkingCopy(common.BaseWorkingCopy):
         return os.path.split(self.source['path'])[1] == self.source['url']
 
     def status(self, **kwargs):
+        if kwargs.get('verbose', False):
+            return 'clean', ''
         return 'clean'
 
     def update(self, **kwargs):
