@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.21 - Unreleased
+1.21 - 2012-04-11
 -----------------
 
 * Added ``threads`` option to ``[mr.developer]`` section to set number of
