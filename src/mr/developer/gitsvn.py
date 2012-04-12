@@ -53,6 +53,8 @@ class GitSVNWorkingCopy(SVNWorkingCopy):
         if svn_status == 'clean':
             return common.workingcopytypes['git'](self.source).status(**kwargs)
         else:
+            if kwargs.get('verbose', False):
+                return svn_status, ''
             return svn_status
 
 common.workingcopytypes['gitsvn'] = GitSVNWorkingCopy
