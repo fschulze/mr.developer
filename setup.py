@@ -6,6 +6,7 @@ version = '1.22'
 install_requires = [
   'setuptools',
   'zc.buildout',
+  'threadframe'
 ]
 
 try:

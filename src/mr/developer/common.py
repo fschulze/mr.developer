@@ -6,6 +6,22 @@ import Queue
 import subprocess
 import sys
 import threading
+import signal
+import time
+import threadframe
+import traceback
+
+
+def signal_handler(signum, frame):
+    print >> sys.stderr, "Trying to dump threads"
+    f = open('threads-dump.txt', 'wa')
+    print >> f, time.strftime("%Y-%m-%d %H:%M:%S")
+    frames = threadframe.dict()
+    for thread_id, frame in frames.iteritems():
+        print >> f, '-' * 72
+        print >> f, '[%s] %d' % (thread_id, sys.getrefcount(frame))
+        traceback.print_stack(frame, file=f)
+    f.close()
 
 
 logger = logging.getLogger("mr.developer")
@@ -128,6 +144,7 @@ class WorkingCopies(object):
         self.sources = sources
         self.threads = threads
         self.errors = False
+        signal.signal(signal.SIGUSR1, signal_handler)
 
     def process(self, queue):
         threads = []
