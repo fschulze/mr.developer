@@ -9,6 +9,11 @@ import sys
 
 logger = common.logger
 
+if sys.version_info < (3, 0):
+    b = lambda x: x
+else:
+    b = lambda x: x.encode('ascii')
+
 
 class GitError(common.WCError):
     pass
@@ -207,8 +212,8 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         path = self.source['path']
         cmd = self.run_git(["status"], cwd=path)
         stdout, stderr = cmd.communicate()
-        lines = stdout.strip().split('\n')
-        if 'nothing to commit (working directory clean)' in lines[-1]:
+        lines = stdout.strip().split(b('\n'))
+        if b('nothing to commit (working directory clean)') in lines[-1]:
             status = 'clean'
         else:
             status = 'dirty'
