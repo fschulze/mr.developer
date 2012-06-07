@@ -96,12 +96,12 @@ def yesno(question, default=True, all=True):
 main_lock = input_lock = output_lock = threading.RLock()
 
 
-def worker(working_copies, queue):
+def worker(working_copies, the_queue):
     while True:
         if working_copies.errors:
             return
         try:
-            wc, action, kwargs = queue.get_nowait()
+            wc, action, kwargs = the_queue.get_nowait()
         except Queue.Empty:
             return
         try:
@@ -129,7 +129,7 @@ class WorkingCopies(object):
         self.threads = threads
         self.errors = False
 
-    def process(self, queue):
+    def process(self, the_queue):
         threads = []
         if sys.version_info < (2, 6):
             # work around a race condition in subprocess
@@ -138,7 +138,7 @@ class WorkingCopies(object):
                 pass
             subprocess._cleanup = _cleanup
         for i in range(self.threads):
-            thread = threading.Thread(target=worker, args=(self, queue))
+            thread = threading.Thread(target=worker, args=(self, the_queue))
             thread.start()
             threads.append(thread)
         for thread in threads:
@@ -151,7 +151,7 @@ class WorkingCopies(object):
             sys.exit(1)
 
     def checkout(self, packages, **kwargs):
-        queue = Queue.Queue()
+        the_queue = Queue.Queue()
         if 'update' in kwargs:
             if isinstance(kwargs['update'], bool):
                 pass
@@ -189,8 +189,8 @@ class WorkingCopies(object):
                     logger.info("Skipped update of '%s'." % name)
                     continue
             logger.info("Queued '%s' for checkout.", name)
-            queue.put_nowait((wc, wc.checkout, kw))
-        self.process(queue)
+            the_queue.put_nowait((wc, wc.checkout, kw))
+        self.process(the_queue)
 
     def matches(self, source):
         name = source['name']
@@ -229,7 +229,7 @@ class WorkingCopies(object):
             sys.exit(1)
 
     def update(self, packages, **kwargs):
-        queue = Queue.Queue()
+        the_queue = Queue.Queue()
         for name in packages:
             kw = kwargs.copy()
             if name not in self.sources:
@@ -251,8 +251,8 @@ class WorkingCopies(object):
                     logger.info("Skipped update of '%s'." % name)
                     continue
             logger.info("Queued '%s' for update.", name)
-            queue.put_nowait((wc, wc.update, kw))
-        self.process(queue)
+            the_queue.put_nowait((wc, wc.update, kw))
+        self.process(the_queue)
 
 
 def parse_buildout_args(args):
