@@ -61,7 +61,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
             logger.error("'git --version' output was:\n%s\n%s" % (stdout, stderr))
             sys.exit(1)
 
-        m = re.search("git version (\d+)\.(\d+)(\.\d+)?(\.\d+)?", stdout)
+        m = re.search(b("git version (\d+)\.(\d+)(\.\d+)?(\.\d+)?"), stdout)
         if m is None:
             logger.error("Unable to parse git version output")
             logger.error("'git --version' output was:\n%s\n%s" % (stdout, stderr))
@@ -154,7 +154,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         if 'rev' in self.source:
             # A tag or revision was specified instead of a branch
             argv = ["checkout", self.source['rev']]
-        elif re.search("^(\*| ) " + re.escape(branch) + "$", stdout, re.M):
+        elif re.search(b("^(\*| ) %s$" % re.escape(branch)), stdout, re.M):
             # the branch is local, normal checkout will work
             argv = ["checkout", branch]
         elif re.search("^  " + re.escape(rbp) + "\/" + re.escape(branch)
