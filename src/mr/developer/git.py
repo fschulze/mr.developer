@@ -29,7 +29,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
     # should make master and a lot of other conventional stuff configurable
     _upstream_name = "origin"
 
-    _executable_names = ['git', 'git.cmd']
+    _executable_names = ['git', 'git.cmd', 'git.exe']
 
     def __init__(self, source):
         self.git_executable = common.which(*self._executable_names)
