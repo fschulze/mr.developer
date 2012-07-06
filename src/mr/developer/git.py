@@ -29,10 +29,8 @@ class GitWorkingCopy(common.BaseWorkingCopy):
     # should make master and a lot of other conventional stuff configurable
     _upstream_name = "origin"
 
-    _executable_names = ['git', 'git.cmd']
-
     def __init__(self, source):
-        self.git_executable = common.which(*self._executable_names)
+        self.git_executable = common.which('git')
         if self.git_executable is None:
             logger.error("Cannot find git executable in PATH")
             sys.exit(1)
