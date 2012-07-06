@@ -10,6 +10,9 @@ Changelog
 * Fixed some exceptions occurring when using with Python 3.
   [icemac]
 
+* On Windows, use the PATHEXT environment variable to find the git executable.
+  [kleist]
+
 1.21 - 2012-04-11
 -----------------
 

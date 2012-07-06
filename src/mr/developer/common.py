@@ -2,6 +2,7 @@ from ConfigParser import RawConfigParser
 import logging
 import os
 import pkg_resources
+import platform
 import Queue
 import subprocess
 import sys
@@ -13,9 +14,17 @@ logger = logging.getLogger("mr.developer")
 
 # shameless copy from
 # http://stackoverflow.com/questions/377017/test-if-executable-exists-in-python
-def which(*names):
+def which(name_root):
     def is_exe(fpath):
         return os.path.exists(fpath) and os.access(fpath, os.X_OK)
+
+    if platform.system() == 'Windows':
+        # http://www.voidspace.org.uk/python/articles/command_line.shtml#pathext
+        pathext = os.environ['PATHEXT']
+        # example: ['.py', '.pyc', '.pyo', '.pyw', '.COM', '.EXE', '.BAT', '.CMD']
+        names = [name_root + ext for ext in pathext.split(';')]
+    else:
+        names = name_root
 
     for name in names:
         for path in os.environ["PATH"].split(os.pathsep):
