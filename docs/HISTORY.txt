@@ -242,7 +242,7 @@ Changelog
   [fschulze]
 
 * Fix purging on windows.
-  [kleist]
+  [kleist (Karl Johan Kleist)]
 
 * Fix compatibility with Python < 2.6.
   [fschulze, vincentfretin]
@@ -293,7 +293,7 @@ Changelog
   [fschulze]
 
 * Added support for Concurrent Versions System (CVS).
-  [sargo]
+  [sargo (Wojciech Lichota)]
 
 1.5 - 2009-11-19
 ----------------
