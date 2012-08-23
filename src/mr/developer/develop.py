@@ -466,13 +466,16 @@ class CmdPony(Command):
 class CmdPurge(Command):
     def __init__(self, develop):
         Command.__init__(self, develop)
+        description = textwrap.dedent("""\
+            Remove checked out packages which aren't active anymore.
+
+            Only 'svn' packages can be purged, because other repositories may contain unrecoverable files even when not marked as 'dirty'.""")
         self.parser=self.develop.parsers.add_parser(
             "purge",
             formatter_class=HelpFormatter,
-            description=textwrap.dedent("""\
-                Remove checked out packages which aren't active anymore.
-
-                Only 'svn' packages can be purged, because other repositories may contain unrecoverable files even when not marked as 'dirty'."""))
+            description=description)
+        self.develop.parsers._choices_actions.append(ChoicesPseudoAction(
+            "purge", help=description))
         self.parser.add_argument("-n", "--dry-run", dest="dry_run",
                                action="store_true", default=False,
                                help="""Don't actually remove anything, just print the paths which would be removed.""")
