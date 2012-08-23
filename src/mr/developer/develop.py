@@ -245,12 +245,27 @@ class CmdHelp(Command):
         self.parser.add_argument("--rst", dest="rst",
                                action="store_true", default=False,
                                help="""Print help for all commands in reStructuredText format.""")
+        self.parser.add_argument('-z', '--zsh',
+                            action='store_true',
+                            help="Print info for zsh autocompletion")
         self.parser.add_argument("command", nargs="?", help="The command you want to see the help of.")
         self.parser.set_defaults(func=self)
 
     def __call__(self, args):
         develop = self.develop
         choices = develop.parsers.choices
+        if args.zsh:
+            choices = [x for x in choices if x != 'pony']
+            if args.command is None:
+                print "\n".join(choices)
+            else:
+                if args.command == 'help':
+                    print "\n".join(choices)
+                elif args.command in ('purge', 'up', 'update'):
+                    print "\n".join(self.get_packages(None, checked_out=True))
+                elif args.command not in ('pony', 'rebuild'):
+                    print "\n".join(self.get_packages(None))
+            return
         if args.command in choices:
             print choices[args.command].format_help()
             return
