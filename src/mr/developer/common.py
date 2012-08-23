@@ -17,6 +17,14 @@ logger = logging.getLogger("mr.developer")
 def which(name_root):
     def is_exe(fpath):
         return os.path.exists(fpath) and os.access(fpath, os.X_OK)
+        
+    if platform.system() == 'Windows':
+        # http://www.voidspace.org.uk/python/articles/command_line.shtml#pathext
+        pathext = os.environ['PATHEXT']
+        # example: ['.py', '.pyc', '.pyo', '.pyw', '.COM', '.EXE', '.BAT', '.CMD']
+        names = [name_root + ext for ext in pathext.split(';')]
+    else:
+        names = name_root
 
     if platform.system() == 'Windows':
         # http://www.voidspace.org.uk/python/articles/command_line.shtml#pathext
