@@ -152,5 +152,3 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
             raise CVSError(
                 "Can't update package %r, because it's dirty." % name)
         return self.cvs_command('update', **kwargs)
-
-common.workingcopytypes['cvs'] = CVSWorkingCopy

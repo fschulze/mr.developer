@@ -345,5 +345,3 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
         if status != 'clean' and not force:
             raise SVNError("Can't update package '%s' because it's dirty." % name)
         return self.svn_update(**kwargs)
-
-common.workingcopytypes['svn'] = SVNWorkingCopy

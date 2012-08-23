@@ -1,4 +1,4 @@
-from mr.developer.common import memoize, WorkingCopies, Config, workingcopytypes
+from mr.developer.common import memoize, WorkingCopies, Config, get_workingcopytypes
 import logging
 import os
 import re
@@ -46,6 +46,7 @@ class Extension(object):
         sources = {}
         sources_section = self.buildout['buildout'].get('sources', 'sources')
         section = self.buildout.get(sources_section, {})
+        workingcopytypes = get_workingcopytypes()
         for name in section:
             info = section[name].split()
             options = []

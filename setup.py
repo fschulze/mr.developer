@@ -41,7 +41,7 @@ setup(name='mr.developer',
       license='BSD',
       packages=['mr', 'mr.developer'],
       package_dir = {'': 'src'},
-      namespace_packages=['mr'],
+      namespace_packages=['mr', 'mr.developer'],
       include_package_data=True,
       zip_safe=False,
       install_requires=install_requires,
@@ -51,6 +51,15 @@ setup(name='mr.developer',
       develop = mr.developer.develop:develop
       [zc.buildout.extension]
       default = mr.developer.extension:extension
+      [mr.developer.workingcopytypes]
+      svn = mr.developer.svn:SVNWorkingCopy
+      git = mr.developer.git:GitWorkingCopy
+      gitsvn = mr.developer.gitsvn:GitSVNWorkingCopy
+      hg = mr.developer.mercurial:MercurialWorkingCopy
+      bzr = mr.developer.bazaar:BazaarWorkingCopy
+      fs = mr.developer.filesystem:FilesystemWorkingCopy
+      cvs = mr.developer.cvs:CVSWorkingCopy
+      darcs = mr.developer.darcs:DarcsWorkingCopy
       """,
       **extra
       )

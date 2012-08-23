@@ -4,6 +4,10 @@ Changelog
 1.22 - Unreleased
 -----------------
 
+* Use entry points to allow adding and overwriting working copy types via
+  addon packages.
+  [fschulze]
+
 * Fixed ValueError in verbose status for filesystem and gitsvn sources.
   [maurits]
 

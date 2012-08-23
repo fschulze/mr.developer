@@ -38,5 +38,3 @@ class FilesystemWorkingCopy(common.BaseWorkingCopy):
                 'Expected %r.' % (name, self.source['url']))
         self.output((logger.info, 'Filesystem package %r doesn\'t need update.' % name))
         return ''
-
-common.workingcopytypes['fs'] = FilesystemWorkingCopy

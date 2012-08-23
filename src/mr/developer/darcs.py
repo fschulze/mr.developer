@@ -110,5 +110,3 @@ class DarcsWorkingCopy(common.BaseWorkingCopy):
         if self.status() != 'clean' and not kwargs.get('force', False):
             raise DarcsError("Can't update package '%s' because it's dirty." % name)
         return self.darcs_update(**kwargs)
-
-common.workingcopytypes['darcs'] = DarcsWorkingCopy

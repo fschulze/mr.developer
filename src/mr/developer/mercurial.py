@@ -138,5 +138,3 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
             raise MercurialError(
                 "Can't update package %r because it's dirty." % name)
         return self.hg_pull(**kwargs)
-
-common.workingcopytypes['hg'] = MercurialWorkingCopy

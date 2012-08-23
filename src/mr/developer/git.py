@@ -251,5 +251,3 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         if cmd.returncode != 0:
             raise GitError("git config remote.%s.pushurl %s \nfailed.\n" % (self._upstream_name, self.source['pushurl']))
         return (stdout_in + stdout, stderr_in + stderr)
-
-common.workingcopytypes['git'] = GitWorkingCopy

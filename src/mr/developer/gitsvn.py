@@ -56,5 +56,3 @@ class GitSVNWorkingCopy(SVNWorkingCopy):
             if kwargs.get('verbose', False):
                 return svn_status, ''
             return svn_status
-
-common.workingcopytypes['gitsvn'] = GitSVNWorkingCopy

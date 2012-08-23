@@ -50,8 +50,6 @@ class WCError(Exception):
     """ A working copy error. """
 
 
-workingcopytypes = {}
-
 class BaseWorkingCopy(object):
     def __init__(self, source):
         self._output = []
@@ -132,11 +130,37 @@ def worker(working_copies, the_queue):
             output_lock.release()
 
 
+_workingcopytypes = None
+
+
+def get_workingcopytypes():
+    global _workingcopytypes
+    if _workingcopytypes is not None:
+        return _workingcopytypes
+    group = 'mr.developer.workingcopytypes'
+    _workingcopytypes = {}
+    addons = {}
+    for entrypoint in pkg_resources.iter_entry_points(group=group):
+        key = entrypoint.name
+        workingcopytype = entrypoint.load()
+        if entrypoint.dist.project_name == 'mr.developer':
+            _workingcopytypes[key] = workingcopytype
+        else:
+            if key in addons:
+                logger.error("There already is a working copy type addon registered for '%s'.", key)
+                sys.exit(1)
+            logger.info("Overwriting '%s' with addon from '%s'.", key, entrypoint.dist.project_name)
+            addons[key] = workingcopytype
+    _workingcopytypes.update(addons)
+    return _workingcopytypes
+
+
 class WorkingCopies(object):
     def __init__(self, sources, threads=5):
         self.sources = sources
         self.threads = threads
         self.errors = False
+        self.workingcopytypes = get_workingcopytypes()
 
     def process(self, the_queue):
         threads = []
@@ -180,7 +204,7 @@ class WorkingCopies(object):
                 sys.exit(1)
             source = self.sources[name]
             kind = source['kind']
-            wc = workingcopytypes.get(kind)(source)
+            wc = self.workingcopytypes.get(kind)(source)
             if wc is None:
                 logger.error("Unknown repository type '%s'." % kind)
                 sys.exit(1)
@@ -209,7 +233,7 @@ class WorkingCopies(object):
         source = self.sources[name]
         try:
             kind = source['kind']
-            wc = workingcopytypes.get(kind)(source)
+            wc = self.workingcopytypes.get(kind)(source)
             if wc is None:
                 logger.error("Unknown repository type '%s'." % kind)
                 sys.exit(1)
@@ -227,7 +251,7 @@ class WorkingCopies(object):
         source = self.sources[name]
         try:
             kind = source['kind']
-            wc = workingcopytypes.get(kind)(source)
+            wc = self.workingcopytypes.get(kind)(source)
             if wc is None:
                 logger.error("Unknown repository type '%s'." % kind)
                 sys.exit(1)
@@ -245,7 +269,7 @@ class WorkingCopies(object):
                 continue
             source = self.sources[name]
             kind = source['kind']
-            wc = workingcopytypes.get(kind)(source)
+            wc = self.workingcopytypes.get(kind)(source)
             if wc is None:
                 logger.error("Unknown repository type '%s'." % kind)
                 sys.exit(1)
