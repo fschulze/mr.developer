@@ -1,7 +1,7 @@
 Commands
 ========
 
-The following is a list of all ``bin/develop`` commands:
+The following is a list of all commands and their options.
 
 activate (a)
 ------------
@@ -81,7 +81,7 @@ help (h)
 
 ::
 
-    usage: develop help [-h] [--rst] [command]
+    usage: develop help [-h] [--rst] [-z] [command]
     
     Show help on the given command or about the whole script if none given.
     
@@ -91,6 +91,7 @@ help (h)
     optional arguments:
       -h, --help  show this help message and exit
       --rst       Print help for all commands in reStructuredText format.
+      -z, --zsh   Print info for zsh autocompletion
     
 
 info
@@ -167,7 +168,7 @@ purge
 
 ::
 
-    usage: develop purge [-h] [-n] [package-regexp [package-regexp ...]]
+    usage: develop purge [-h] [-n] [-f] [package-regexp [package-regexp ...]]
     
     Remove checked out packages which aren't active anymore.
     
@@ -181,6 +182,8 @@ purge
       -h, --help      show this help message and exit
       -n, --dry-run   Don't actually remove anything, just print the paths which
                       would be removed.
+      -f, --force     Force purge even if the working copy is dirty or unknown
+                      (non-svn).
     
 
 rebuild (rb)
@@ -238,6 +241,7 @@ status (stat, st)
         '~' not in auto-checkout list
         '!' in auto-checkout list, but not checked out
         'C' the repository URL doesn't match
+        '?' unknown package (only reported when package-regexp is not specified)
     The second column shows the working copy status:
         ' ' no changes
         'M' local modifications or untracked files
