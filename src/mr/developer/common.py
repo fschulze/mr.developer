@@ -24,7 +24,7 @@ def which(name_root):
         # example: ['.py', '.pyc', '.pyo', '.pyw', '.COM', '.EXE', '.BAT', '.CMD']
         names = [name_root + ext for ext in pathext.split(';')]
     else:
-        names = name_root
+        names = [name_root]
 
     for name in names:
         for path in os.environ["PATH"].split(os.pathsep):
