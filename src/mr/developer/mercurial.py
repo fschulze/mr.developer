@@ -4,8 +4,10 @@ import subprocess
 
 logger = common.logger
 
+
 class MercurialError(common.WCError):
     pass
+
 
 class MercurialWorkingCopy(common.BaseWorkingCopy):
 
@@ -33,7 +35,6 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         else:
             rev = rev or 'default'
 
-
         self.output((logger.info, 'Cloned %r with mercurial.' % name))
         env = dict(os.environ)
         env.pop('PYTHONPATH', None)
@@ -56,7 +57,7 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         stdout, stderr = cmd.communicate()
         if cmd.returncode:
             raise MercurialError(
-                'hg update for %r failed.\n%s' %(name, stderr))
+                'hg update for %r failed.\n%s' % (name, stderr))
         return stdout
 
     def hg_pull(self, **kwargs):

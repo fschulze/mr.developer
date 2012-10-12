@@ -9,6 +9,7 @@ logger = common.logger
 class DarcsError(common.WCError):
     pass
 
+
 class DarcsWorkingCopy(common.BaseWorkingCopy):
     def darcs_checkout(self, **kwargs):
         name = self.source['name']

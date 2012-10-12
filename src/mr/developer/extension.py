@@ -170,7 +170,7 @@ class Extension(object):
         develop = []
         for path in develeggs.itervalues():
             if path.startswith(self.buildout_dir):
-                develop.append(path[len(self.buildout_dir)+1:])
+                develop.append(path[len(self.buildout_dir) + 1:])
             else:
                 develop.append(path)
         return develop, develeggs, versions

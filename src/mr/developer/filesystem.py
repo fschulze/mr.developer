@@ -3,8 +3,10 @@ import os
 
 logger = common.logger
 
+
 class FilesystemError(common.WCError):
     pass
+
 
 class FilesystemWorkingCopy(common.BaseWorkingCopy):
     def checkout(self, **kwargs):

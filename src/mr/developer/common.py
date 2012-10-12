@@ -164,12 +164,16 @@ class WorkingCopies(object):
 
     def process(self, the_queue):
         threads = []
+
         if sys.version_info < (2, 6):
             # work around a race condition in subprocess
             _old_subprocess_cleanup = subprocess._cleanup
+
             def _cleanup():
                 pass
+
             subprocess._cleanup = _cleanup
+
         for i in range(self.threads):
             thread = threading.Thread(target=worker, args=(self, the_queue))
             thread.start()
@@ -290,12 +294,12 @@ class WorkingCopies(object):
 
 def parse_buildout_args(args):
     settings = dict(
-        config_file = 'buildout.cfg',
-        verbosity = 0,
-        options = [],
-        windows_restart = False,
-        user_defaults = True,
-        debug = False,
+        config_file='buildout.cfg',
+        verbosity=0,
+        options=[],
+        windows_restart=False,
+        user_defaults=True,
+        debug=False,
     )
     options = []
     version = pkg_resources.get_distribution("zc.buildout").version
@@ -332,7 +336,7 @@ def parse_buildout_args(args):
                     raise ValueError("Unkown option '%s'." % op[0])
                 op = op[1:]
 
-            if op[:1] in  ('c', 't'):
+            if op[:1] in ('c', 't'):
                 op_ = op[:1]
                 op = op[1:]
 
@@ -355,7 +359,7 @@ def parse_buildout_args(args):
             elif op:
                 if orig_op == '--help':
                     return 'help'
-                raise ValueError("Invalid option", '-'+op[0])
+                raise ValueError("Invalid option", '-' + op[0])
         elif '=' in args[0]:
             option, value = args.pop(0).split('=', 1)
             if len(option.split(':')) != 2:

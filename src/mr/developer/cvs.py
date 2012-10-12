@@ -11,6 +11,7 @@ RE_ROOT = re.compile(r'(:pserver:)([a-zA-Z0-9]*)(@.*)')
 class CVSError(common.WCError):
     pass
 
+
 def build_cvs_command(command, name, url, tag='', cvs_root=''):
     """
     Create CVS commands.
@@ -125,7 +126,7 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
             return 'clean'
 
         status = 'clean'
-        stdout  = self.cvs_command('status', verbose=True)
+        stdout = self.cvs_command('status', verbose=True)
         for line in stdout.split('\n'):
             if not line or line.endswith('.egg-info'):
                 continue

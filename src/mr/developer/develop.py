@@ -102,8 +102,8 @@ class Command(object):
 class CmdActivate(Command):
     def __init__(self, develop):
         Command.__init__(self, develop)
-        description="Add packages to the list of development packages."
-        self.parser=self.develop.parsers.add_parser(
+        description = "Add packages to the list of development packages."
+        self.parser = self.develop.parsers.add_parser(
             "activate",
             description=description)
         self.develop.parsers._name_parser_map["a"] = self.develop.parsers._name_parser_map["activate"]
@@ -148,7 +148,7 @@ class CmdActivate(Command):
 class CmdCheckout(Command):
     def __init__(self, develop):
         Command.__init__(self, develop)
-        self.parser=self.develop.parsers.add_parser(
+        self.parser = self.develop.parsers.add_parser(
             "checkout",
             description="Make a checkout of the packages matching the regular expressions and add them to the list of development packages.")
         self.develop.parsers._name_parser_map["co"] = self.develop.parsers._name_parser_map["checkout"]
@@ -189,8 +189,8 @@ class CmdCheckout(Command):
 class CmdDeactivate(Command):
     def __init__(self, develop):
         Command.__init__(self, develop)
-        description="Remove packages from the list of development packages."
-        self.parser=self.develop.parsers.add_parser(
+        description = "Remove packages from the list of development packages."
+        self.parser = self.develop.parsers.add_parser(
             "deactivate",
             description=description)
         self.develop.parsers._name_parser_map["d"] = self.develop.parsers._name_parser_map["deactivate"]
@@ -224,7 +224,7 @@ class CmdDeactivate(Command):
             if not source.get('egg', True):
                 logger.warning("The package '%s' isn't an egg." % name)
                 continue
-            if config.develop.get(name) != False:
+            if config.develop.get(name) is False:
                 config.develop[name] = False
                 logger.info("Deactivated '%s'." % name)
                 changed = True
@@ -236,7 +236,7 @@ class CmdDeactivate(Command):
 class CmdHelp(Command):
     def __init__(self, develop):
         Command.__init__(self, develop)
-        self.parser=self.develop.parsers.add_parser(
+        self.parser = self.develop.parsers.add_parser(
             "help",
             description="Show help on the given command or about the whole script if none given.")
         self.develop.parsers._name_parser_map["h"] = self.develop.parsers._name_parser_map["help"]
@@ -294,7 +294,7 @@ class CmdHelp(Command):
                 else:
                     header = name
                 print header
-                print "-"*len(header)
+                print "-" * len(header)
                 print
                 print "::"
                 print
@@ -315,8 +315,8 @@ class CmdHelp(Command):
 class CmdInfo(Command):
     def __init__(self, develop):
         Command.__init__(self, develop)
-        description="Lists informations about packages."
-        self.parser=self.develop.parsers.add_parser(
+        description = "Lists informations about packages."
+        self.parser = self.develop.parsers.add_parser(
             "info",
             help=description,
             description=description)
@@ -357,13 +357,13 @@ class CmdInfo(Command):
             source = self.develop.sources[name]
             if args.info:
                 for key in args.info:
-                    if key=='name':
+                    if key == 'name':
                         print name,
-                    elif key=='path':
+                    elif key == 'path':
                         print source['path'],
-                    elif key=='type':
+                    elif key == 'type':
                         print source['kind'],
-                    elif key=='url':
+                    elif key == 'url':
                         print source['url'],
                 print
             else:
@@ -377,8 +377,8 @@ class CmdInfo(Command):
 class CmdList(Command):
     def __init__(self, develop):
         Command.__init__(self, develop)
-        description="Lists tracked packages."
-        self.parser=self.develop.parsers.add_parser(
+        description = "Lists tracked packages."
+        self.parser = self.develop.parsers.add_parser(
             "list",
             formatter_class=HelpFormatter,
             description=description)
@@ -444,7 +444,7 @@ class CmdList(Command):
 class CmdPony(Command):
     def __init__(self, develop):
         Command.__init__(self, develop)
-        self.parser=self.develop.parsers.add_parser(
+        self.parser = self.develop.parsers.add_parser(
             "pony",
             description="It should be easy to develop a pony!")
         self.parser.set_defaults(func=self)
@@ -485,7 +485,7 @@ class CmdPurge(Command):
             Remove checked out packages which aren't active anymore.
 
             Only 'svn' packages can be purged, because other repositories may contain unrecoverable files even when not marked as 'dirty'.""")
-        self.parser=self.develop.parsers.add_parser(
+        self.parser = self.develop.parsers.add_parser(
             "purge",
             formatter_class=HelpFormatter,
             description=description)
@@ -504,7 +504,7 @@ class CmdPurge(Command):
     def handle_remove_readonly(self, func, path, exc):
         excvalue = exc[1]
         if func in (os.rmdir, os.remove) and excvalue.errno == errno.EACCES:
-            os.chmod(path, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO) # 0777
+            os.chmod(path, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)  # 0777
             func(path)
         else:
             raise
@@ -524,7 +524,7 @@ class CmdPurge(Command):
             source = self.develop.sources[name]
             path = source['path']
             if path.startswith(buildout_dir):
-                path = path[len(buildout_dir)+1:]
+                path = path[len(buildout_dir) + 1:]
             need_force = False
             if source['kind'] != 'svn':
                 need_force = True
@@ -556,8 +556,8 @@ class CmdPurge(Command):
 class CmdRebuild(Command):
     def __init__(self, develop):
         Command.__init__(self, develop)
-        description="Run buildout with the last used arguments."
-        self.parser=self.develop.parsers.add_parser(
+        description = "Run buildout with the last used arguments."
+        self.parser = self.develop.parsers.add_parser(
             "rebuild",
             description=description)
         self.develop.parsers._name_parser_map["rb"] = self.develop.parsers._name_parser_map["rebuild"]
@@ -585,7 +585,7 @@ class CmdRebuild(Command):
 class CmdReset(Command):
     def __init__(self, develop):
         Command.__init__(self, develop)
-        self.parser=self.develop.parsers.add_parser(
+        self.parser = self.develop.parsers.add_parser(
             "reset",
             help="Resets the packages develop status.",
             description="Resets the packages develop status. This is useful when switching to a new buildout configuration.")
@@ -622,7 +622,7 @@ class CmdReset(Command):
 class CmdStatus(Command):
     def __init__(self, develop):
         Command.__init__(self, develop)
-        self.parser=self.develop.parsers.add_parser(
+        self.parser = self.develop.parsers.add_parser(
             "status",
             formatter_class=HelpFormatter,
             description=textwrap.dedent("""\
@@ -734,8 +734,8 @@ class CmdStatus(Command):
 class CmdUpdate(Command):
     def __init__(self, develop):
         Command.__init__(self, develop)
-        description="Updates all known packages currently checked out."
-        self.parser=self.develop.parsers.add_parser(
+        description = "Updates all known packages currently checked out."
+        self.parser = self.develop.parsers.add_parser(
             "update",
             description=description)
         self.develop.parsers._name_parser_map["up"] = self.develop.parsers._name_parser_map["update"]

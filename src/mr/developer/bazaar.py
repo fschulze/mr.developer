@@ -4,8 +4,10 @@ import subprocess
 
 logger = common.logger
 
+
 class BazaarError(common.WCError):
     pass
+
 
 class BazaarWorkingCopy(common.BaseWorkingCopy):
     def bzr_branch(self, **kwargs):

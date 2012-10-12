@@ -289,7 +289,7 @@ class TestSourcesDir(TestCase):
 
     def test_sources_dir_created(self):
         buildout = MockBuildout(dict(
-            buildout = {
+            buildout={
                 'directory': self.tempdir,
                 'parts': '',
                 'sources-dir': 'develop',

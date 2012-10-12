@@ -1,6 +1,7 @@
 from mr.developer import common
 try:
     import xml.etree.ElementTree as etree
+    etree  # shutup pyflakes
 except ImportError:
     import elementtree.ElementTree as etree
 import getpass
@@ -122,7 +123,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
                 print "\n".join(lines[:-1])
                 while 1:
                     answer = raw_input("(R)eject or accept (t)emporarily? ")
-                    if answer.lower() in ['r','t']:
+                    if answer.lower() in ['r', 't']:
                         break
                     else:
                         print "Invalid answer, type 'r' for reject or 't' for temporarily."

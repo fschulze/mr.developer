@@ -83,9 +83,8 @@ class GitWorkingCopy(common.BaseWorkingCopy):
             version = (int(version[0]), int(version[1]))
         if version < (1, 5):
             logger.error(
-                "Git version %s is unsupported, please upgrade" % \
-                    ".".join([str(v) for v in version])
-            )
+                "Git version %s is unsupported, please upgrade",
+                ".".join([str(v) for v in version]))
             sys.exit(1)
         return version
 
@@ -241,11 +240,12 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         return self.git_update(**kwargs)
 
     def git_set_pushurl(self, stdout_in, stderr_in):
-        cmd = self.run_git([
+        cmd = self.run_git(
+            [
                 "config",
                 "remote.%s.pushurl" % self._upstream_name,
-                self.source['pushurl'],
-            ], cwd=self.source['path'])
+                self.source['pushurl']],
+            cwd=self.source['path'])
         stdout, stderr = cmd.communicate()
 
         if cmd.returncode != 0:
