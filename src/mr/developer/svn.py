@@ -1,4 +1,5 @@
 from mr.developer import common
+from urlparse import urlparse, urlunparse
 try:
     import xml.etree.ElementTree as etree
     etree  # shutup pyflakes
@@ -36,6 +37,21 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
     _svn_info_cache = {}
     _svn_auth_cache = {}
     _svn_cert_cache = {}
+
+    def _normalized_url_rev(self):
+        url = urlparse(self.source['url'])
+        rev = None
+        if '@' in url.path:
+            path, rev = url.path.split('@', 1)
+            url = list(url)
+            url[2] = path
+        if 'rev' in self.source and 'revision' in self.source:
+            raise ValueError("The source definition of '%s' contains duplicate revision options." % self.source['name'])
+        if rev is not None and ('rev' in self.source or 'revision' in self.source):
+            raise ValueError("The url of '%s' contains a revision and there is an additional revision option." % self.source['name'])
+        elif rev is None:
+            rev = self.source.get('revision', self.source.get('rev'))
+        return urlunparse(url), rev
 
     def __init__(self, *args, **kwargs):
         common.BaseWorkingCopy.__init__(self, *args, **kwargs)
@@ -214,9 +230,8 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
     def _svn_switch(self, **kwargs):
         name = self.source['name']
         path = self.source['path']
-        url = self.source['url']
+        url, rev = self._normalized_url_rev()
         args = ["svn", "switch", url, path]
-        rev = self.source.get('revision', self.source.get('rev'))
         if rev is not None and not rev.startswith('>'):
             args.insert(2, '-r%s' % rev)
         stdout, stderr, returncode = self._svn_communicate(args, url, **kwargs)
@@ -228,9 +243,8 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
     def _svn_update(self, **kwargs):
         name = self.source['name']
         path = self.source['path']
-        url = self.source['url']
+        url, rev = self._normalized_url_rev()
         args = ["svn", "update", path]
-        rev = self.source.get('revision', self.source.get('rev'))
         if rev is not None and not rev.startswith('>'):
             args.insert(2, '-r%s' % rev)
         stdout, stderr, returncode = self._svn_communicate(args, url, **kwargs)
@@ -279,20 +293,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
 
     def matches(self):
         info = self._svn_info()
-        url = self.source['url']
-        rev = info.get('revision')
-        match = re.search('^(.+)@(\\d+)$', url)
-        if match:
-            url = match.group(1)
-            rev = match.group(2)
-        if 'rev' in self.source and 'revision' in self.source:
-            raise ValueError("The source definition of '%s' contains duplicate revision options." % self.source['name'])
-        elif ('rev' in self.source or 'revision' in self.source) and match:
-            raise ValueError("The url of '%s' contains a revision and there is an additional revision option." % self.source['name'])
-        elif 'rev' in self.source:
-            rev = self.source['rev']
-        elif 'revision' in self.source:
-            rev = self.source['revision']
+        url, rev = self._normalized_url_rev()
         if url.endswith('/'):
             url = url[:-1]
         if rev.startswith('>='):

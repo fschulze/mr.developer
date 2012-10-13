@@ -8,6 +8,10 @@ install_requires = [
   'zc.buildout',
 ]
 
+tests_require = [
+  'jarn.mkrelease',
+  'mr.developer.addon']
+
 try:
     import xml.etree
 except ImportError:
@@ -45,6 +49,8 @@ setup(name='mr.developer',
       include_package_data=True,
       zip_safe=False,
       install_requires=install_requires,
+      tests_require=tests_require,
+      extras_require={'test': tests_require},
       test_suite='mr.developer.tests',
       entry_points="""
       [console_scripts]

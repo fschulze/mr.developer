@@ -4,6 +4,9 @@ Changelog
 1.22 - Unreleased
 -----------------
 
+* Parse revision from url for all svn commands. Fixes #37
+  [fschulze]
+
 * Use entry points to allow adding and overwriting working copy types via
   addon packages.
   [fschulze]
