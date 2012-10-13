@@ -636,6 +636,7 @@ class CmdStatus(Command):
                 The second column shows the working copy status:
                     ' ' no changes
                     'M' local modifications or untracked files
+                    '>' your local branch is ahead of the remote one
                 The third column shows the development status:
                     ' ' activated
                     '-' deactivated
@@ -693,6 +694,8 @@ class CmdStatus(Command):
                 status = workingcopies.status(source)
             if status == 'clean':
                 print " ",
+            elif status == 'ahead':
+                print ">",
             else:
                 print "M",
             if self.develop.config.develop.get(name, name in auto_checkout):

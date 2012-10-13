@@ -207,11 +207,14 @@ class GitWorkingCopy(common.BaseWorkingCopy):
 
     def status(self, **kwargs):
         path = self.source['path']
-        cmd = self.run_git(["status"], cwd=path)
+        cmd = self.run_git(["status", "--porcelain", "-b"], cwd=path)
         stdout, stderr = cmd.communicate()
         lines = stdout.strip().split(b('\n'))
-        if b('nothing to commit (working directory clean)') in lines[-1]:
-            status = 'clean'
+        if len(lines) == 1:
+            if b('ahead') in lines[0]:
+                status = 'ahead'
+            else:
+                status = 'clean'
         else:
             status = 'dirty'
         if kwargs.get('verbose', False):

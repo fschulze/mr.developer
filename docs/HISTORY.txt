@@ -4,6 +4,10 @@ Changelog
 1.22 - Unreleased
 -----------------
 
+* For git repositories the ``status`` command shows you when your local branch
+  is ahead of the remote branch.
+  [fschulze]
+
 * Always make ``sources-dir`` option available in buildout, even if it's set
   to the default. Fixes #49
   [fschulze]
