@@ -4,6 +4,10 @@ Changelog
 1.22 - Unreleased
 -----------------
 
+* If you set threads to 1, then we don't use any separate thread anymore, the
+  actions are now done in the main thread.
+  [fschulze]
+
 * Allow configuration of the number of threads used through the buildout config
   by setting the ``mr.developer-threads`` option in the ``buildout`` section.
   [fschulze]

@@ -163,26 +163,30 @@ class WorkingCopies(object):
         self.workingcopytypes = get_workingcopytypes()
 
     def process(self, the_queue):
-        threads = []
+        if self.threads < 2:
+            worker(self, the_queue)
+        else:
+            if sys.version_info < (2, 6):
+                # work around a race condition in subprocess
+                _old_subprocess_cleanup = subprocess._cleanup
 
-        if sys.version_info < (2, 6):
-            # work around a race condition in subprocess
-            _old_subprocess_cleanup = subprocess._cleanup
+                def _cleanup():
+                    pass
 
-            def _cleanup():
-                pass
+                subprocess._cleanup = _cleanup
 
-            subprocess._cleanup = _cleanup
+            threads = []
 
-        for i in range(self.threads):
-            thread = threading.Thread(target=worker, args=(self, the_queue))
-            thread.start()
-            threads.append(thread)
-        for thread in threads:
-            thread.join()
-        if sys.version_info < (2, 6):
-            subprocess._cleanup = _old_subprocess_cleanup
-            subprocess._cleanup()
+            for i in range(self.threads):
+                thread = threading.Thread(target=worker, args=(self, the_queue))
+                thread.start()
+                threads.append(thread)
+            for thread in threads:
+                thread.join()
+            if sys.version_info < (2, 6):
+                subprocess._cleanup = _old_subprocess_cleanup
+                subprocess._cleanup()
+
         if self.errors:
             logger.error("There have been errors, see messages above.")
             sys.exit(1)
