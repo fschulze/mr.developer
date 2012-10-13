@@ -207,7 +207,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
 
     def status(self, **kwargs):
         path = self.source['path']
-        cmd = self.run_git(["status", "--porcelain", "-b"], cwd=path)
+        cmd = self.run_git(["status", "-s", "-b"], cwd=path)
         stdout, stderr = cmd.communicate()
         lines = stdout.strip().split(b('\n'))
         if len(lines) == 1:
