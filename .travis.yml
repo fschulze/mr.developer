@@ -4,6 +4,6 @@ python:
   - "2.7"
 install:
   - python bootstrap.py
-  - ./bin/buildout
+  - ./bin/buildout buildout:parts=test
 script: ./bin/py.test
 
