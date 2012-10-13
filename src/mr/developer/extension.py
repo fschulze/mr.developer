@@ -237,6 +237,7 @@ class Extension(object):
             zc.buildout.easy_install.default_versions(dict(versions))
 
         self.buildout['buildout']['develop'] = "\n".join(develop)
+        self.buildout['buildout']['sources-dir'] = self.get_sources_dir()
 
         self.add_fake_part()
 

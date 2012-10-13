@@ -287,6 +287,21 @@ class TestSourcesDir(TestCase):
     def setUp(self):
         self.tempdir = tempfile.mkdtemp()
 
+    def test_sources_dir_option_set_if_missing(self):
+        buildout = MockBuildout(dict(
+            buildout={
+                'directory': self.tempdir,
+                'parts': '',
+            },
+            sources={},
+        ))
+        from mr.developer.extension import Extension
+        ext = Extension(buildout)
+        self.failIf('sources-dir' in buildout['buildout'])
+        ext()
+        assert buildout['buildout']['sources-dir'] == os.path.join(
+            self.tempdir, 'src')
+
     def test_sources_dir_created(self):
         buildout = MockBuildout(dict(
             buildout={
