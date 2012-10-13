@@ -245,6 +245,7 @@ status (stat, st)
     The second column shows the working copy status:
         ' ' no changes
         'M' local modifications or untracked files
+        '>' your local branch is ahead of the remote one
     The third column shows the development status:
         ' ' activated
         '-' deactivated
