@@ -64,7 +64,7 @@ class Command(object):
         self.develop = develop
 
     def get_workingcopies(self, sources):
-        return WorkingCopies(sources, threads=self.develop.config.threads)
+        return WorkingCopies(sources, threads=self.develop.threads)
 
     @memoize
     def get_packages(self, args, auto_checkout=False,
@@ -825,6 +825,7 @@ class Develop(object):
         self.always_checkout = extension.get_always_checkout()
         self.always_accept_server_certificate = extension.get_always_accept_server_certificate()
         develop, self.develeggs, versions = extension.get_develop_info()
+        self.threads = extension.get_threads()
 
         args.func(args)
 

@@ -7,7 +7,6 @@ import os
 
 class MockConfig(object):
     def __init__(self):
-        self.threads = 1
         self.develop = {}
 
     def save(self):
@@ -21,6 +20,7 @@ class MockDevelop(object):
         self.config = MockConfig()
         self.parser = argparse.ArgumentParser()
         self.parsers = self.parser.add_subparsers(title="commands", metavar="")
+        self.threads = 1
 
 
 class SVNTests(JailSetup):

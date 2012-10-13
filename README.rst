@@ -206,5 +206,7 @@ Especially on multicore machines, there is an issue that you can get lockups
 because of the parallel checkouts. You can configure the number of threads used
 for this in ``.mr.developer.cfg`` in the buildout root of your project or
 globally in ``~/.buildout/mr.developer.cfg`` through the ``threads`` option
-in the ``[mr.developer]`` section. Setting it to ``1`` should fix these issues,
-but this disables parallel checkouts and makes the process a bit slower.
+in the ``[mr.developer]`` section or in your buildout in the ``buildout``
+section with the ``mr.developer-threads`` option. Setting it to ``1`` should
+fix these issues, but this disables parallel checkouts and makes the process a
+bit slower.

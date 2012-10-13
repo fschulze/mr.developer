@@ -4,6 +4,10 @@ Changelog
 1.22 - Unreleased
 -----------------
 
+* Allow configuration of the number of threads used through the buildout config
+  by setting the ``mr.developer-threads`` option in the ``buildout`` section.
+  [fschulze]
+
 * For git repositories the ``status`` command shows you when your local branch
   is ahead of the remote branch.
   [fschulze]

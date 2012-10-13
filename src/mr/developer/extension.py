@@ -28,7 +28,14 @@ class Extension(object):
     def get_workingcopies(self):
         return WorkingCopies(
             self.get_sources(),
-            threads=self.get_config().threads)
+            threads=self.get_threads())
+
+    @memoize
+    def get_threads(self):
+        threads = int(self.buildout['buildout'].get(
+            'mr.developer-threads',
+            self.get_config().threads))
+        return threads
 
     @memoize
     def get_sources_dir(self):
