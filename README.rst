@@ -14,6 +14,8 @@ Introduction
 buildouts containing lots of packages, of which you only want to develop some.
 The basic idea comes from Wichert Akkerman's plonenext_ effort.
 
+.. image:: https://secure.travis-ci.org/fschulze/mr.developer.png
+
 .. _`zc.buildout`: http://pypi.python.org/pypi/zc.buildout
 .. _plonenext: http://svn.plone.org/svn/plone/plonenext/3.3/README.txt
 
