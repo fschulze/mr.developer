@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.22 - Unreleased
+1.22 - 2012-10-13
 -----------------
 
 * If you set threads to 1, then we don't use any separate thread anymore, the
