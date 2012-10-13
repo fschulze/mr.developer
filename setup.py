@@ -1,5 +1,6 @@
 from setuptools import setup
-import os, sys
+import os
+import sys
 
 version = '1.22'
 
@@ -14,11 +15,13 @@ tests_require = [
 
 try:
     import xml.etree
+    xml.etree  # shutup pyflakes
 except ImportError:
     install_requires.append('elementtree')
 
 try:
     import argparse
+    argparse  # shutup pyflakes
 except ImportError:
     install_requires.append('argparse')
 
@@ -44,7 +47,7 @@ setup(name='mr.developer',
       url='http://github.com/fschulze/mr.developer',
       license='BSD',
       packages=['mr', 'mr.developer'],
-      package_dir = {'': 'src'},
+      package_dir={'': 'src'},
       namespace_packages=['mr', 'mr.developer'],
       include_package_data=True,
       zip_safe=False,
