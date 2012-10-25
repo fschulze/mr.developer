@@ -297,7 +297,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
         if url.endswith('/'):
             url = url[:-1]
         if rev is None:
-            rev = ''
+            rev = info.get('revision')
         if rev.startswith('>='):
             return (info.get('url') == url) and (int(info.get('revision')) >= int(rev[2:]))
         elif rev.startswith('>'):
