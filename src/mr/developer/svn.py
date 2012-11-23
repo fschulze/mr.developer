@@ -11,6 +11,11 @@ import re
 import subprocess
 import sys
 
+if sys.version_info < (3, 0):
+    b = lambda x: x
+else:
+    b = lambda x: x.encode('ascii')
+
 logger = common.logger
 
 
@@ -69,10 +74,10 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
                 sys.exit(1)
             raise
         stdout, stderr = cmd.communicate()
-        lines = stdout.split('\n')
+        lines = stdout.split(b('\n'))
         version = None
         if len(lines):
-            version = re.search(r'(\d+)\.(\d+)(\.\d+)?', lines[0])
+            version = re.search(b('(\d+)\.(\d+)(\.\d+)?'), lines[0])
             if version is not None:
                 version = version.groups()
                 if len(version) == 3:
