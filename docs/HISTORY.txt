@@ -4,7 +4,11 @@ Changelog
 1.23 - Unreleased
 -----------------
 
+* Fixed branch checkout for git on Python 3.
+  [mitchellrj]
 
+* Fixed subversion checkout on Python 3.
+  [mitchellrj]
 
 1.22 - 2012-10-13
 -----------------
