@@ -13,8 +13,11 @@ import sys
 
 if sys.version_info < (3, 0):
     b = lambda x: x
+    s = lambda x: x
 else:
     b = lambda x: x.encode('ascii')
+    s = lambda x: x.decode('ascii')
+
 
 logger = common.logger
 
@@ -86,7 +89,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
                     version = (int(version[0]), int(version[1]))
         if (cmd.returncode != 0) or (version is None):
             logger.error("Couldn't determine the version of 'svn' command.")
-            logger.error("Subversion output:\n%s\n%s" % (stdout, stderr))
+            logger.error("Subversion output:\n%s\n%s" % (s(stdout), s(stderr)))
             sys.exit(1)
         if (version < (1, 5)) and not _svn_version_warning:
             logger.warning("The installed 'svn' command is too old. Expected 1.5 or newer, got %s." % ".".join([str(x) for x in version]))
@@ -163,9 +166,9 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
         args = ["svn", "checkout", url, path]
         stdout, stderr, returncode = self._svn_communicate(args, url, **kwargs)
         if returncode != 0:
-            raise SVNError("Subversion checkout for '%s' failed.\n%s" % (name, stderr))
+            raise SVNError("Subversion checkout for '%s' failed.\n%s" % (name, s(stderr)))
         if kwargs.get('verbose', False):
-            return stdout
+            return s(stdout)
 
     def _svn_communicate(self, args, url, **kwargs):
         auth = self._svn_auth_get(url)
@@ -190,7 +193,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
                                stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            lines = stderr.strip().split('\n')
+            lines = stderr.strip().split(b('\n'))
             if 'authorization failed' in lines[-1]:
                 raise SVNAuthorizationError(stderr.strip())
             if 'Server certificate verification failed: issuer is not trusted' in lines[-1]:
@@ -213,7 +216,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
                                stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            raise SVNError("Subversion info for '%s' failed.\n%s" % (name, stderr))
+            raise SVNError("Subversion info for '%s' failed.\n%s" % (name, s(stderr)))
         info = etree.fromstring(stdout)
         result = {}
         entry = info.find('entry')
@@ -241,9 +244,9 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
             args.insert(2, '-r%s' % rev)
         stdout, stderr, returncode = self._svn_communicate(args, url, **kwargs)
         if returncode != 0:
-            raise SVNError("Subversion switch of '%s' failed.\n%s" % (name, stderr))
+            raise SVNError("Subversion switch of '%s' failed.\n%s" % (name, s(stderr)))
         if kwargs.get('verbose', False):
-            return stdout
+            return s(stdout)
 
     def _svn_update(self, **kwargs):
         name = self.source['name']
@@ -254,9 +257,9 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
             args.insert(2, '-r%s' % rev)
         stdout, stderr, returncode = self._svn_communicate(args, url, **kwargs)
         if returncode != 0:
-            raise SVNError("Subversion update of '%s' failed.\n%s" % (name, stderr))
+            raise SVNError("Subversion update of '%s' failed.\n%s" % (name, s(stderr)))
         if kwargs.get('verbose', False):
-            return stdout
+            return s(stdout)
 
     def svn_checkout(self, **kwargs):
         name = self.source['name']
@@ -318,7 +321,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
                                stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            raise SVNError("Subversion status for '%s' failed.\n%s" % (name, stderr))
+            raise SVNError("Subversion status for '%s' failed.\n%s" % (name, s(stderr)))
         info = etree.fromstring(stdout)
         clean = True
         for target in info.findall('target'):
@@ -337,8 +340,8 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
                                    stderr=subprocess.PIPE)
             stdout, stderr = cmd.communicate()
             if cmd.returncode != 0:
-                raise SVNError("Subversion status for '%s' failed.\n%s" % (name, stderr))
-            return status, stdout
+                raise SVNError("Subversion status for '%s' failed.\n%s" % (name, s(stderr)))
+            return status, s(stdout)
         else:
             return status
 
