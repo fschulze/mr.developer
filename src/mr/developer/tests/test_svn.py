@@ -1,6 +1,5 @@
 from mr.developer.extension import Source
-from jarn.mkrelease.process import Process
-from jarn.mkrelease.testing import JailSetup
+from mr.developer.tests.utils import Process, JailSetup
 import argparse
 import os
 
@@ -30,31 +29,31 @@ class SVNTests(JailSetup):
         process = Process()
         repository = os.path.join(self.tempdir, 'repository')
         rc, lines = process.popen(
-            "svnadmin create {0}".format(repository))
+            "svnadmin create %s" % repository)
         assert rc == 0
         checkout = os.path.join(self.tempdir, 'checkout')
         rc, lines = process.popen(
-            "svn checkout file://{0} {1}".format(repository, checkout),
+            "svn checkout file://%s %s" % (repository, checkout),
             echo=False)
         assert rc == 0
         foo = os.path.join(checkout, 'foo')
         self.mkfile(foo, 'foo')
         rc, lines = process.popen(
-            "svn add {0}".format(foo),
+            "svn add %s" % foo,
             echo=False)
         assert rc == 0
         rc, lines = process.popen(
-            "svn commit {0} -m foo".format(foo),
+            "svn commit %s -m foo" % foo,
             echo=False)
         assert rc == 0
         bar = os.path.join(checkout, 'bar')
         self.mkfile(bar, 'bar')
         rc, lines = process.popen(
-            "svn add {0}".format(bar),
+            "svn add %s" % bar,
             echo=False)
         assert rc == 0
         rc, lines = process.popen(
-            "svn commit {0} -m bar".format(bar),
+            "svn commit %s -m bar" % bar,
             echo=False)
         assert rc == 0
         src = os.path.join(self.tempdir, 'src')
@@ -63,7 +62,7 @@ class SVNTests(JailSetup):
             'egg': Source(
                 kind='svn',
                 name='egg',
-                url='file://{0}@1'.format(repository),
+                url='file://%s@1' % repository,
                 path=os.path.join(src, 'egg'))}
         CmdCheckout(develop)(develop.parser.parse_args(['co', 'egg']))
         assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.svn', 'foo'))

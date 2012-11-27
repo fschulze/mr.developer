@@ -10,7 +10,6 @@ install_requires = [
 ]
 
 tests_require = [
-  'jarn.mkrelease',
   'mr.developer.addon']
 
 try:
