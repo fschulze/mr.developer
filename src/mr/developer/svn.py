@@ -46,6 +46,12 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
     _svn_auth_cache = {}
     _svn_cert_cache = {}
 
+    @classmethod
+    def _clear_caches(klass):
+        klass._svn_info_cache.clear()
+        klass._svn_auth_cache.clear()
+        klass._svn_cert_cache.clear()
+
     def _normalized_url_rev(self):
         url = urlparse(self.source['url'])
         rev = None

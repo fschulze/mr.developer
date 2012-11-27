@@ -24,6 +24,11 @@ class MockDevelop(object):
 
 
 class SVNTests(JailSetup):
+    def setUp(self):
+        JailSetup.setUp(self)
+        from mr.developer.svn import SVNWorkingCopy
+        SVNWorkingCopy._clear_caches()
+
     def testUpdateWithoutRevisionPin(self):
         from mr.developer.develop import CmdCheckout
         from mr.developer.develop import CmdUpdate
