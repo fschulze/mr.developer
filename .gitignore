@@ -10,4 +10,5 @@
 /develop-eggs/*
 /dist/*
 /eggs/*
+/etc
 /.installed.cfg
