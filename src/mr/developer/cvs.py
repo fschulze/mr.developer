@@ -33,7 +33,7 @@ def build_cvs_command(command, name, url, tag='', cvs_root=''):
 
     """
     if command == 'status':
-        return  ['cvs', '-q', '-n', 'update']
+        return ['cvs', '-q', '-n', 'update']
 
     cmd = ['cvs']
     if cvs_root:
