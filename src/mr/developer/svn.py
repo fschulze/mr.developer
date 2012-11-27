@@ -41,8 +41,8 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
     def _normalized_url_rev(self):
         url = urlparse(self.source['url'])
         rev = None
-        if '@' in url.path:
-            path, rev = url.path.split('@', 1)
+        if '@' in url[2]:
+            path, rev = url[2].split('@', 1)
             url = list(url)
             url[2] = path
         if 'rev' in self.source and 'revision' in self.source:
