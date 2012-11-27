@@ -4,6 +4,9 @@ Changelog
 1.23 - Unreleased
 -----------------
 
+* Fixed regressions in svn module. Refs #37
+  [fschulze, evilbungle (Alan Hoey)]
+
 * Fixed branch checkout for git on Python 3.
   [mitchellrj]
 
