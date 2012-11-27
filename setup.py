@@ -10,6 +10,7 @@ install_requires = [
 ]
 
 tests_require = [
+  'mock',
   'mr.developer.addon']
 
 try:
