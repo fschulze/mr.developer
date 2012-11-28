@@ -200,7 +200,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             lines = stderr.strip().split(b('\n'))
-            if 'authorization failed' in lines[-1]:
+            if 'authorization failed' in lines[-1] or 'Could not authenticate to server' in lines[-1]:
                 raise SVNAuthorizationError(stderr.strip())
             if 'Server certificate verification failed: issuer is not trusted' in lines[-1]:
                 cmd = subprocess.Popen(interactive_args,

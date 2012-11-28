@@ -4,6 +4,9 @@ Changelog
 1.23 - Unreleased
 -----------------
 
+* Fix asking for password for svn with basic authentication. Refs #100
+  [MordicusEtCubitus]
+
 * Fixed regressions in svn module. Refs #37
   [fschulze, evilbungle (Alan Hoey)]
 
