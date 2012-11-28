@@ -4,6 +4,10 @@ Changelog
 1.23 - Unreleased
 -----------------
 
+* Add additional optional config file ``.mr.developer-options.cfg`` which is
+  read from the buildout directory for local version controllable options.
+  [fschulze]
+
 * Update all activated packages during buildout if ``always-checkout`` is true
   instead of only the ones in the ``auto-checkout`` list or with the ``update``
   option set. Refs #95

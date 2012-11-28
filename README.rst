@@ -167,6 +167,13 @@ The new package will then be marked as a development egg and have its version
 pin cleared (if any). You can control the list of development eggs explicitely
 with the ``activate`` and ``deactivate`` commands.
 
+Configuration
+=============
+
+You can add options to your global ``~/.buildout/mr.developer.cfg`` or local
+``.mr.developer-options.cfg`` in your buildout. Don't ever edit
+``.mr.developer.cfg`` in your buildout though, it's generated automatically.
+
 Troubleshooting
 ===============
 

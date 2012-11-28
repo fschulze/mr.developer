@@ -378,13 +378,30 @@ def parse_buildout_args(args):
 
 
 class Config(object):
+    def read_config(self, path):
+        config = RawConfigParser()
+        config.optionxform = lambda s: s
+        config.read(path)
+        return config
+
+    def check_invalid_sections(self, path, name):
+        config = self.read_config(path)
+        for section in ('buildout', 'develop'):
+            if config.has_section(section):
+                raise ValueError(
+                    "The '%s' section is not allowed in '%s'" %
+                    (section, name))
+
     def __init__(self, buildout_dir):
-        self.global_cfg_path = os.path.expanduser(
-            os.path.join('~', '.buildout', 'mr.developer.cfg'))
+        global_cfg_name = os.path.join('~', '.buildout', 'mr.developer.cfg')
+        options_cfg_name = '.mr.developer-options.cfg'
+        self.global_cfg_path = os.path.expanduser(global_cfg_name)
+        self.options_cfg_path = os.path.join(buildout_dir, options_cfg_name)
         self.cfg_path = os.path.join(buildout_dir, '.mr.developer.cfg')
-        self._config = RawConfigParser()
-        self._config.optionxform = lambda s: s
-        self._config.read((self.global_cfg_path, self.cfg_path))
+        self.check_invalid_sections(self.global_cfg_path, global_cfg_name)
+        self.check_invalid_sections(self.options_cfg_path, options_cfg_name)
+        self._config = self.read_config((
+            self.global_cfg_path, self.options_cfg_path, self.cfg_path))
         self.develop = {}
         self.buildout_args = []
         self.rewrites = []
