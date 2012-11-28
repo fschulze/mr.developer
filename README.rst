@@ -53,6 +53,10 @@ This enables additional ``[buildout]`` options:
   This defaults to ``false``. If it's ``true``, invalid server
   certificates are accepted without asking (for subversion repositories).
 
+``mr.developer-threads``
+  This sets the number of threads used for parallel checkouts. See
+  `Lockups during checkouts and updates`_ why you might need this.
+
 The format of entries in the ``[sources]`` section is::
 
   [sources]
@@ -173,6 +177,12 @@ Configuration
 You can add options to your global ``~/.buildout/mr.developer.cfg`` or local
 ``.mr.developer-options.cfg`` in your buildout. Don't ever edit
 ``.mr.developer.cfg`` in your buildout though, it's generated automatically.
+
+In the ``[mr.developer]`` section you have the following options.
+
+``threads``
+  This sets the number of threads used for parallel checkouts. See
+  `Lockups during checkouts and updates`_ why you might need this.
 
 Troubleshooting
 ===============
