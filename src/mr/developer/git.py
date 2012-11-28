@@ -135,6 +135,10 @@ class GitWorkingCopy(common.BaseWorkingCopy):
             stdout, stderr = self.git_switch_branch(stdout, stderr)
         if 'pushurl' in self.source:
             stdout, stderr = self.git_set_pushurl(stdout, stderr)
+        cmd = self.run_git(["submodule", "init"], cwd=path)
+        stdout, stderr = cmd.communicate()
+        if cmd.returncode != 0:
+            self.output((logger.warn, "Initializing git submodules failed."))
         if kwargs.get('verbose', False):
             return stdout
 
@@ -166,6 +170,10 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise GitError("git checkout of branch '%s' failed.\n%s" % (branch, stderr))
+        cmd = self.run_git(["submodule", "update"], cwd=path)
+        stdout, stderr = cmd.communicate()
+        if cmd.returncode != 0:
+            self.output((logger.warn, "Updating git submodules failed."))
         return (stdout_in + stdout,
                 stderr_in + stderr)
 
@@ -188,6 +196,10 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         elif 'branch' in self.source:
             stdout, stderr = self.git_switch_branch(stdout, stderr)
             stdout, stderr = self.git_merge_rbranch(stdout, stderr)
+        cmd = self.run_git(["submodule", "update"], cwd=path)
+        stdout, stderr = cmd.communicate()
+        if cmd.returncode != 0:
+            self.output((logger.warn, "Updating git submodules failed."))
         if kwargs.get('verbose', False):
             return stdout
 
