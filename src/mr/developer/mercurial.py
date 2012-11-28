@@ -52,6 +52,7 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         path = self.source['path']
         name = self.source['name']
         env = dict(os.environ)
+        env.pop('PYTHONPATH', None)
         cmd = subprocess.Popen(['hg', 'checkout', rev], cwd=path,
                 env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
