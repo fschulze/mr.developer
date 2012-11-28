@@ -7,4 +7,4 @@ python:
 install:
   - python bootstrap.py || python bootstrap2.py
   - ./bin/buildout buildout:parts=test
-script: ./bin/py.test
+script: python --version 2>&1 | grep -q " 2." && ./bin/py.test || ./bin/py.test build/lib/
