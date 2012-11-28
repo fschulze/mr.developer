@@ -4,6 +4,9 @@ Changelog
 1.23 - Unreleased
 -----------------
 
+* Officially added source rewrites. Refs #56
+  [fschulze]
+
 * Add additional optional config file ``.mr.developer-options.cfg`` which is
   read from the buildout directory for local version controllable options.
   [fschulze]

@@ -4,6 +4,7 @@ import os
 import pkg_resources
 import platform
 import Queue
+import re
 import subprocess
 import sys
 import threading
@@ -377,6 +378,68 @@ def parse_buildout_args(args):
     return options, settings, args
 
 
+class Rewrite(object):
+    _matcher = re.compile("(?P<option>^\w+) (?P<operator>[~=]{1,2}) (?P<value>.+)$")
+
+    def _iter_prog_lines(self, prog):
+        for line in prog.split('\n'):
+            line = line.strip()
+            if line:
+                yield line
+
+    def __init__(self, prog):
+        self.rewrites = {}
+        lines = self._iter_prog_lines(prog)
+        for line in lines:
+            match = self._matcher.match(line)
+            matchdict = match.groupdict()
+            option = matchdict['option']
+            if option in ('name', 'path'):
+                raise ValueError("Option '%s' not allowed in rewrite:\n%s" % (option, prog))
+            operator = matchdict['operator']
+            rewrites = self.rewrites.setdefault(option, [])
+            if operator == '~':
+                try:
+                    substitute = lines.next()
+                except StopIteration:
+                    raise ValueError("Missing substitution for option '%s' in rewrite:\n%s" % (option, prog))
+                rewrites.append(
+                    (operator, re.compile(matchdict['value']), substitute))
+            elif operator == '=':
+                rewrites.append(
+                    (operator, matchdict['value']))
+            elif operator == '~=':
+                rewrites.append(
+                    (operator, re.compile(matchdict['value'])))
+
+    def __call__(self, source):
+        for option, operations in self.rewrites.items():
+            for operation in operations:
+                operator = operation[0]
+                if operator == '~':
+                    if operation[1].search(source[option]) is None:
+                        return
+                elif operator == '=':
+                    if operation[1] != source[option]:
+                        return
+                elif operator == '~=':
+                    if operation[1].search(source[option]) is None:
+                        return
+        for option, operations in self.rewrites.items():
+            for operation in operations:
+                operator = operation[0]
+                if operator == '~':
+                    orig = source[option]
+                    source[option] = operation[1].sub(operation[2], source[option])
+                    if source[option] != orig:
+                        logger.debug("Rewrote option '%s' from '%s' to '%s'." % (option, orig, source[option]))
+
+
+class LegacyRewrite(Rewrite):
+    def __init__(self, prefix, substitution):
+        Rewrite.__init__(self, "url ~ ^%s\n%s" % (prefix, substitution))
+
+
 class Config(object):
     def read_config(self, path):
         config = RawConfigParser()
@@ -404,6 +467,7 @@ class Config(object):
             self.global_cfg_path, self.options_cfg_path, self.cfg_path))
         self.develop = {}
         self.buildout_args = []
+        self._legacy_rewrites = []
         self.rewrites = []
         self.threads = 5
         if self._config.has_section('develop'):
@@ -430,7 +494,13 @@ class Config(object):
             parse_buildout_args(self.buildout_args[1:])
         if self._config.has_option('mr.developer', 'rewrites'):
             for rewrite in self._config.get('mr.developer', 'rewrites').split('\n'):
-                self.rewrites.append(rewrite.split())
+                if not rewrite.strip():
+                    continue
+                rewrite_parts = rewrite.split()
+                if len(rewrite_parts) != 2:
+                    raise ValueError("Invalid legacy rewrite '%s'. Each rewrite must have two parts separated by a space." % rewrite)
+                self._legacy_rewrites.append(rewrite_parts)
+                self.rewrites.append(LegacyRewrite(*rewrite_parts))
         if self._config.has_option('mr.developer', 'threads'):
             try:
                 threads = int(self._config.get('mr.developer', 'threads'))
@@ -442,6 +512,9 @@ class Config(object):
                     "Invalid value '%s' for 'threads' option, must be a positive number. Using default value of %s.",
                     self._config.get('mr.developer', 'threads'),
                     self.threads)
+        if self._config.has_section('rewrites'):
+            for name, rewrite in self._config.items('rewrites'):
+                self.rewrites.append(Rewrite(rewrite))
 
     def save(self):
         self._config.remove_section('develop')
@@ -464,6 +537,6 @@ class Config(object):
 
         if not self._config.has_section('mr.developer'):
             self._config.add_section('mr.developer')
-        self._config.set('mr.developer', 'rewrites', "\n".join(" ".join(x) for x in self.rewrites))
+        self._config.set('mr.developer', 'rewrites', "\n".join(" ".join(x) for x in self._legacy_rewrites))
 
         self._config.write(open(self.cfg_path, "w"))

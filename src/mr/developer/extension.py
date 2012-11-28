@@ -72,10 +72,6 @@ class Extension(object):
                 sys.exit(1)
             url = info[1]
 
-            for rewrite in self.get_config().rewrites:
-                if len(rewrite) == 2 and url.startswith(rewrite[0]):
-                    url = "%s%s" % (rewrite[1], url[len(rewrite[0]):])
-
             path = None
             if len(info) > 2:
                 if '=' not in info[2]:
@@ -116,6 +112,9 @@ class Extension(object):
                     source['path'] = source['full-path']
                 else:
                     source['path'] = os.path.join(sources_dir, name)
+
+            for rewrite in self.get_config().rewrites:
+                rewrite(source)
 
             sources[name] = source
 

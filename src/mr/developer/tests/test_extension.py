@@ -120,11 +120,13 @@ class TestExtensionClass(TestCase):
         self.assertEquals(wcs._events[0][1], ['pkg.bar', 'pkg.foo'])
 
     def testRewriteSources(self):
+        from mr.developer.common import LegacyRewrite
         self.buildout['sources'].update({
             'pkg.foo': 'svn dummy://pkg.foo',
             'pkg.bar': 'svn baz://pkg.bar',
         })
-        self.extension.get_config().rewrites.append(('dummy://', 'ham://'))
+        self.extension.get_config().rewrites.append(
+            LegacyRewrite('dummy://', 'ham://'))
         sources = self.extension.get_sources()
         self.assertEquals(sources['pkg.foo']['url'], 'ham://pkg.foo')
         self.assertEquals(sources['pkg.bar']['url'], 'baz://pkg.bar')

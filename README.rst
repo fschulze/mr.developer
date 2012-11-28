@@ -184,6 +184,51 @@ In the ``[mr.developer]`` section you have the following options.
   This sets the number of threads used for parallel checkouts. See
   `Lockups during checkouts and updates`_ why you might need this.
 
+In the ``[rewrites]`` section you can setup rewrite rules for sources. This is
+useful if you want to provide a buildout with sources to repositories which have
+different URLs for repositories which are read only for anonymous users. In that
+case developers can add a URL rewrite which automatically changes the URL to a
+writable repository.
+
+The rewrite rules can have multiple operators:
+
+``=``
+  Matches the exact string. Useful to only operated on sources of a certain kind
+  and similar things. This doesn't rewrite anything, but limits the rule.
+
+``~=``
+  Matches with a regular expression. This doesn't rewrite anything, but limits
+  the rule.
+
+``~``
+  This runs a regular expression substitution. The substitute is read from the
+  next line. You can use groups in the expression and the backslash syntax in
+  the substitute. See `re.sub`_ documentation.
+
+.. _`re.sub`: http://docs.python.org/2/library/re.html#re.sub
+
+The following are useful examples::
+
+  [rewrites]
+
+  plone_svn =
+    url ~ ^http://svn.plone.org/svn/
+    https://svn.plone.org/svn/
+
+  github =
+    url ~ ^https://github.com/
+    git@github.com:
+    kind = git
+
+  my_mrdeveloper_fork =
+    url ~ fschulze(/mr.developer.git)
+    me\1
+
+  my_mrdeveloper_fork_alternate =
+    url ~= fschulze/mr.developer.git
+    url ~ fschulze/
+    me/
+
 Troubleshooting
 ===============
 
