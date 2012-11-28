@@ -226,8 +226,9 @@ class Extension(object):
         packages = set(auto_checkout)
         sources = self.get_sources()
         for pkg in develeggs:
-            if pkg in sources and sources[pkg].get('update'):
-                packages.add(pkg)
+            if pkg in sources:
+                if always_checkout or sources[pkg].get('update'):
+                    packages.add(pkg)
 
         offline = self.buildout['buildout'].get('offline', '').lower() == 'true'
         workingcopies.checkout(sorted(packages),

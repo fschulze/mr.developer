@@ -4,6 +4,11 @@ Changelog
 1.23 - Unreleased
 -----------------
 
+* Update all activated packages during buildout if ``always-checkout`` is true
+  instead of only the ones in the ``auto-checkout`` list or with the ``update``
+  option set. Refs #95
+  [fschulze]
+
 * Fix asking for password for svn with basic authentication. Refs #100
   [MordicusEtCubitus]
 
