@@ -4,7 +4,8 @@ Changelog
 1.24 - Unreleased
 -----------------
 
-
+* Fix deactivate command which was broken since 1.22. Refs #105
+  [fschulze, icemac]
 
 1.23 - 2012-11-28
 -----------------
@@ -66,7 +67,7 @@ Changelog
   [maurits]
 
 * Fixed some exceptions occurring when using with Python 3.
-  [icemac]
+  [icemac (Michael Howitz)]
 
 * On Windows, use the PATHEXT environment variable to find the git executable.
   [kleist]

@@ -224,7 +224,7 @@ class CmdDeactivate(Command):
             if not source.get('egg', True):
                 logger.warning("The package '%s' isn't an egg." % name)
                 continue
-            if config.develop.get(name) is False:
+            if config.develop.get(name) is not False:
                 config.develop[name] = False
                 logger.info("Deactivated '%s'." % name)
                 changed = True
