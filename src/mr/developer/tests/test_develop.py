@@ -109,8 +109,12 @@ class TestDeactivateCommand(TestCase):
     def testDeactivateDeactivatedPackage(self):
         self.develop.config.develop['bar'] = False
         args = self.develop.parser.parse_args(args=['deactivate', 'bar'])
-        with patch('mr.developer.develop.logger') as logger:
+        _logger = patch('mr.developer.develop.logger')
+        logger = _logger.__enter__()
+        try:
             self.cmd(args)
+        finally:
+            _logger.__exit__()
         assert self.develop.config.develop == dict(
             bar=False,
             foo='auto',
@@ -120,8 +124,12 @@ class TestDeactivateCommand(TestCase):
     def testDeactivateActivatedPackage(self):
         self.develop.config.develop['bar'] = True
         args = self.develop.parser.parse_args(args=['deactivate', 'bar'])
-        with patch('mr.developer.develop.logger') as logger:
+        _logger = patch('mr.developer.develop.logger')
+        logger = _logger.__enter__()
+        try:
             self.cmd(args)
+        finally:
+            _logger.__exit__()
         assert self.develop.config.develop == dict(
             bar=False,
             foo='auto',
@@ -132,8 +140,12 @@ class TestDeactivateCommand(TestCase):
 
     def testDeactivateAutoCheckoutPackage(self):
         args = self.develop.parser.parse_args(args=['deactivate', 'foo'])
-        with patch('mr.developer.develop.logger') as logger:
+        _logger = patch('mr.developer.develop.logger')
+        logger = _logger.__enter__()
+        try:
             self.cmd(args)
+        finally:
+            _logger.__exit__()
         assert self.develop.config.develop == dict(
             foo=False,
             ham='auto')
