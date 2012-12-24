@@ -12,3 +12,5 @@
 /eggs/*
 /etc
 /.installed.cfg
+/.idea
+/parts
