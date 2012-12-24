@@ -82,7 +82,8 @@ class MercurialTests(JailSetup):
             assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.hg', 'bar', 'foo'))
             assert log.method_calls == [
                 ('info', ("Cloned 'egg' with mercurial.",), {}),
-                ('info', ("Updated 'egg' with mercurial.",), {})]
+                ('info', ("Updated 'egg' with mercurial.",), {}),
+                ('info', ("Switched 'egg' to default.",), {})]
         finally:
             _log.__exit__()
 

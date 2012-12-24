@@ -56,12 +56,14 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         path = self.source['path']
         name = self.source['name']
         env = dict(os.environ)
+        env.pop('PYTHONPATH', None)
         cmd = subprocess.Popen(['hg', 'checkout', rev, '-c'], cwd=path,
                 env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode:
             raise MercurialError(
                 'hg update for %r failed.\n%s' % (name, stderr))
+        self.output((logger.info, 'Switched %r to %s.' % (name, rev)))
         return stdout
 
     def hg_pull(self, **kwargs):
