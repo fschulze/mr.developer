@@ -33,7 +33,6 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
             env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            raise Exception(stdout, stderr, cmd.returncode)
             raise MercurialError(
                 'hg clone for %r failed.\n%s' % (name, stderr))
         if kwargs.get('verbose', False):
