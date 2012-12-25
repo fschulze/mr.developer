@@ -168,7 +168,7 @@ class MercurialTests(JailSetup):
         assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.hg', 'foo'))
 
         # we can't use both rev and branch
-        with pytest.raises(SystemExit):
+        pytest.raises(SystemExit, """
             develop.sources = {
                 'egg': Source(
                     kind='hg',
@@ -178,3 +178,4 @@ class MercurialTests(JailSetup):
                     url='%s' % repository,
                     path=os.path.join(src, 'egg-failed'))}
             CmdCheckout(develop)(develop.parser.parse_args(['co', 'egg']))
+        """)
