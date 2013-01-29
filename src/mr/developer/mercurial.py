@@ -1,8 +1,15 @@
 from mr.developer import common
 import os
 import subprocess
+import sys
 
 logger = common.logger
+
+
+if sys.version_info < (3, 0):
+    b = lambda x: x
+else:
+    b = lambda x: x.encode('ascii')
 
 
 class MercurialError(common.WCError):
@@ -119,7 +126,7 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
             raise MercurialError(
                 'hg showconfig for %r failed.\n%s' % (name, stderr))
         # now check that the working branch is the same
-        return (self.source['url'] + '\n' == stdout)
+        return b(self.source['url'] + '\n') == stdout
 
     def status(self, **kwargs):
         path = self.source['path']
