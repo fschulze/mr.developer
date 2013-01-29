@@ -20,26 +20,16 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         name = self.source['name']
         path = self.source['path']
         url = self.source['url']
-        branch = self.source['branch']
-        rev = self.source['rev']
 
         if os.path.exists(path):
             self.output((logger.info, 'Skipped cloning of existing package %r.' % name))
             return
-        if branch != 'default':
-            if rev:
-                raise ValueError("'branch' and 'rev' parameters cannot be used "
-                    "simultanously")
-            else:
-                rev = branch
-        else:
-            rev = rev or 'default'
-
+        rev = self.get_rev()
         self.output((logger.info, 'Cloned %r with mercurial.' % name))
         env = dict(os.environ)
         env.pop('PYTHONPATH', None)
         cmd = subprocess.Popen(
-            ['hg', 'clone', '--update', rev, '--quiet', '--noninteractive', url, path],
+            ['hg', 'clone', '--updaterev', rev, '--quiet', '--noninteractive', url, path],
             env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
@@ -48,11 +38,25 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         if kwargs.get('verbose', False):
             return stdout
 
+    def get_rev(self):
+        branch = self.source['branch']
+        rev = self.source['rev']
+
+        if branch != 'default':
+            if rev:
+                raise ValueError("'branch' and 'rev' parameters cannot be used "
+                    "simultanously")
+            else:
+                rev = branch
+        else:
+            rev = rev or 'default'
+        return rev
+
     def _update_to_rev(self, rev):
         path = self.source['path']
         name = self.source['name']
         env = dict(os.environ)
-        cmd = subprocess.Popen(['hg', 'checkout', rev], cwd=path,
+        cmd = subprocess.Popen(['hg', 'checkout', rev, '-c'], cwd=path,
                 env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode:
@@ -66,7 +70,7 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         # However the 'rev' parameter works differently and forces revision
         name = self.source['name']
         path = self.source['path']
-        rev = self.source['rev']
+        rev = self.get_rev()
         self.output((logger.info, 'Updated %r with mercurial.' % name))
         env = dict(os.environ)
         env.pop('PYTHONPATH', None)
