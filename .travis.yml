@@ -3,7 +3,8 @@ python:
   - "2.5"
   - "2.6"
   - "2.7"
+  - "3.2"
 install:
   - python --version 2>&1 | grep -q " 2." && python bootstrap.py || python bootstrap2.py
-  - ./bin/buildout buildout:parts=test
+  - python --version 2>&1 | grep -q " 2." && ./bin/buildout buildout:parts=test || ./bin/buildout buildout:parts=test -n -c python3.cfg
 script: python --version 2>&1 | grep -q " 2." && ./bin/py.test || ./bin/py.test build/lib/
