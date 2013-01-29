@@ -4,6 +4,9 @@ Changelog
 1.24 - Unreleased
 -----------------
 
+* Fix gitsvn/gitify working copy type which was broken since 1.22.
+  [rpatterson]
+
 * Fix deactivate command which was broken since 1.22. Refs #105
   [fschulze, icemac]
 
