@@ -8,7 +8,7 @@ Changelog
   [bubenkoff (Anatoly Bubenkov), fschulze]
 
 * Fix gitsvn/gitify working copy type which was broken since 1.22.
-  [rpatterson]
+  [rpatterson (Ross Patterson)]
 
 * Fix deactivate command which was broken since 1.22. Refs #105
   [fschulze, icemac]
