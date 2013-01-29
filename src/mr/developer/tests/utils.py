@@ -64,7 +64,7 @@ class background_thread(object):
         self._t.join()
 
 
-def popen(cmd, echo=True, echo2=True, env=None):
+def popen(cmd, echo=True, echo2=True, env=None, cwd=None):
     """Run 'cmd' and return a two-tuple of exit code and lines read.
 
     If 'echo' is True, the stdout stream is echoed to sys.stdout.
@@ -74,6 +74,8 @@ def popen(cmd, echo=True, echo2=True, env=None):
     case they are used as tee filters.
 
     The 'env' argument allows to pass a dict replacing os.environ.
+
+    if 'cwd' is not None, current directory will be changed to cwd before execution.
     """
     if not callable(echo):
         if echo:
@@ -92,7 +94,8 @@ def popen(cmd, echo=True, echo2=True, env=None):
         shell=True,
         stdout=PIPE,
         stderr=PIPE,
-        env=env
+        env=env,
+        cwd=cwd
     )
 
     bt = background_thread(tee2, (process, echo2))
@@ -101,7 +104,6 @@ def popen(cmd, echo=True, echo2=True, env=None):
         lines = tee(process, echo)
     finally:
         bt.__exit__()
-
     return process.returncode, lines
 
 
@@ -122,15 +124,16 @@ class Off(object):
 class Process(object):
     """Process related functions using the tee module."""
 
-    def __init__(self, quiet=False, env=None):
+    def __init__(self, quiet=False, env=None, cwd=None):
         self.quiet = quiet
         self.env = env
+        self.cwd = cwd
 
-    def popen(self, cmd, echo=True, echo2=True):
+    def popen(self, cmd, echo=True, echo2=True, cwd=None):
         # env *replaces* os.environ
         if self.quiet:
             echo = echo2 = False
-        return popen(cmd, echo, echo2, env=self.env)
+        return popen(cmd, echo, echo2, env=self.env, cwd=self.cwd or cwd)
 
     def pipe(self, cmd):
         rc, lines = self.popen(cmd, echo=False)
