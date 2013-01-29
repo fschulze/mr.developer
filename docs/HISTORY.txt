@@ -4,6 +4,9 @@ Changelog
 1.24 - Unreleased
 -----------------
 
+* Mercurial now switches branches.
+  [bubenkoff (Anatoly Bubenkov), fschulze]
+
 * Fix gitsvn/gitify working copy type which was broken since 1.22.
   [rpatterson]
 
