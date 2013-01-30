@@ -678,7 +678,7 @@ class CmdStatus(Command):
             source = self.develop.sources[name]
             if not source.exists():
                 if name in auto_checkout:
-                    print "!", " ", name
+                    print "!", " ", " ", name
                 continue
             paths.append(source['path'])
             if not workingcopies.matches(source):
@@ -724,14 +724,14 @@ class CmdStatus(Command):
                 output = output.strip()
                 if output:
                     for line in output.split('\n'):
-                        print "   ", line
+                        print " ", " ", " ", line
                     print
 
         # Only report on unknown entries when we have no package regexp.
         if not package_regexp:
             for entry in os.listdir(sources_dir):
                 if not os.path.join(sources_dir, entry) in paths:
-                    print '?', ' ', entry
+                    print "?", " ", " ", entry
 
 
 class CmdUpdate(Command):

@@ -4,7 +4,8 @@ Changelog
 1.25 - Unreleased
 -----------------
 
-
+* Properly line up the output of ``status``.
+  [fschulze]
 
 1.24 - 2013-01-29
 -----------------
