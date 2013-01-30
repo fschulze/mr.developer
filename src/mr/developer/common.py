@@ -417,20 +417,20 @@ class Rewrite(object):
             for operation in operations:
                 operator = operation[0]
                 if operator == '~':
-                    if operation[1].search(source[option]) is None:
+                    if operation[1].search(source.get(option, '')) is None:
                         return
                 elif operator == '=':
-                    if operation[1] != source[option]:
+                    if operation[1] != source.get(option, ''):
                         return
                 elif operator == '~=':
-                    if operation[1].search(source[option]) is None:
+                    if operation[1].search(source.get(option, '')) is None:
                         return
         for option, operations in self.rewrites.items():
             for operation in operations:
                 operator = operation[0]
                 if operator == '~':
-                    orig = source[option]
-                    source[option] = operation[1].sub(operation[2], source[option])
+                    orig = source.get(option, '')
+                    source[option] = operation[1].sub(operation[2], orig)
                     if source[option] != orig:
                         logger.debug("Rewrote option '%s' from '%s' to '%s'." % (option, orig, source[option]))
 
