@@ -4,6 +4,9 @@ Changelog
 1.25 - Unreleased
 -----------------
 
+* Added `newest_tag` option for mercurial and cvs.
+  [kkujawinski, fschulze]
+
 * Python 3 fixes.
   [fschulze, jajadinimueter (Florian Mueller)]
 
