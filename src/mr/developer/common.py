@@ -70,6 +70,24 @@ class BaseWorkingCopy(object):
             else:
                 raise ValueError("Unknown value for 'update': %s" % update)
         return update
+    
+    def _version_sorted(self, inp, *args, **kwargs):
+        """
+        transform each item from input from (a-0-0_11) into tuple (a, '-', 0, '-', 0, '_', 11), 
+        than sorts do python tuple sorting
+        """
+        def int_str(val):
+            try:
+                return int(val)
+            except ValueError:
+                return val
+        num_reg = re.compile(r'([0-9]+)')
+        output = []
+        for i in inp:
+            splitted = num_reg.split(i)
+            splitted = [int_str(j) for j in splitted]
+            output.append(tuple(splitted))
+        return  [''.join([str(j) for j in i]) for i in sorted(output, *args, **kwargs)]
 
 
 def yesno(question, default=True, all=True):

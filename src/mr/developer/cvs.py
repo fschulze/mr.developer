@@ -12,7 +12,7 @@ class CVSError(common.WCError):
     pass
 
 
-def build_cvs_command(command, name, url, tag='', cvs_root=''):
+def build_cvs_command(command, name, url, tag='', cvs_root='', tag_file=None):
     """
     Create CVS commands.
 
@@ -30,6 +30,8 @@ def build_cvs_command(command, name, url, tag='', cvs_root=''):
         ['cvs', '-d', ':pserver:user@127.0.0.1:/repos', 'checkout', '-P', '-f', '-d', 'package.name', 'python/package.name']
         >>> build_cvs_command('status', 'package.name', 'python/package.name')
         ['cvs', '-q', '-n', 'update']
+        >>> build_cvs_command('tags', 'package.name', 'python/package.name', tag_file='setup.py')
+        ['cvs', '-Q', 'log', 'setup.py']
 
     """
     if command == 'status':
@@ -38,28 +40,41 @@ def build_cvs_command(command, name, url, tag='', cvs_root=''):
     cmd = ['cvs']
     if cvs_root:
         cmd.extend(['-d', cvs_root])
-    cmd.extend([command, '-P'])
-    if tag:
-        cmd.extend(['-r', tag])
+    
+    if command == 'tags':
+        cmd.extend(['-Q', 'log'])
+        if not tag_file:
+            tag_file = 'setup.py'
+        cmd.append(tag_file)
     else:
-        cmd.append('-f')
-    cmd.append('-d')
-    if command == 'checkout':
-        cmd.extend([name, url])
-
+        cmd.extend([command, '-P'])
+        if tag:
+            cmd.extend(['-r', tag])
+        else:
+            cmd.append('-f')
+        cmd.append('-d')
+        if command == 'checkout':
+            cmd.extend([name, url])
     return cmd
 
 
 class CVSWorkingCopy(common.BaseWorkingCopy):
+    
+    def __init__(self, source):
+        super(CVSWorkingCopy, self).__init__(source)
+        if self.source.get('newest_tag', '').lower() in ['1', 'true', 'yes']:
+            self.source['tag'] = self._get_newest_tag()
+    
     def cvs_command(self, command, **kwargs):
         name = self.source['name']
         path = self.source['path']
         url = self.source['url']
         tag = self.source.get('tag')
+        
         cvs_root = self.source.get('cvs_root')
-
+        tag_file = self.source.get('tag_file')
         self.output((logger.info, 'Running %s %r from CVS.' % (command, name)))
-        cmd = build_cvs_command(command, name, url, tag, cvs_root)
+        cmd = build_cvs_command(command, name, url, tag, cvs_root, tag_file)
 
         ## because CVS can not work on absolute paths, we must execute cvs commands
         ## in destination or in parent directory of destination
@@ -67,7 +82,7 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
         if command == 'checkout':
             path = os.path.dirname(path)
         os.chdir(path)
-
+        
         try:
             cmd = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             stdout, stderr = cmd.communicate()
@@ -76,9 +91,36 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
 
         if cmd.returncode != 0:
             raise CVSError('CVS %s for %r failed.\n%s' % (command, name, stderr))
+        if command == 'tags':
+            return self._get_tags_list(stdout)
         if kwargs.get('verbose', False):
             return stdout
 
+    def _get_tags_list(self, stdout):
+        output = []
+        tag_line_re = re.compile(r'([^: ]+): [0-9.]+')
+        tags_list_started = False
+        for line in stdout.split('\n'):
+            if tags_list_started:
+                matched = tag_line_re.match(line.strip())
+                if matched:
+                    output.append(matched.groups()[0])
+                else:
+                    tags_list_started = False
+            elif 'symbolic names:' in line:
+                tags_list_started = True
+        return list(set(output))
+
+    def _get_newest_tag(self):
+        tags = self.cvs_command('tags')
+        if not tags:
+            return None
+        tags = [t for t in tags if t.startswith(self.source.get('newest_tag_mask', ''))]
+        tags = self._version_sorted(tags, reverse=True)
+        newest_tag = tags[0]
+        self.output((logger.info, 'Picked newest tag for %r from CVS: %r.' % (self.source['name'], newest_tag)))
+        return newest_tag
+    
     def checkout(self, **kwargs):
         name = self.source['name']
         path = self.source['path']

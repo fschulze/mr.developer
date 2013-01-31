@@ -1,4 +1,5 @@
 from mr.developer import common
+import re
 import os
 import subprocess
 import sys
@@ -57,7 +58,43 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
                 rev = branch
         else:
             rev = rev or 'default'
+        
+        if self.source.get('newest_tag', '').lower() in ['1', 'true', 'yes']:
+            rev = self._get_newest_tag() or rev
         return rev
+
+    def _get_tags(self):
+        path = self.source['path']
+        name = self.source['name']
+        env = dict(os.environ)
+        env.pop('PYTHONPATH', None)
+        cmd = subprocess.Popen(['hg', 'tags' ], cwd=path,
+        env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = cmd.communicate()
+        if cmd.returncode:
+            raise MercurialError(
+                'hg update for %r failed.\n%s' % (name, stderr))
+        
+        output = []
+        tag_line_re = re.compile(r'([^\s]+)[\s]*.*')
+        for line in stdout.split("\n"):
+            matched = tag_line_re.match(line)
+            if matched:
+                tag_name = matched.groups()[0]
+                if tag_name != 'tip':
+                    output.append(tag_name)
+        return output
+        
+
+    def _get_newest_tag(self):
+        tags = self._get_tags()
+        if not tags:
+            return None
+        tags = [t for t in tags if t.startswith(self.source.get('newest_tag_mask', ''))]
+        tags = self._version_sorted(tags, reverse=True)
+        newest_tag = tags[0]
+        self.output((logger.info, 'Picked newest tag for %r from CVS: %r.' % (self.source['name'], newest_tag)))
+        return newest_tag
 
     def _update_to_rev(self, rev):
         path = self.source['path']
@@ -79,7 +116,6 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         # However the 'rev' parameter works differently and forces revision
         name = self.source['name']
         path = self.source['path']
-        rev = self.get_rev()
         self.output((logger.info, 'Updated %r with mercurial.' % name))
         env = dict(os.environ)
         env.pop('PYTHONPATH', None)
@@ -92,6 +128,8 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
             if 'no changes found' not in stdout:
                 raise MercurialError(
                     'hg pull for %r failed.\n%s' % (name, stderr))
+        #to find newest_tag hg pull is needed before
+        rev = self.get_rev()
         if rev:
             stdout += self._update_to_rev(rev)
         if kwargs.get('verbose', False):
