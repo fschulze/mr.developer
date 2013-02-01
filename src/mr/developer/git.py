@@ -135,6 +135,9 @@ class GitWorkingCopy(common.BaseWorkingCopy):
             stdout, stderr = self.git_switch_branch(stdout, stderr)
         if 'pushurl' in self.source:
             stdout, stderr = self.git_set_pushurl(stdout, stderr)
+        if 'submodule' in self.source:
+            stdout, stderr = self.git_init_submodules(stdout, stderr)
+            self.output((logger.info, "Initialized '%s' submodules with git." % name))
         if kwargs.get('verbose', False):
             return stdout
 
@@ -253,4 +256,15 @@ class GitWorkingCopy(common.BaseWorkingCopy):
 
         if cmd.returncode != 0:
             raise GitError("git config remote.%s.pushurl %s \nfailed.\n" % (self._upstream_name, self.source['pushurl']))
+        return (stdout_in + stdout, stderr_in + stderr)
+
+    def git_init_submodules(self, stdout_in, stderr_in):
+        cmd = self.run_git(
+            [
+                'submodule',
+                'init'],
+            cwd=self.source['path'])
+        stdout, stderr = cmd.communicate()
+        if cmd.returncode != 0:
+            raise GitError("git submodule init failed.\n")
         return (stdout_in + stdout, stderr_in + stderr)
