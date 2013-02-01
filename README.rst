@@ -121,6 +121,8 @@ Common options
   The ``pushurl`` options allows you to explicitly separate push url from pull
   url, configured by git config.
 
+  The ``submodule`` option allows you to initialize existing submodules after cloning. You don't have to provide any value, only the key and the equal sign is needed.
+
   Note that the ``branch`` and ``rev`` option are mutually exclusive.
 
 ``hg``
@@ -129,7 +131,7 @@ Common options
 
   The ``rev`` option allows you to force a specific revision
   (hash, tag, branch) to be checked out after buildout
-  
+
 ``bzr``
   Currently no additional options.
 
