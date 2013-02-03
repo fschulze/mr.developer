@@ -92,34 +92,9 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
         if cmd.returncode != 0:
             raise CVSError('CVS %s for %r failed.\n%s' % (command, name, stderr))
         if command == 'tags':
-            return self._get_tags_list(stdout)
+            return self._format_tags_list(stdout)
         if kwargs.get('verbose', False):
             return stdout
-
-    def _get_tags_list(self, stdout):
-        output = []
-        tag_line_re = re.compile(r'([^: ]+): [0-9.]+')
-        tags_list_started = False
-        for line in stdout.split('\n'):
-            if tags_list_started:
-                matched = tag_line_re.match(line.strip())
-                if matched:
-                    output.append(matched.groups()[0])
-                else:
-                    tags_list_started = False
-            elif 'symbolic names:' in line:
-                tags_list_started = True
-        return list(set(output))
-
-    def _get_newest_tag(self):
-        tags = self.cvs_command('tags')
-        if not tags:
-            return None
-        tags = [t for t in tags if t.startswith(self.source.get('newest_tag_mask', ''))]
-        tags = self._version_sorted(tags, reverse=True)
-        newest_tag = tags[0]
-        self.output((logger.info, 'Picked newest tag for %r from CVS: %r.' % (self.source['name'], newest_tag)))
-        return newest_tag
     
     def checkout(self, **kwargs):
         name = self.source['name']
@@ -184,7 +159,7 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
             return status, stdout
         else:
             return status
-
+    
     def update(self, **kwargs):
         name = self.source['name']
         if not self.matches():
@@ -195,3 +170,30 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
             raise CVSError(
                 "Can't update package %r, because it's dirty." % name)
         return self.cvs_command('update', **kwargs)
+    
+    def _format_tags_list(self, stdout):
+        output = []
+        tag_line_re = re.compile(r'([^: ]+): [0-9.]+')
+        list_started = False
+        for line in stdout.split('\n'):
+            if list_started:
+                matched = tag_line_re.match(line.strip())
+                if matched:
+                    output.append(matched.groups()[0])
+                else:
+                    list_started = False
+            elif 'symbolic names:' in line:
+                list_started = True
+        return list(set(output))
+    
+    def _get_newest_tag(self):
+        tags = self.cvs_command('tags')
+        mask = self.source.get('newest_tag_mask', '')
+        if mask:
+            tags = [t for t in tags if t.startswith(mask)]
+        tags = self._version_sorted(tags, reverse=True)
+        if not tags:
+            return None
+        newest_tag = tags[0]
+        self.output((logger.info, 'Picked newest tag for %r from CVS: %r.' % (self.source['name'], newest_tag)))
+        return newest_tag

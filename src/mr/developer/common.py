@@ -73,21 +73,29 @@ class BaseWorkingCopy(object):
     
     def _version_sorted(self, inp, *args, **kwargs):
         """
-        transform each item from input from (a-0-0_11) into tuple (a, '-', 0, '-', 0, '_', 11), 
-        than sorts do python tuple sorting
+        Sorts components versions, it means that numeric parts of version
+        treats as numeric and string as string.
+        
+        Eg.: version-1-0-1 < version-1-0-2 < version-1-0-10
         """
+        num_reg = re.compile(r'([0-9]+)')
+        
         def int_str(val):
             try:
                 return int(val)
             except ValueError:
                 return val
-        num_reg = re.compile(r'([0-9]+)')
-        output = []
-        for i in inp:
-            splitted = num_reg.split(i)
+        
+        def split_item(item):
+            splitted = num_reg.split(item)
             splitted = [int_str(j) for j in splitted]
-            output.append(tuple(splitted))
-        return  [''.join([str(j) for j in i]) for i in sorted(output, *args, **kwargs)]
+            return tuple(splitted)
+        
+        def join_item(item):
+            return ''.join([str(j) for j in item])
+        
+        output = [split_item(i) for i in inp]
+        return [join_item(i) for i in sorted(output, *args, **kwargs)]
 
 
 def yesno(question, default=True, all=True):
