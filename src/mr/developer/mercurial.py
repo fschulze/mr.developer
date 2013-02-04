@@ -174,11 +174,10 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         def get_tag_name(line):
             matched = tag_line_re.match(line)
             if matched:
-                tag_name = matched.groups()[0]
-            return tag_name
+                return matched.groups()[0]
         
         tags = (get_tag_name(line) for line in stdout.split("\n"))
-        return [tag for tag in tags if tag != 'tip']
+        return [tag for tag in tags if tag and tag != 'tip']
     
     def _get_newest_tag(self):
         mask = self.source.get('newest_tag_mask')
@@ -190,7 +189,7 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         if not tags:
             return None
         newest_tag = tags[0]
-        self.output((logger.info, 'Picked newest tag for %r from CVS: %r.' % (name, newest_tag)))
+        self.output((logger.info, 'Picked newest tag for %r from Mercurial: %r.' % (name, newest_tag)))
         return newest_tag
 
 
