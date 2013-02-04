@@ -17,6 +17,7 @@ class MockDevelop(object):
     def __init__(self):
         self.always_accept_server_certificate = True
         self.always_checkout = False
+        self.update_git_submodules = 'always'
         self.config = MockConfig()
         self.parser = argparse.ArgumentParser()
         self.parsers = self.parser.add_subparsers(title="commands", metavar="")
