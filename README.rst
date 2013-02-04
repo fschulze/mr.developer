@@ -49,6 +49,19 @@ This enables additional ``[buildout]`` options:
   buildout run. If set to ``force``, then packages are updated even when
   they are dirty instead of asking interactively.
 
+``update-git-submodules``
+  This defaults to ``always``. If it's ``always``, then all submodules present
+  in each package in develompent will be registered and updated on checkout and
+  on updates via the develop command. If you don't want to initialize any submodule
+  of any package, set value to ``never``. If you set the value to ``checkout``,
+  submodules will be updated only he first time, so the ``develop update`` command
+  will have no effect.
+
+
+  packages in develop mode are updated during each
+  buildout run. If set to ``force``, then packages are updated even when
+  they are dirty instead of asking interactively.
+
 ``always-accept-server-certificate``
   This defaults to ``false``. If it's ``true``, invalid server
   certificates are accepted without asking (for subversion repositories).
@@ -121,7 +134,9 @@ Common options
   The ``pushurl`` options allows you to explicitly separate push url from pull
   url, configured by git config.
 
-  The ``submodule`` option allows you to initialize existing submodules after cloning. You don't have to provide any value, only the key and the equal sign is needed.
+  The ``submodules`` option allows you to initialize existing submodules after
+  cloning. Default value is controled by the buildout option ``update-git-submodules``.
+  Possible values are the same described before in ``update-git-submodules`` option,
 
   Note that the ``branch`` and ``rev`` option are mutually exclusive.
 
