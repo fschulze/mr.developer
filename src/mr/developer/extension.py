@@ -144,6 +144,9 @@ class Extension(object):
     def get_always_checkout(self):
         return self.buildout['buildout'].get('always-checkout', False)
 
+    def get_update_git_submodules(self):
+        return self.buildout['buildout'].get('update-git-submodules', 'always')
+
     def get_develop_info(self):
         auto_checkout = self.get_auto_checkout()
         sources = self.get_sources()
@@ -219,6 +222,7 @@ class Extension(object):
         root_logger = logging.getLogger()
         workingcopies = self.get_workingcopies()
         always_checkout = self.get_always_checkout()
+        update_git_submodules = self.get_update_git_submodules()
         always_accept_server_certificate = self.get_always_accept_server_certificate()
         (develop, develeggs, versions) = self.get_develop_info()
 
@@ -233,6 +237,7 @@ class Extension(object):
         workingcopies.checkout(sorted(packages),
                                verbose=root_logger.level <= 10,
                                update=always_checkout,
+                               submodules=update_git_submodules,
                                always_accept_server_certificate=always_accept_server_certificate,
                                offline=offline)
 

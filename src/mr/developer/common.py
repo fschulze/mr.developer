@@ -206,6 +206,12 @@ class WorkingCopies(object):
             else:
                 logger.error("Unknown value '%s' for always-checkout option." % kwargs['update'])
                 sys.exit(1)
+        kwargs.setdefault('submodules', 'always')
+        if kwargs['submodules'] in ['always', 'never', 'checkout']:
+            pass
+        else:
+            logger.error("Unknown value '%s' for update-git-submodules option." % kwargs['submodules'])
+            sys.exit(1)
         for name in packages:
             kw = kwargs.copy()
             if name not in self.sources:
