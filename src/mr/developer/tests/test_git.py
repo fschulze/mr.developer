@@ -73,7 +73,6 @@ class GITTests(JailSetup):
             assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.git', 'bar', 'foo'))
             CmdUpdate(develop)(develop.parser.parse_args(['up', 'egg']))
             assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.git', 'bar', 'foo'))
-            pytest.set_trace()
             assert log.method_calls == [
                 ('info', ("Cloned 'egg' with git.",), {}),
                 ('info', ("Updated 'egg' with git.",), {}),
