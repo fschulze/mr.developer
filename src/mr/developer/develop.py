@@ -172,6 +172,7 @@ class CmdCheckout(Command):
             workingcopies = self.get_workingcopies(self.develop.sources)
             workingcopies.checkout(sorted(packages),
                                    verbose=args.verbose,
+                                   submodules=self.develop.update_git_submodules,
                                    always_accept_server_certificate=self.develop.always_accept_server_certificate)
             for name in sorted(packages):
                 source = self.develop.sources[name]
@@ -770,6 +771,7 @@ class CmdUpdate(Command):
         workingcopies.update(sorted(packages),
                              force=force,
                              verbose=args.verbose,
+                             submodules=self.develop.update_git_submodules,
                              always_accept_server_certificate=self.develop.always_accept_server_certificate)
 
 
@@ -823,6 +825,7 @@ class Develop(object):
         self.sources_dir = extension.get_sources_dir()
         self.auto_checkout = extension.get_auto_checkout()
         self.always_checkout = extension.get_always_checkout()
+        self.update_git_submodules = extension.get_update_git_submodules()
         self.always_accept_server_certificate = extension.get_always_accept_server_certificate()
         develop, self.develeggs, versions = extension.get_develop_info()
         self.threads = extension.get_threads()
