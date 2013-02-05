@@ -50,18 +50,13 @@ This enables additional ``[buildout]`` options:
   they are dirty instead of asking interactively.
 
 ``update-git-submodules``
-  This defaults to ``always``. If it's ``always``, then all submodules present
+  This defaults to ``always``. If it's ``always``, then submodules present
   in each package in develompent will be registered and updated on checkout and
-  on updates via the develop command. If you don't want to initialize any submodule
-  of any package, set value to ``never``. If you set the value to ``checkout``,
-  submodules will be updated only he first time, so the ``develop up`` command
-  will not pull content from the submodule. Note that update only initializes
+  new ones on updates via the develop command. If you don't want to initialize any submodule,
+  set value to ``never``. If you set the value to ``checkout``,
+  code inside submodules will be pulled only the first time, so the ``develop up`` command
+  will leave the submodule empty. Note that update only initializes
   new submodules, it doesn't pull newest code from original submodule repo.
-
-
-  packages in develop mode are updated during each
-  buildout run. If set to ``force``, then packages are updated even when
-  they are dirty instead of asking interactively.
 
 ``always-accept-server-certificate``
   This defaults to ``false``. If it's ``true``, invalid server
