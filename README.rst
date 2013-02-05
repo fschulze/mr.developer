@@ -54,8 +54,9 @@ This enables additional ``[buildout]`` options:
   in each package in develompent will be registered and updated on checkout and
   on updates via the develop command. If you don't want to initialize any submodule
   of any package, set value to ``never``. If you set the value to ``checkout``,
-  submodules will be updated only he first time, so the ``develop update`` command
-  will have no effect.
+  submodules will be updated only he first time, so the ``develop up`` command
+  will not pull content from the submodule. Note that update only initializes
+  new submodules, it doesn't pull newest code from original submodule repo.
 
 
   packages in develop mode are updated during each
@@ -134,8 +135,8 @@ Common options
   The ``pushurl`` options allows you to explicitly separate push url from pull
   url, configured by git config.
 
-  The ``submodules`` option allows you to initialize existing submodules after
-  cloning. Default value is controled by the buildout option ``update-git-submodules``.
+  The ``submodules`` option allows you to initialize existing submodules.
+  Default value is controled by the buildout option ``update-git-submodules``.
   Possible values are the same described before in ``update-git-submodules`` option,
 
   Note that the ``branch`` and ``rev`` option are mutually exclusive.

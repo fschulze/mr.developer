@@ -3,7 +3,6 @@ from mr.developer.extension import Source
 from mr.developer.tests.utils import Process, JailSetup
 import argparse
 import os
-import pytest
 
 
 class MockConfig(object):
@@ -75,7 +74,6 @@ class GITTests(JailSetup):
             assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.git', 'bar', 'foo'))
             assert log.method_calls == [
                 ('info', ("Cloned 'egg' with git.",), {}),
-                ('info', ("Updated 'egg' with git.",), {}),
-                ('info', ("Updated all egg submodules with git.",), {})]
+                ('info', ("Updated 'egg' with git.",), {})]
         finally:
             _log.__exit__()

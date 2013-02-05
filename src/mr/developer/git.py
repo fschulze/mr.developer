@@ -139,8 +139,8 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         update_git_submodules = self.source.get('submodules', kwargs['submodules'])
         if update_git_submodules in ['always', 'checkout']:
             stdout, stderr, initialized = self.git_init_submodules(stdout, stderr)
-
-            # Update only new submodules that we just registered
+            # Update only new submodules that we just registered. this is for safety reasons
+            # as git submodule update on modified subomdules may cause code loss
             for submodule in initialized:
                 stdout, stderr = self.git_update_submodules(stdout, stderr, submodule=submodule)
                 self.output((logger.info, "Initialized '%s' submodule at '%s' with git." % (name, submodule)))
@@ -201,11 +201,12 @@ class GitWorkingCopy(common.BaseWorkingCopy):
 
         update_git_submodules = self.source.get('submodules', kwargs['submodules'])
         if update_git_submodules in ['always']:
-
-            # Make sure all submodules are initialized and update them all
             stdout, stderr, initialized = self.git_init_submodules(stdout, stderr)
-            stdout, stderr = self.git_update_submodules(stdout, stderr)
-            self.output((logger.info, "Updated all %s submodules with git." % name))
+            # Update only new submodules that we just registered. this is for safety reasons
+            # as git submodule update on modified subomdules may cause code loss
+            for submodule in initialized:
+                stdout, stderr = self.git_update_submodules(stdout, stderr, submodule=submodule)
+                self.output((logger.info, "Initialized '%s' submodule at '%s' with git." % (name, submodule)))
 
         if kwargs.get('verbose', False):
             return stdout
