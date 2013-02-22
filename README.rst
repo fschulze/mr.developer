@@ -102,9 +102,9 @@ Common options
 
   The ``newest_tag`` option allows you to checkout/update to the newest tag. 
   Possible values of the option are "true" and "false". In case of no backward
-  compatibility you can force mask of the tag name using ``newest_tag_mask`` option. 
-  Mask is the begining of the tag name (no * and regex is allowed). Options are
-  available for ``cvs`` and ``hg`` only.
+  compatibility you can force prefix of the tag name using ``newest_tag_prefix`` 
+  option. Prefix is the begining of the tag name (no * and regex is allowed). 
+  Options are  available for ``cvs`` and ``hg`` only.
 
 ``svn``
   The ``url`` is one of the urls supported by subversion.

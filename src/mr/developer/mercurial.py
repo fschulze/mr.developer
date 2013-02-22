@@ -163,8 +163,11 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         name = self.source['name']
         env = dict(os.environ)
         env.pop('PYTHONPATH', None)
-        cmd = subprocess.Popen(['hg', 'tags' ], cwd=path, env=env, 
+        try:
+            cmd = subprocess.Popen(['hg', 'tags' ], cwd=path, env=env, 
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        except OSError:
+            return []
         stdout, stderr = cmd.communicate()
         if cmd.returncode:
             raise MercurialError(
@@ -180,7 +183,7 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         return [tag for tag in tags if tag and tag != 'tip']
     
     def _get_newest_tag(self):
-        mask = self.source.get('newest_tag_mask')
+        mask = self.source.get('newest_tag_prefix') or self.source.get('newest_tag_mask')
         name = self.source['name']
         tags = self._get_tags()
         if mask:

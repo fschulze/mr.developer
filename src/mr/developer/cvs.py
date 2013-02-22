@@ -187,8 +187,11 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
         return list(set(output))
     
     def _get_newest_tag(self):
-        tags = self.cvs_command('tags')
-        mask = self.source.get('newest_tag_mask', '')
+        try:
+            tags = self.cvs_command('tags')
+        except OSError:
+            return None
+        mask = self.source.get('newest_tag_prefix') or self.source.get('newest_tag_mask', '')
         if mask:
             tags = [t for t in tags if t.startswith(mask)]
         tags = self._version_sorted(tags, reverse=True)
