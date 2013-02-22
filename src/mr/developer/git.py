@@ -232,6 +232,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise GitError("git remote of '%s' failed.\n%s" % (name, stderr))
+        stdout = stdout.decode()
         return (self.source['url'] in stdout.split())
 
     def update(self, **kwargs):
