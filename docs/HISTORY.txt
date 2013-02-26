@@ -4,6 +4,12 @@ Changelog
 1.25 - Unreleased
 -----------------
 
+* Python 3 fixes.
+  [fschulze, jajadinimueter (Florian Mueller)]
+
+* Fix revision pinning. Refs #113
+  [do3cc (Patrick Gerken)]
+
 * Properly line up the output of ``status``.
   [fschulze]
 
