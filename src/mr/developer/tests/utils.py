@@ -7,6 +7,14 @@ import threading
 import unittest
 
 
+if sys.version_info < (3, 0):
+    b = lambda x: x
+    s = lambda x: x
+else:
+    b = lambda x: x.encode('ascii')
+    s = lambda x: x.decode('ascii')
+
+
 def tee(process, filter_func):
     """Read lines from process.stdout and echo them to sys.stdout.
 
@@ -24,7 +32,7 @@ def tee(process, filter_func):
         if line:
             stripped_line = line.rstrip()
             if filter_func(stripped_line):
-                sys.stdout.write(line)
+                sys.stdout.write(s(line))
             lines.append(stripped_line)
         elif process.poll() is not None:
             break
@@ -43,7 +51,7 @@ def tee2(process, filter_func):
         if line:
             stripped_line = line.rstrip()
             if filter_func(stripped_line):
-                sys.stderr.write(line)
+                sys.stderr.write(s(line))
         elif process.poll() is not None:
             break
 

@@ -11,8 +11,10 @@ logger = common.logger
 
 if sys.version_info < (3, 0):
     b = lambda x: x
+    s = lambda x: x
 else:
     b = lambda x: x.encode('ascii')
+    s = lambda x: x.decode('ascii')
 
 
 class GitError(common.WCError):
@@ -230,7 +232,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise GitError("git remote of '%s' failed.\n%s" % (name, stderr))
-        return (self.source['url'] in stdout.split())
+        return (self.source['url'] in s(stdout).split())
 
     def update(self, **kwargs):
         name = self.source['name']
