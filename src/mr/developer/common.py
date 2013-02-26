@@ -70,6 +70,32 @@ class BaseWorkingCopy(object):
             else:
                 raise ValueError("Unknown value for 'update': %s" % update)
         return update
+    
+    def _version_sorted(self, inp, *args, **kwargs):
+        """
+        Sorts components versions, it means that numeric parts of version
+        treats as numeric and string as string.
+        
+        Eg.: version-1-0-1 < version-1-0-2 < version-1-0-10
+        """
+        num_reg = re.compile(r'([0-9]+)')
+        
+        def int_str(val):
+            try:
+                return int(val)
+            except ValueError:
+                return val
+        
+        def split_item(item):
+            splitted = num_reg.split(item)
+            splitted = [int_str(j) for j in splitted]
+            return tuple(splitted)
+        
+        def join_item(item):
+            return ''.join([str(j) for j in item])
+        
+        output = [split_item(i) for i in inp]
+        return [join_item(i) for i in sorted(output, *args, **kwargs)]
 
 
 def yesno(question, default=True, all=True):

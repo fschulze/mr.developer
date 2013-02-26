@@ -100,6 +100,12 @@ Common options
   but the package isn't added to the ``develop`` buildout option and the
   ``activate`` and ``deactivate`` commands skip the package.
 
+  The ``newest_tag`` option allows you to checkout/update to the newest tag. 
+  Possible values of the option are "true" and "false". In case of no backward
+  compatibility you can force prefix of the tag name using ``newest_tag_prefix`` 
+  option. Prefix is the begining of the tag name (no * and regex is allowed). 
+  Options are  available for ``cvs`` and ``hg`` only.
+
 ``svn``
   The ``url`` is one of the urls supported by subversion.
 
@@ -129,6 +135,7 @@ Common options
 
   The ``rev`` option allows you to force a specific revision
   (hash, tag, branch) to be checked out after buildout
+
   
 ``bzr``
   Currently no additional options.
@@ -141,6 +148,9 @@ Common options
   environment variable.
   The ``tag`` option forces checkout/update of the given tag instead of CVS
   HEAD.
+
+  The ``tag_file`` option defines from which file tags will be read (in case of 
+  using ``newest_tag``).  Default value is "setup.py".
 
 ``fs``
   This allows you to add packages on the filesystem without a version
