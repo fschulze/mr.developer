@@ -31,6 +31,7 @@ class MockDevelop(object):
         self.always_accept_server_certificate = True
         self.always_checkout = False
         self.auto_checkout = ''
+        self.update_git_submodules = 'always'
         self.sources_dir = ''
         self.develeggs = ''
         self.config = MockConfig()
