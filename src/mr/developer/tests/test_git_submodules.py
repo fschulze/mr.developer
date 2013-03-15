@@ -49,6 +49,10 @@ class GITTests(JailSetup):
         process = Process(cwd=repository)
         rc, lines = process.popen("git init")
         assert rc == 0
+        rc, lines = process.popen('git config user.email "florian.schulze@gmx.net"')
+        assert rc == 0
+        rc, lines = process.popen('git config user.name "Florian Schulze"')
+        assert rc == 0
         return repository
 
     def addSubmoduleToRepo(self, repository, submodule_path, submodule_name):

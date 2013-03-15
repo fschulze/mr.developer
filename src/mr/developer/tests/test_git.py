@@ -45,16 +45,24 @@ class GitTests(JailSetup):
     def setUp(self):
         JailSetup.setUp(self)
 
+    def createRepo(self, repo):
+        repository = os.path.join(self.tempdir, repo)
+        os.mkdir(repository)
+        process = Process(cwd=repository)
+        rc, lines = process.popen("git init")
+        assert rc == 0
+        rc, lines = process.popen('git config user.email "florian.schulze@gmx.net"')
+        assert rc == 0
+        rc, lines = process.popen('git config user.name "Florian Schulze"')
+        assert rc == 0
+        return repository
+
     def testUpdateWithRevisionPin(self):
         from mr.developer.develop import CmdCheckout
         from mr.developer.develop import CmdUpdate
         from mr.developer.develop import CmdStatus
-        repository = os.path.join(self.tempdir, 'repository')
-        os.mkdir(repository)
+        repository = self.createRepo('repository')
         process = Process(cwd=repository)
-        rc, lines = process.popen(
-            "git init %s" % repository)
-        assert rc == 0
         foo = os.path.join(repository, 'foo')
         self.mkfile(foo, 'foo')
         rc, lines = process.popen(
@@ -159,12 +167,8 @@ class GitTests(JailSetup):
     def testUpdateWithoutRevisionPin(self):
         from mr.developer.develop import CmdCheckout
         from mr.developer.develop import CmdUpdate
-        repository = os.path.join(self.tempdir, 'repository')
-        os.mkdir(repository)
+        repository = self.createRepo('repository')
         process = Process(cwd=repository)
-        rc, lines = process.popen(
-            "git init")
-        assert rc == 0
         foo = os.path.join(repository, 'foo')
         self.mkfile(foo, 'foo')
         rc, lines = process.popen(
