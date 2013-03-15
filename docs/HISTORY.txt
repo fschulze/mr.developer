@@ -4,6 +4,9 @@ Changelog
 1.25 - Unreleased
 -----------------
 
+* Git submodules support.
+  [sunbit]
+
 * Added `newest_tag` option for mercurial and cvs.
   [kkujawinski, fschulze]
 
