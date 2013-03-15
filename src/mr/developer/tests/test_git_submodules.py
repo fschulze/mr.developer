@@ -49,6 +49,12 @@ class GITTests(JailSetup):
         process = Process(cwd=repository)
         rc, lines = process.popen("git init")
         assert rc == 0
+        self.gitConfigUser(repo)
+        return repository
+
+    def gitConfigUser(self, repo):
+        repository = os.path.join(self.tempdir, repo)
+        process = Process(cwd=repository)
         rc, lines = process.popen('git config user.email "florian.schulze@gmx.net"')
         assert rc == 0
         rc, lines = process.popen('git config user.name "Florian Schulze"')
@@ -403,6 +409,7 @@ class GITTests(JailSetup):
         finally:
             _log.__exit__()
 
+        self.gitConfigUser(os.path.join(src, 'egg/%s' % submodule_name))
         self.addFileToRepo(os.path.join(src, 'egg/%s' % submodule_name), 'newfile')
 
         log = _log.__enter__()
