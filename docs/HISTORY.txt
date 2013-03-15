@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.25 - Unreleased
+1.25 - 2013-03-15
 -----------------
 
 * Git submodules support.
