@@ -11,8 +11,10 @@ logger = common.logger
 
 if sys.version_info < (3, 0):
     b = lambda x: x
+    s = lambda x: x
 else:
     b = lambda x: x.encode('ascii')
+    s = lambda x: x.decode('ascii')
 
 
 class GitError(common.WCError):
@@ -46,8 +48,6 @@ class GitWorkingCopy(common.BaseWorkingCopy):
                          "(%s) in source for %s",
                          source['branch'], source['rev'], source['name'])
             sys.exit(1)
-        if 'branch' not in source:
-            source['branch'] = 'master'
         super(GitWorkingCopy, self).__init__(source)
 
     @common.memoize
@@ -131,7 +131,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise GitError("git cloning of '%s' failed.\n%s" % (name, stderr))
-        if 'branch' in self.source:
+        if 'branch' in self.source or 'rev' in self.source:
             stdout, stderr = self.git_switch_branch(stdout, stderr)
         if 'pushurl' in self.source:
             stdout, stderr = self.git_set_pushurl(stdout, stderr)
@@ -150,7 +150,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
 
     def git_switch_branch(self, stdout_in, stderr_in):
         path = self.source['path']
-        branch = self.source['branch']
+        branch = self.source.get('branch', 'master')
         rbp = self._remote_branch_prefix
         cmd = self.run_git(["branch", "-a"], cwd=path)
         stdout, stderr = cmd.communicate()
@@ -252,7 +252,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise GitError("git remote of '%s' failed.\n%s" % (name, stderr))
-        return (self.source['url'] in stdout.split())
+        return (self.source['url'] in s(stdout).split())
 
     def update(self, **kwargs):
         name = self.source['name']

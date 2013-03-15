@@ -36,6 +36,31 @@ def which(name_root):
     return None
 
 
+def version_sorted(inp, *args, **kwargs):
+    """
+    Sorts components versions, it means that numeric parts of version
+    treats as numeric and string as string.
+
+    Eg.: version-1-0-1 < version-1-0-2 < version-1-0-10
+    """
+    num_reg = re.compile(r'([0-9]+)')
+
+    def int_str(val):
+        try:
+            return int(val)
+        except ValueError:
+            return val
+
+    def split_item(item):
+        return tuple([int_str(j) for j in num_reg.split(item)])
+
+    def join_item(item):
+        return ''.join([str(j) for j in item])
+
+    output = [split_item(i) for i in inp]
+    return [join_item(i) for i in sorted(output, *args, **kwargs)]
+
+
 def memoize(f, _marker=[]):
     def g(*args, **kwargs):
         name = '_memoize_%s' % f.__name__

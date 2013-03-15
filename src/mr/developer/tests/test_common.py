@@ -74,3 +74,16 @@ class TestRewrites(TestCase):
         assert sources[0]['url'] == "http://github.com/me/mr.developer.git"
         assert sources[1]['url'] == "https://github.com/fschulze/mr.developer.git"
         assert sources[2]['url'] == "https://github.com/fschulze/mr.developer.git"
+
+
+def test_version_sorted():
+    from mr.developer.common import version_sorted
+    expected = [
+        'version-1-0-1',
+        'version-1-0-2',
+        'version-1-0-10']
+    actual = version_sorted([
+        'version-1-0-10',
+        'version-1-0-2',
+        'version-1-0-1'])
+    assert expected == actual
