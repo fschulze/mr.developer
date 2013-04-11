@@ -251,6 +251,9 @@ class WorkingCopies(object):
             update = wc.should_update(**kwargs)
             if not source.exists():
                 pass
+            elif os.path.islink(source['path']):
+                logger.info("Skipped update of linked '%s'." % name)
+                continue
             elif update and wc.status() != 'clean' and not kw.get('force', False):
                 print >>sys.stderr, "The package '%s' is dirty." % name
                 answer = yesno("Do you want to update it anyway?", default=False, all=True)
