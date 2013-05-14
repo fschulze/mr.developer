@@ -29,6 +29,20 @@ activate (a)
                            develop packages are processed.
     
 
+arguments (args)
+----------------
+
+::
+
+    usage: develop arguments [-h]
+    
+    Print arguments used by last buildout which will be used with the 'rebuild'
+    command.
+    
+    optional arguments:
+      -h, --help  show this help message and exit
+    
+
 checkout (co)
 -------------
 
@@ -197,8 +211,8 @@ rebuild (rb)
     
     optional arguments:
       -h, --help     show this help message and exit
-      -n, --dry-run  Don't actually run buildout, just show the last used
-                     arguments.
+      -n, --dry-run  DEPRECATED: Use 'arguments' command instead. Don't actually
+                     run buildout, just show the last used arguments.
     
 
 reset

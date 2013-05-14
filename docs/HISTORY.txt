@@ -7,6 +7,9 @@ Changelog
 * Skip update of symlinked sources.
   [chaoflow (Florian Friesdorf)]
 
+* Deprecate ``-n`` and ``--dry-run`` on ``rebuild`` command in favour of the
+  new ``arguments`` command.
+
 1.25 - 2013-03-15
 -----------------
 

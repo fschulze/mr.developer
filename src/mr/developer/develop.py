@@ -145,6 +145,24 @@ class CmdActivate(Command):
         config.save()
 
 
+class CmdArguments(Command):
+    def __init__(self, develop):
+        Command.__init__(self, develop)
+        description = "Print arguments used by last buildout which will be used with the 'rebuild' command."
+        self.parser = self.develop.parsers.add_parser(
+            "arguments",
+            description=description)
+        self.develop.parsers._name_parser_map["args"] = self.develop.parsers._name_parser_map["arguments"]
+        self.develop.parsers._choices_actions.append(ChoicesPseudoAction(
+            "arguments", "args", help=description))
+        self.parser.set_defaults(func=self)
+
+    def __call__(self, args):
+        buildout_args = self.develop.config.buildout_args
+        print "Last used buildout arguments:",
+        print " ".join(buildout_args[1:])
+
+
 class CmdCheckout(Command):
     def __init__(self, develop):
         Command.__init__(self, develop)
@@ -566,7 +584,7 @@ class CmdRebuild(Command):
             "rebuild", "rb", help=description))
         self.parser.add_argument("-n", "--dry-run", dest="dry_run",
                                action="store_true", default=False,
-                               help="""Don't actually run buildout, just show the last used arguments.""")
+                               help="""DEPRECATED: Use 'arguments' command instead. Don't actually run buildout, just show the last used arguments.""")
         self.parser.set_defaults(func=self)
 
     def __call__(self, args):
@@ -576,6 +594,7 @@ class CmdRebuild(Command):
         print " ".join(buildout_args[1:])
         if args.dry_run:
             logger.warning("Dry run, buildout not invoked.")
+            logger.warning("DEPRECATED: The use of '-n' and '--dry-run' is deprecated, use the 'arguments' command instead.")
             return
         else:
             logger.info("Running buildout.")
@@ -788,6 +807,7 @@ class Develop(object):
                                  version='mr.developer %s' % version)
         self.parsers = self.parser.add_subparsers(title="commands", metavar="")
         CmdActivate(self)
+        CmdArguments(self)
         CmdCheckout(self)
         CmdDeactivate(self)
         CmdHelp(self)
@@ -804,6 +824,9 @@ class Develop(object):
         try:
             self.buildout_dir = find_base()
         except IOError, e:
+            if isinstance(args.func, CmdHelp):
+                args.func(args)
+                return
             self.parser.print_help()
             print
             logger.error("You are not in a path which has mr.developer installed (%s)." % e)
