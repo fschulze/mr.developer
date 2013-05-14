@@ -4,6 +4,8 @@ Changelog
 1.26 - Unreleased
 -----------------
 
+* Skip update of symlinked sources.
+  [chaoflow (Florian Friesdorf)]
 
 1.25 - 2013-03-15
 -----------------

@@ -193,6 +193,10 @@ The new package will then be marked as a development egg and have its version
 pin cleared (if any). You can control the list of development eggs explicitely
 with the ``activate`` and ``deactivate`` commands.
 
+Any source where the path is a symlink is skipped during updates, as it is
+assumed, that the developer handles it manually. It is basically treated like
+a filesystem source.
+
 Configuration
 =============
 
