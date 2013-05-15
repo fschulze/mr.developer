@@ -91,7 +91,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
     @property
     def _remote_branch_prefix(self):
         version = self.git_version()
-        if version < (1, 6):
+        if version < (1, 6, 3):
             return self._upstream_name
         else:
             return 'remotes/%s' % self._upstream_name
