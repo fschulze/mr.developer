@@ -4,6 +4,9 @@ Changelog
 1.26 - Unreleased
 -----------------
 
+* Updated bootstrap.py to buildout2
+  [joka]
+
 * Fixed branch option for git 1.6.0 until and including 1.6.2.
   Fixes issue #117.
   [maurits]
