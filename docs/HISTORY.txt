@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.26 - Unreleased
+1.26 - 2013-09-10
 -----------------
 
 * Fixed branch option for git 1.6.0 until and including 1.6.2.
