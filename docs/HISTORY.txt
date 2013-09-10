@@ -8,6 +8,12 @@ Changelog
 1.26 - 2013-09-10
 -----------------
 
+* Python 3 fix: removed utf8 encoded characters from HISTORY.rst
+  [joka]
+
+* Python 3 fix: updated bootstrap.py to buildout2
+  [joka]
+
 * Fixed branch option for git 1.6.0 until and including 1.6.2.
   Fixes issue #117.
   [maurits]
@@ -131,7 +137,7 @@ Changelog
 -----------------
 
 * Git: Added ``pushurl`` option
-  [iElectric (Domen Kožar)]
+  [iElectric (Domen Kozar)]
 
 * Refactored thread locking.
   [shywolf9982]
@@ -152,7 +158,7 @@ Changelog
 
 * Don't set locale anymore when calling ``svn``. This may break if the output
   is localized instead of english, I couldn't reproduce that anymore though.
-  [fschulze, rochecompaan (Roché Compaan)]
+  [fschulze, rochecompaan (Roche Compaan)]
 
 * Fix compatibility with mercurial v2.1
   [janjaapdriessen (Jan-Jaap Driessen)].
@@ -169,7 +175,7 @@ Changelog
 
 * Installation: Check presence of required modules instead of relying on
   version of python.
-  [lukenowak (Łukasz Nowak)]
+  [lukenowak (Lukasz Nowak)]
 
 1.18 - 2011-08-16
 -----------------
