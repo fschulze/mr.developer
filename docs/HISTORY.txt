@@ -4,6 +4,8 @@ Changelog
 1.27 - Unreleased
 -----------------
 
+* Fix error message when listing of git branches fails. Fixes issue #124
+  [toutpt (JeanMichel FRANCOIS), fschulze]
 
 1.26 - 2013-09-10
 -----------------

@@ -155,7 +155,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         cmd = self.run_git(["branch", "-a"], cwd=path)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            raise GitError("'git branch -a' failed.\n%s" % (branch, stderr))
+            raise GitError("'git branch -a' failed.\n%s" % stderr)
         stdout_in += stdout
         stderr_in += stderr
         if 'rev' in self.source:
