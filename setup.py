@@ -28,6 +28,11 @@ except ImportError:
 extra = {}
 if sys.version_info >= (3,):
     extra['use_2to3'] = True
+    open2 = open
+    def open3(*args, **kwargs):
+        kwargs['encoding'] = 'utf-8'
+        return open2(*args, **kwargs)
+    open = open3
 
 setup(name='mr.developer',
       version=version,
