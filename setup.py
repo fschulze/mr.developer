@@ -31,7 +31,10 @@ if sys.version_info >= (3,):
 
 
 def get_text_from_file(fn):
-    return open(fn, 'rb').read().decode('utf-8')
+    text = open(fn, 'rb').read()
+    if sys.version_info >= (2, 6):
+      return text.decode('utf-8')
+    return text
 
 
 setup(name='mr.developer',
