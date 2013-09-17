@@ -4,6 +4,10 @@ Changelog
 1.27 - Unreleased
 -----------------
 
+* Fix encoding issues during installation if the default encoding isn't
+  properly set. Fixes issue #127
+  [fschulze, jajadinimueter]
+
 * Fix error message when listing of git branches fails. Fixes issue #124
   [toutpt (JeanMichel FRANCOIS), fschulze]
 

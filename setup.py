@@ -29,12 +29,17 @@ extra = {}
 if sys.version_info >= (3,):
     extra['use_2to3'] = True
 
+
+def get_text_from_file(fn):
+    return open(fn, 'rb').read().decode('utf-8')
+
+
 setup(name='mr.developer',
       version=version,
       description="A zc.buildout extension to ease the development of large projects with lots of packages.",
-      long_description=open("README.rst").read() + "\n\n" +
-                       open(os.path.join("docs", "HELP.txt")).read() +
-                       open(os.path.join("docs", "HISTORY.txt")).read(),
+      long_description=get_text_from_file("README.rst") + "\n\n" +
+                       get_text_from_file(os.path.join("docs", "HELP.txt")) +
+                       get_text_from_file(os.path.join("docs", "HISTORY.txt")),
       # Get more strings from http://www.python.org/pypi?%3Aaction=list_classifiers
       classifiers=[
         "Programming Language :: Python",
