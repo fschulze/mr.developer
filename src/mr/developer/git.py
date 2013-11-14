@@ -105,9 +105,27 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         kwargs['bufsize'] = -1
         return subprocess.Popen(commands, **kwargs)
 
-    def git_merge_rbranch(self, stdout_in, stderr_in):
+    def git_merge_rbranch(self, stdout_in, stderr_in, accept_missing=False):
         path = self.source['path']
-        branch = self.source['branch']
+        branch = self.source.get('branch', 'master')
+
+        cmd = self.run_git(["branch", "-a"], cwd=path)
+        stdout, stderr = cmd.communicate()
+        if cmd.returncode != 0:
+            raise GitError("'git branch -a' failed.\n%s" % stderr)
+        stdout_in += stdout
+        stderr_in += stderr
+        if not re.search(b("^(\*| ) %s$" % re.escape(branch)), stdout, re.M):
+            # The branch is not local.  We should not have reached
+            # this, unless no branch was specified and we guess wrong
+            # that it should be master.
+            if accept_missing:
+                logger.info("No such branch %r", branch)
+                return (stdout_in, stderr_in)
+            else:
+                logger.error("No such branch %r", branch)
+                sys.exit(1)
+
         rbp = self._remote_branch_prefix
         cmd = self.run_git(["merge", "%s/%s" % (rbp, branch)], cwd=path)
         stdout, stderr = cmd.communicate()
@@ -148,7 +166,12 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         if kwargs.get('verbose', False):
             return stdout
 
-    def git_switch_branch(self, stdout_in, stderr_in):
+    def git_switch_branch(self, stdout_in, stderr_in, accept_missing=False):
+        """Switch branches.
+
+        If accept_missing is True, we do not switch the branch if it
+        is not there.  Useful for switching back to master.
+        """
         path = self.source['path']
         branch = self.source.get('branch', 'master')
         rbp = self._remote_branch_prefix
@@ -168,6 +191,10 @@ class GitWorkingCopy(common.BaseWorkingCopy):
                 + "$"), stdout, re.M):
             # the branch is not local, normal checkout won't work here
             argv = ["checkout", "-b", branch, "%s/%s" % (rbp, branch)]
+        elif accept_missing:
+            logger.info("No such branch %r", branch)
+            return (stdout_in + stdout,
+                    stderr_in + stderr)
         else:
             logger.error("No such branch %r", branch)
             sys.exit(1)
@@ -198,6 +225,11 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         elif 'branch' in self.source:
             stdout, stderr = self.git_switch_branch(stdout, stderr)
             stdout, stderr = self.git_merge_rbranch(stdout, stderr)
+        else:
+            # We may have specified a branch previously but not
+            # anymore.  In that case, we want to revert to master.
+            stdout, stderr = self.git_switch_branch(stdout, stderr, accept_missing=True)
+            stdout, stderr = self.git_merge_rbranch(stdout, stderr, accept_missing=True)
 
         update_git_submodules = self.source.get('submodules', kwargs['submodules'])
         if update_git_submodules in ['always']:

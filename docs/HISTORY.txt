@@ -4,6 +4,11 @@ Changelog
 1.27 - Unreleased
 -----------------
 
+* Git: try to switch to branch master when no branch has been
+  specified.  Do not give an error in this case when master is not
+  there.  Fixes issue #125
+  [maurits]
+
 * Fix encoding issues during installation if the default encoding isn't
   properly set. Fixes issue #127
   [fschulze, jajadinimueter]
