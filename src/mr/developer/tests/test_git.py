@@ -151,6 +151,18 @@ class GitTests(JailSetup):
 
         CmdStatus(develop)(develop.parser.parse_args(['status']))
 
+        # switch implicitly to master branch
+        develop.sources = {
+            'egg': Source(
+                kind='git',
+                name='egg',
+                url='%s' % repository,
+                path=os.path.join(src, 'egg'))}
+        CmdUpdate(develop)(develop.parser.parse_args(['up', 'egg']))
+        assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.git', 'bar', 'foo'))
+
+        CmdStatus(develop)(develop.parser.parse_args(['status']))
+
         # we can't use both rev and branch
         pytest.raises(SystemExit, """
             develop.sources = {
