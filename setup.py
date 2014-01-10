@@ -2,7 +2,7 @@ from setuptools import setup
 import os
 import sys
 
-version = '1.27'
+version = '1.28'
 
 install_requires = [
   'setuptools',
