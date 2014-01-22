@@ -4,7 +4,8 @@ Changelog
 1.28 - Unreleased
 -----------------
 
-
+* Mercurial now checks if working copy is ahead of remote branch.
+  [rafaelbco]
 
 1.27 - 2014-01-10
 -----------------
