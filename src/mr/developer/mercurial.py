@@ -180,6 +180,14 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
             env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         status = stdout and 'dirty' or 'clean'
+        if status == 'clean':
+            cmd = subprocess.Popen(
+                ['hg', 'outgoing'], cwd=path,
+                env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            outgoing_stdout, stderr = cmd.communicate()
+            stdout += b('\n') + outgoing_stdout
+            if cmd.returncode == 0:
+                status = 'ahead'
         if kwargs.get('verbose', False):
             return status, stdout
         else:
