@@ -185,7 +185,7 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
                 ['hg', 'outgoing'], cwd=path,
                 env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             outgoing_stdout, stderr = cmd.communicate()
-            stdout += '\n' + outgoing_stdout
+            stdout += b('\n') + outgoing_stdout
             if cmd.returncode == 0:
                 status = 'ahead'
         if kwargs.get('verbose', False):
