@@ -176,6 +176,7 @@ class Extension(object):
                                 continue
                         config_develop.setdefault(name, True)
                     develeggs[name] = path
+                    develeggs_order.append(name)
                     if name in versions:
                         del versions[name]
         develop = []
