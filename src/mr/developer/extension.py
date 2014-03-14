@@ -179,7 +179,8 @@ class Extension(object):
                     if name in versions:
                         del versions[name]
         develop = []
-        for path in [develeggs[k] for k in develeggs_order]:
+        ordered_keys = develeggs_order + [k for k in develeggs if k not in develeggs_order]
+        for path in [develeggs[k] for k in ordered_keys]:
             if path.startswith(self.buildout_dir):
                 develop.append(path[len(self.buildout_dir) + 1:])
             else:
