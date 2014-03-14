@@ -1,9 +1,11 @@
 Changelog
 =========
 
-1.29 - Unreleased
+1.29 - 2014-03-14
 -----------------
 
+* Preserve order of eggs specified in ``develop`` option.
+  [anjos (André Anjos)]
 
 
 1.28 - 2014-01-23
