@@ -1,4 +1,5 @@
 from copy import deepcopy
+from mock import patch
 from unittest import TestCase
 import os
 import shutil
@@ -263,6 +264,29 @@ class TestExtensionClass(TestCase):
         self.failUnless('develop' in develeggs)
         self.assertEqual(develeggs['slash'], '/develop/with/slash/')
         self.assertEqual(develeggs['develop'], '/normal/develop')
+
+    def testDevelopOrder(self):
+        self.buildout['buildout']['develop'] = '/normal/develop ' \
+          '/develop/with/slash/'
+
+        (develop, develeggs, versions) = self.extension.get_develop_info()
+        assert develop == ['/normal/develop', '/develop/with/slash/']
+
+    def testDevelopSourcesMix(self):
+        self.buildout['sources'].update({
+            'pkg.bar': 'svn dummy://foo/trunk'})
+        self.buildout['buildout']['auto-checkout'] = 'pkg.bar'
+        self.buildout['buildout']['develop'] = '/normal/develop ' \
+          '/develop/with/slash/'
+
+        _exists = patch('os.path.exists')
+        exists = _exists.__enter__()
+        try:
+            exists().return_value = True
+            (develop, develeggs, versions) = self.extension.get_develop_info()
+        finally:
+            _exists.__exit__()
+        assert develop == ['/normal/develop', '/develop/with/slash/', 'src/pkg.bar']
 
 
 class TestExtension(TestCase):

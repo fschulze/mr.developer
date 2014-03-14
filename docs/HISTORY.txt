@@ -4,6 +4,8 @@ Changelog
 1.30 - Unreleased
 -----------------
 
+* Fix regression from 1.29.
+  [Trii (Josh Johnston)]
 
 
 1.29 - 2014-03-14
