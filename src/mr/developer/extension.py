@@ -154,10 +154,12 @@ class Extension(object):
         versions_section = self.buildout['buildout'].get('versions')
         versions = self.buildout.get(versions_section, {})
         develeggs = {}
+        develeggs_order = []
         for path in develop.split():
             # strip / from end of path
             head, tail = os.path.split(path.rstrip('/'))
             develeggs[tail] = path
+            develeggs_order.append(tail)
         config_develop = self.get_config().develop
         for name in sources:
             source = sources[name]
@@ -177,7 +179,7 @@ class Extension(object):
                     if name in versions:
                         del versions[name]
         develop = []
-        for path in develeggs.itervalues():
+        for path in [develeggs[k] for k in develeggs_order]:
             if path.startswith(self.buildout_dir):
                 develop.append(path[len(self.buildout_dir) + 1:])
             else:
