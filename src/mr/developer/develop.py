@@ -159,8 +159,7 @@ class CmdArguments(Command):
 
     def __call__(self, args):
         buildout_args = self.develop.config.buildout_args
-        print "Last used buildout arguments:",
-        print " ".join(buildout_args[1:])
+        print("Last used buildout arguments: %s" % " ".join(buildout_args[1:]))
 
 
 class CmdCheckout(Command):
@@ -200,8 +199,8 @@ class CmdCheckout(Command):
                 logger.info("Activated '%s'." % name)
             logger.warn("Don't forget to run buildout again, so the checked out packages are used as develop eggs.")
             config.save()
-        except (ValueError, KeyError), e:
-            logger.error(e)
+        except (ValueError, KeyError):
+            logger.error(sys.exc_info()[1])
             sys.exit(1)
 
 
@@ -276,17 +275,17 @@ class CmdHelp(Command):
         if args.zsh:
             choices = [x for x in choices if x != 'pony']
             if args.command is None:
-                print "\n".join(choices)
+                print("\n".join(choices))
             else:
                 if args.command == 'help':
-                    print "\n".join(choices)
+                    print("\n".join(choices))
                 elif args.command in ('purge', 'up', 'update'):
-                    print "\n".join(self.get_packages(None, checked_out=True))
+                    print("\n".join(self.get_packages(None, checked_out=True)))
                 elif args.command not in ('pony', 'rebuild'):
-                    print "\n".join(self.get_packages(None))
+                    print("\n".join(self.get_packages(None)))
             return
         if args.command in choices:
-            print choices[args.command].format_help()
+            print(choices[args.command].format_help())
             return
         cmds = {}
         for name in choices:
@@ -301,27 +300,27 @@ class CmdHelp(Command):
             )
             del cmds[cmd]
         if args.rst:
-            print "Commands"
-            print "========"
-            print
-            print "The following is a list of all commands and their options."
-            print
+            print("Commands")
+            print("========")
+            print()
+            print("The following is a list of all commands and their options.")
+            print()
             for name in sorted(cmds):
                 cmd = cmds[name]
                 if len(cmd['aliases']):
                     header = "%s (%s)" % (name, ", ".join(cmd['aliases']))
                 else:
                     header = name
-                print header
-                print "-" * len(header)
-                print
-                print "::"
-                print
+                print(header)
+                print("-" * len(header))
+                print()
+                print("::")
+                print()
                 for line in cmd['cmd'].format_help().split('\n'):
-                    print "    %s" % line
-                print
+                    print("    %s" % line)
+                print()
         else:
-            print self.parser.format_help()
+            print(self.parser.format_help())
             print("Available commands:")
             for name in sorted(cmds):
                 cmd = cmds[name]
@@ -375,22 +374,23 @@ class CmdInfo(Command):
         for name in sorted(packages):
             source = self.develop.sources[name]
             if args.info:
+                info = []
                 for key in args.info:
                     if key == 'name':
-                        print name,
+                        info.append(name)
                     elif key == 'path':
-                        print source['path'],
+                        info.append(source['path'])
                     elif key == 'type':
-                        print source['kind'],
+                        info.append(source['kind'])
                     elif key == 'url':
-                        print source['url'],
-                print
+                        info.append(source['url'])
+                print(" ".join(info))
             else:
-                print "Name:", name
-                print "Path:", source['path']
-                print "Type:", source['kind']
-                print "URL:", source['url']
-                print
+                print("Name: %s" % name)
+                print("Path: %s" % source['path'])
+                print("Type: %s" % source['kind'])
+                print("URL: %s" % source['url'])
+                print()
 
 
 class CmdList(Command):
@@ -440,24 +440,26 @@ class CmdList(Command):
         workingcopies = self.get_workingcopies(sources)
         for name in sorted(packages):
             source = sources[name]
+            info = []
             if args.status:
                 if source.exists():
                     if not workingcopies.matches(source):
-                        print "C",
+                        info.append("C")
                     else:
                         if name in auto_checkout:
-                            print " ",
+                            info.append(" ")
                         else:
-                            print "~",
+                            info.append("~")
                 else:
                     if name in auto_checkout:
-                        print "!",
+                        info.append("!")
                     else:
-                        print "#",
+                        info.append("#")
             if args.long:
-                print "(%s)" % source['kind'], name, source['url']
+                info.append("(%s) %s %s" % (source['kind'], name, source['url']))
             else:
-                print name
+                info.append(name)
+            print(" ".join(info))
 
 
 class CmdPony(Command):
@@ -493,7 +495,7 @@ class CmdPony(Command):
         logger.info("Starting to develop a pony.")
         for line in pony.split("\n"):
             time.sleep(0.25)
-            print line
+            print(line)
         logger.info("Done.")
 
 
@@ -590,8 +592,7 @@ class CmdRebuild(Command):
     def __call__(self, args):
         buildout_dir = self.develop.buildout_dir
         buildout_args = self.develop.config.buildout_args
-        print "Last used buildout arguments:",
-        print " ".join(buildout_args[1:])
+        print("Last used buildout arguments: %s" % " ".join(buildout_args[1:]))
         if args.dry_run:
             logger.warning("Dry run, buildout not invoked.")
             logger.warning("DEPRECATED: The use of '-n' and '--dry-run' is deprecated, use the 'arguments' command instead.")
@@ -698,60 +699,62 @@ class CmdStatus(Command):
             source = self.develop.sources[name]
             if not source.exists():
                 if name in auto_checkout:
-                    print "!", " ", " ", name
+                    print("!     %s" % name)
                 continue
             paths.append(source['path'])
+            info = []
             if not workingcopies.matches(source):
-                print "C",
+                info.append("C")
             else:
                 if name in auto_checkout:
-                    print " ",
+                    info.append(" ")
                 else:
-                    print "~",
+                    info.append("~")
             if args.verbose:
                 status, output = workingcopies.status(source, verbose=True)
             else:
                 status = workingcopies.status(source)
             if status == 'clean':
-                print " ",
+                info.append(" ")
             elif status == 'ahead':
-                print ">",
+                info.append(">")
             else:
-                print "M",
+                info.append("M")
             if self.develop.config.develop.get(name, name in auto_checkout):
                 if name in develeggs:
-                    print " ",
+                    info.append(" ")
                 else:
                     if source.get('egg', True):
-                        print "A",
+                        info.append("A")
                     else:
-                        print " ",
+                        info.append(" ")
             else:
                 if name not in develeggs:
                     if not source.get('egg', True):
-                        print " ",
+                        info.append(" ")
                     elif name in auto_checkout:
-                        print "!",
+                        info.append("!")
                     else:
-                        print "-",
+                        info.append("-")
                 else:
                     if source.get('egg', True):
-                        print "D",
+                        info.append("D")
                     else:
-                        print " ",
-            print name
+                        info.append(" ")
+            info.append(name)
+            print(" ".join(info))
             if args.verbose:
                 output = output.strip()
                 if output:
                     for line in output.split('\n'):
-                        print " ", " ", " ", line
-                    print
+                        print("      %s" % line)
+                    print()
 
         # Only report on unknown entries when we have no package regexp.
         if not package_regexp:
             for entry in os.listdir(sources_dir):
                 if not os.path.join(sources_dir, entry) in paths:
-                    print "?", " ", " ", entry
+                    print("?     %s" % entry)
 
 
 class CmdUpdate(Command):
@@ -823,13 +826,13 @@ class Develop(object):
 
         try:
             self.buildout_dir = find_base()
-        except IOError, e:
+        except IOError:
             if isinstance(args.func, CmdHelp):
                 args.func(args)
                 return
             self.parser.print_help()
             print
-            logger.error("You are not in a path which has mr.developer installed (%s)." % e)
+            logger.error("You are not in a path which has mr.developer installed (%s)." % sys.exc_info()[1])
             return
 
         self.config = Config(self.buildout_dir)

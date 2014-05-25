@@ -1,9 +1,15 @@
-from ConfigParser import RawConfigParser
+try:
+    from configparser import RawConfigParser
+except ImportError:
+    from ConfigParser import RawConfigParser
 import logging
 import os
 import pkg_resources
 import platform
-import Queue
+try:
+    import queue
+except ImportError:
+    import Queue as queue
 import re
 import subprocess
 import sys
@@ -11,6 +17,24 @@ import threading
 
 
 logger = logging.getLogger("mr.developer")
+
+
+def print_stderr(s):
+    sys.stderr.write(s)
+    sys.stderr.write('\n')
+    sys.stderr.flush()
+
+
+try:
+    advance_iterator = next
+except NameError:
+    def advance_iterator(it):
+        return it.next()
+
+try:
+    raw_input = raw_input
+except NameError:
+    raw_input = input
 
 
 # shameless copy from
@@ -121,9 +145,9 @@ def yesno(question, default=True, all=True):
             if answer in answers[option]:
                 return option
         if all:
-            print >>sys.stderr, "You have to answer with y, yes, n, no, a or all."
+            print_stderr("You have to answer with y, yes, n, no, a or all.")
         else:
-            print >>sys.stderr, "You have to answer with y, yes, n or no."
+            print_stderr("You have to answer with y, yes, n or no.")
 
 
 main_lock = input_lock = output_lock = threading.RLock()
@@ -135,15 +159,15 @@ def worker(working_copies, the_queue):
             return
         try:
             wc, action, kwargs = the_queue.get_nowait()
-        except Queue.Empty:
+        except queue.Empty:
             return
         try:
             output = action(**kwargs)
-        except WCError, e:
+        except WCError:
             output_lock.acquire()
             for lvl, msg in wc._output:
                 lvl(msg)
-            for l in e.args[0].split('\n'):
+            for l in sys.exc_info()[1].args[0].split('\n'):
                 logger.error(l)
             working_copies.errors = True
             output_lock.release()
@@ -152,7 +176,7 @@ def worker(working_copies, the_queue):
             for lvl, msg in wc._output:
                 lvl(msg)
             if kwargs.get('verbose', False) and output is not None and output.strip():
-                print output
+                print(output)
             output_lock.release()
 
 
@@ -218,7 +242,7 @@ class WorkingCopies(object):
             sys.exit(1)
 
     def checkout(self, packages, **kwargs):
-        the_queue = Queue.Queue()
+        the_queue = queue.Queue()
         if 'update' in kwargs:
             if isinstance(kwargs['update'], bool):
                 pass
@@ -255,7 +279,7 @@ class WorkingCopies(object):
                 logger.info("Skipped update of linked '%s'." % name)
                 continue
             elif update and wc.status() != 'clean' and not kw.get('force', False):
-                print >>sys.stderr, "The package '%s' is dirty." % name
+                print_stderr("The package '%s' is dirty." % name)
                 answer = yesno("Do you want to update it anyway?", default=False, all=True)
                 if answer:
                     kw['force'] = True
@@ -281,8 +305,8 @@ class WorkingCopies(object):
                 logger.error("Unknown repository type '%s'." % kind)
                 sys.exit(1)
             return wc.matches()
-        except WCError, e:
-            for l in e.args[0].split('\n'):
+        except WCError:
+            for l in sys.exc_info()[1].args[0].split('\n'):
                 logger.error(l)
             sys.exit(1)
 
@@ -299,13 +323,13 @@ class WorkingCopies(object):
                 logger.error("Unknown repository type '%s'." % kind)
                 sys.exit(1)
             return wc.status(**kwargs)
-        except WCError, e:
-            for l in e.args[0].split('\n'):
+        except WCError:
+            for l in sys.exc_info()[1].args[0].split('\n'):
                 logger.error(l)
             sys.exit(1)
 
     def update(self, packages, **kwargs):
-        the_queue = Queue.Queue()
+        the_queue = queue.Queue()
         for name in packages:
             kw = kwargs.copy()
             if name not in self.sources:
@@ -317,7 +341,7 @@ class WorkingCopies(object):
                 logger.error("Unknown repository type '%s'." % kind)
                 sys.exit(1)
             if wc.status() != 'clean' and not kw.get('force', False):
-                print >>sys.stderr, "The package '%s' is dirty." % name
+                print_stderr("The package '%s' is dirty." % name)
                 answer = yesno("Do you want to update it anyway?", default=False, all=True)
                 if answer:
                     kw['force'] = True
@@ -434,7 +458,7 @@ class Rewrite(object):
             rewrites = self.rewrites.setdefault(option, [])
             if operator == '~':
                 try:
-                    substitute = lines.next()
+                    substitute = advance_iterator(lines)
                 except StopIteration:
                     raise ValueError("Missing substitution for option '%s' in rewrite:\n%s" % (option, prog))
                 rewrites.append(

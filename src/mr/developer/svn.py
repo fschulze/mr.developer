@@ -1,5 +1,8 @@
 from mr.developer import common
-from urlparse import urlparse, urlunparse
+try:
+    from urllib.parse import urlparse, urlunparse
+except ImportError:
+    from urlparse import urlparse, urlunparse
 try:
     import xml.etree.ElementTree as etree
     etree  # shutup pyflakes
@@ -17,6 +20,12 @@ if sys.version_info < (3, 0):
 else:
     b = lambda x: x.encode('ascii')
     s = lambda x: x.decode('ascii')
+
+
+try:
+    raw_input = raw_input
+except NameError:
+    raw_input = input
 
 
 logger = common.logger
@@ -77,8 +86,8 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
             cmd = subprocess.Popen(["svn", "--version"],
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
-        except OSError, e:
-            if getattr(e, 'errno', None) == 2:
+        except OSError:
+            if getattr(sys.exc_info()[1], 'errno', None) == 2:
                 logger.error("Couldn't find 'svn' executable on your PATH.")
                 sys.exit(1)
             raise
@@ -117,8 +126,8 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
             count = count - 1
             try:
                 return f(**kwargs)
-            except SVNAuthorizationError, e:
-                lines = e.args[0].split('\n')
+            except SVNAuthorizationError:
+                lines = sys.exc_info()[1].args[0].split('\n')
                 root = lines[-1].split('(')[-1].strip(')')
                 before = self._svn_auth_cache.get(root)
                 common.output_lock.acquire()
@@ -129,7 +138,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
                     common.input_lock.release()
                     common.output_lock.release()
                     continue
-                print "Authorization needed for '%s' at '%s'" % (self.source['name'], self.source['url'])
+                print("Authorization needed for '%s' at '%s'" % (self.source['name'], self.source['url']))
                 user = raw_input("Username: ")
                 passwd = getpass.getpass("Password: ")
                 self._svn_auth_cache[root] = dict(
@@ -138,8 +147,8 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
                 )
                 common.input_lock.release()
                 common.output_lock.release()
-            except SVNCertificateError, e:
-                lines = e.args[0].split('\n')
+            except SVNCertificateError:
+                lines = sys.exc_info()[1].args[0].split('\n')
                 root = lines[-1].split('(')[-1].strip(')')
                 before = self._svn_cert_cache.get(root)
                 common.output_lock.acquire()
@@ -150,13 +159,13 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
                     common.input_lock.release()
                     common.output_lock.release()
                     continue
-                print "\n".join(lines[:-1])
+                print("\n".join(lines[:-1]))
                 while 1:
                     answer = raw_input("(R)eject or accept (t)emporarily? ")
                     if answer.lower() in ['r', 't']:
                         break
                     else:
-                        print "Invalid answer, type 'r' for reject or 't' for temporarily."
+                        print("Invalid answer, type 'r' for reject or 't' for temporarily.")
                 if answer == 'r':
                     self._svn_cert_cache[root] = False
                 else:

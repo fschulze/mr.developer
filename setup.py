@@ -24,10 +24,6 @@ try:
 except ImportError:
     install_requires.append('argparse')
 
-extra = {}
-if sys.version_info >= (3,):
-    extra['use_2to3'] = True
-
 
 def get_text_from_file(fn):
     text = open(fn, 'rb').read()
@@ -78,5 +74,4 @@ setup(name='mr.developer',
       fs = mr.developer.filesystem:FilesystemWorkingCopy
       cvs = mr.developer.cvs:CVSWorkingCopy
       darcs = mr.developer.darcs:DarcsWorkingCopy
-      """,
-      **extra)
+      """)
