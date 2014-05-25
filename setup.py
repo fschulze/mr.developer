@@ -5,13 +5,12 @@ import sys
 version = '1.31'
 
 install_requires = [
-  'setuptools',
-  'zc.buildout',
-]
+    'setuptools',
+    'zc.buildout']
 
 tests_require = [
-  'mock',
-  'mr.developer.addon']
+    'mock',
+    'mr.developer.addon']
 
 try:
     import xml.etree
@@ -33,23 +32,24 @@ if sys.version_info >= (3,):
 def get_text_from_file(fn):
     text = open(fn, 'rb').read()
     if sys.version_info >= (2, 6):
-      return text.decode('utf-8')
+        return text.decode('utf-8')
     return text
 
 
 setup(name='mr.developer',
       version=version,
       description="A zc.buildout extension to ease the development of large projects with lots of packages.",
-      long_description=get_text_from_file("README.rst") + "\n\n" +
-                       get_text_from_file(os.path.join("docs", "HELP.txt")) +
-                       get_text_from_file(os.path.join("docs", "HISTORY.txt")),
+      long_description="".join([
+          get_text_from_file("README.rst"),
+          "\n\n",
+          get_text_from_file(os.path.join("docs", "HELP.txt")),
+          get_text_from_file(os.path.join("docs", "HISTORY.txt"))]),
       # Get more strings from http://www.python.org/pypi?%3Aaction=list_classifiers
       classifiers=[
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 3",
-        "Framework :: Buildout",
-        "Topic :: Software Development :: Libraries :: Python Modules",
-        ],
+          "Programming Language :: Python",
+          "Programming Language :: Python :: 3",
+          "Framework :: Buildout",
+          "Topic :: Software Development :: Libraries :: Python Modules"],
       keywords='',
       author='Florian Schulze',
       author_email='florian.schulze@gmx.net',
@@ -79,5 +79,4 @@ setup(name='mr.developer',
       cvs = mr.developer.cvs:CVSWorkingCopy
       darcs = mr.developer.darcs:DarcsWorkingCopy
       """,
-      **extra
-      )
+      **extra)

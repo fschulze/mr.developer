@@ -76,8 +76,8 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
         self.output((logger.info, 'Running %s %r from CVS.' % (command, name)))
         cmd = build_cvs_command(command, name, url, tag, cvs_root, tag_file)
 
-        ## because CVS can not work on absolute paths, we must execute cvs commands
-        ## in destination or in parent directory of destination
+        # because CVS can not work on absolute paths, we must execute cvs commands
+        # in destination or in parent directory of destination
         old_cwd = os.getcwd()
         if command == 'checkout':
             path = os.path.dirname(path)
@@ -138,7 +138,7 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
     def status(self, **kwargs):
         path = self.source['path']
 
-        ## packages before checkout is clean
+        # packages before checkout is clean
         if not os.path.exists(path):
             return 'clean'
 
@@ -148,11 +148,11 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
             if not line or line.endswith('.egg-info'):
                 continue
             if line[0] == 'C':
-                ## there is file with conflict
+                # there is file with conflict
                 status = 'conflict'
                 break
             if line[0] in ('M', '?', 'A', 'R'):
-                ## some files are localy modified
+                # some files are localy modified
                 status = 'modified'
 
         if kwargs.get('verbose', False):

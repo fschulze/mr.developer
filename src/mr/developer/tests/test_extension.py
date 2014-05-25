@@ -137,14 +137,14 @@ class TestExtensionClass(TestCase):
         self.buildout['sources'].update({
             'pkg.foo': '',
         })
-        sources = self.extension.get_sources()
+        self.extension.get_sources()
 
     def _testTooShortSourceDefinition(self):
         # TODO handle this case
         self.buildout['sources'].update({
             'pkg.foo': 'svn',
         })
-        sources = self.extension.get_sources()
+        self.extension.get_sources()
 
     def testRepositoryKindChecking(self):
         self.buildout['sources'].update({
@@ -255,7 +255,7 @@ class TestExtensionClass(TestCase):
 
     def testDevelopHonored(self):
         self.buildout['buildout']['develop'] = '/normal/develop ' \
-          '/develop/with/slash/'
+            '/develop/with/slash/'
 
         (develop, develeggs, versions) = self.extension.get_develop_info()
         self.failUnless('/normal/develop' in develop)
@@ -267,7 +267,7 @@ class TestExtensionClass(TestCase):
 
     def testDevelopOrder(self):
         self.buildout['buildout']['develop'] = '/normal/develop ' \
-          '/develop/with/slash/'
+            '/develop/with/slash/'
 
         (develop, develeggs, versions) = self.extension.get_develop_info()
         assert develop == ['/normal/develop', '/develop/with/slash/']
@@ -277,7 +277,7 @@ class TestExtensionClass(TestCase):
             'pkg.bar': 'svn dummy://foo/trunk'})
         self.buildout['buildout']['auto-checkout'] = 'pkg.bar'
         self.buildout['buildout']['develop'] = '/normal/develop ' \
-          '/develop/with/slash/'
+            '/develop/with/slash/'
 
         _exists = patch('os.path.exists')
         exists = _exists.__enter__()

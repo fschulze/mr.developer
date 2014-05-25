@@ -52,8 +52,7 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
 
         if branch != 'default':
             if rev:
-                raise ValueError("'branch' and 'rev' parameters cannot be used "
-                    "simultanously")
+                raise ValueError("'branch' and 'rev' parameters cannot be used simultanously")
             else:
                 rev = branch
         else:
@@ -68,8 +67,9 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         name = self.source['name']
         env = dict(os.environ)
         env.pop('PYTHONPATH', None)
-        cmd = subprocess.Popen(['hg', 'checkout', rev, '-c'], cwd=path,
-                env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        cmd = subprocess.Popen(
+            ['hg', 'checkout', rev, '-c'],
+            cwd=path, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode:
             raise MercurialError(
@@ -83,8 +83,9 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         env = dict(os.environ)
         env.pop('PYTHONPATH', None)
         try:
-            cmd = subprocess.Popen(['hg', 'tags'], cwd=path, env=env,
-                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            cmd = subprocess.Popen(
+                ['hg', 'tags'],
+                cwd=path, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         except OSError:
             return []
         stdout, stderr = cmd.communicate()
@@ -124,8 +125,9 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         self.output((logger.info, 'Updated %r with mercurial.' % name))
         env = dict(os.environ)
         env.pop('PYTHONPATH', None)
-        cmd = subprocess.Popen(['hg', 'pull', '-u'], cwd=path,
-            env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        cmd = subprocess.Popen(
+            ['hg', 'pull', '-u'],
+            cwd=path, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             # hg v2.1 pull returns non-zero return code in case of
@@ -133,7 +135,7 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
             if 'no changes found' not in stdout:
                 raise MercurialError(
                     'hg pull for %r failed.\n%s' % (name, stderr))
-        #to find newest_tag hg pull is needed before
+        # to find newest_tag hg pull is needed before
         rev = self.get_rev()
         if rev:
             stdout += self._update_to_rev(rev)
