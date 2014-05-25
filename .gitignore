@@ -3,6 +3,7 @@
 /.cache
 /.coverage
 /.mr.developer.cfg
+/.tox/
 /coverage.xml
 /bin/*
 /build/*
