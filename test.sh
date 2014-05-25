@@ -7,8 +7,4 @@ if $($PYTHON --version >/dev/null 2>&1); then
 else
     export PYTHON_VERSION="Python 2.4.x"
 fi
-if echo $PYTHON_VERSION | grep -q " 2."; then
-    ./bin/py.test
-else
-    ./bin/py.test build/lib/
-fi
+./bin/py.test --cov src/mr/developer

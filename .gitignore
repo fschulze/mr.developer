@@ -7,9 +7,9 @@
 /coverage.xml
 /bin/*
 /build/*
-/coverage/*
 /develop-eggs/*
 /dist/*
 /eggs/*
 /etc
+/htmlcov/
 /.installed.cfg
