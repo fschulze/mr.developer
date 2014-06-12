@@ -4,7 +4,8 @@ Changelog
 1.31 - Unreleased
 -----------------
 
-
+* More info when svn cannot switch because of dirty checkout.
+  [gotcha]
 
 1.30 - 2014-03-14
 -----------------

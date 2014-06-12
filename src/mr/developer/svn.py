@@ -310,7 +310,13 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
                 if self.status() == 'clean':
                     return self.svn_switch(**kwargs)
                 else:
-                    raise SVNError("Can't switch package '%s' to '%s' because it's dirty." % (name, self.source['url']))
+                    url = self._svn_info().get('url', '')
+                    if url:
+                        msg = "The current checkout of '%s' is from '%s'." % (name, url)
+                        msg += "\nCan't switch package to '%s' because it's dirty." % (self.source['url'])
+                    else:
+                        msg = "Can't switch package '%s' to '%s' because it's dirty." % (name, self.source['url'])
+                    raise SVNError(msg)
         else:
             return self.svn_checkout(**kwargs)
 
