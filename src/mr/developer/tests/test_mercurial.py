@@ -134,7 +134,12 @@ class MercurialTests(JailSetup):
             "hg log %s" % foo,
             echo=False)
         assert rc == 0
-        rev = lines[0].split()[1]
+
+        try:
+            # XXX older version
+            rev = lines[0].split()[1].split(b(':'))[1]
+        except:
+            rev = lines[0].split()[1]
 
         # return to default branch
         rc, lines = process.popen(
