@@ -84,9 +84,17 @@ class MercurialTests(JailSetup):
         log = _log.__enter__()
         try:
             CmdCheckout(develop)(develop.parser.parse_args(['co', 'egg']))
-            assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.hg', 'bar', 'foo'))
+            assert set(
+                os.listdir(
+                    os.path.join(
+                        src, 'egg'))) == set(
+                ('.hg', 'bar', 'foo'))
             CmdUpdate(develop)(develop.parser.parse_args(['up', 'egg']))
-            assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.hg', 'bar', 'foo'))
+            assert set(
+                os.listdir(
+                    os.path.join(
+                        src, 'egg'))) == set(
+                ('.hg', 'bar', 'foo'))
             assert log.method_calls == [
                 ('info', ("Cloned 'egg' with mercurial.",), {}),
                 ('info', ("Updated 'egg' with mercurial.",), {}),
@@ -126,7 +134,12 @@ class MercurialTests(JailSetup):
             "hg log %s" % foo,
             echo=False)
         assert rc == 0
-        rev = lines[0].split()[1].split(b(':'))[1]
+
+        try:
+            # XXX older version
+            rev = lines[0].split()[1].split(b(':'))[1]
+        except:
+            rev = lines[0].split()[1]
 
         # return to default branch
         rc, lines = process.popen(

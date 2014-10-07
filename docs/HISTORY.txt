@@ -7,6 +7,15 @@ Changelog
 * More info when svn cannot switch because of dirty checkout.
   [gotcha]
 
+* Fixed git submodule tests.
+  [jod]
+
+* Deactivated pep8 and pyfalkes to see "real" errors.
+  [jod]
+
+* Fixed ascii error in git while update.
+  [jod]
+
 1.30 - 2014-03-14
 -----------------
 

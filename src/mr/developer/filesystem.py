@@ -9,12 +9,16 @@ class FilesystemError(common.WCError):
 
 
 class FilesystemWorkingCopy(common.BaseWorkingCopy):
+
     def checkout(self, **kwargs):
         name = self.source['name']
         path = self.source['path']
         if os.path.exists(path):
             if self.matches():
-                self.output((logger.info, 'Filesystem package %r doesn\'t need a checkout.' % name))
+                self.output(
+                    (logger.info,
+                     'Filesystem package %r doesn\'t need a checkout.' %
+                     name))
             else:
                 raise FilesystemError(
                     'Directory name for existing package %r differs. '
@@ -38,5 +42,8 @@ class FilesystemWorkingCopy(common.BaseWorkingCopy):
             raise FilesystemError(
                 'Directory name for existing package %r differs. '
                 'Expected %r.' % (name, self.source['url']))
-        self.output((logger.info, 'Filesystem package %r doesn\'t need update.' % name))
+        self.output(
+            (logger.info,
+             'Filesystem package %r doesn\'t need update.' %
+             name))
         return ''

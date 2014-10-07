@@ -84,13 +84,18 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
         os.chdir(path)
 
         try:
-            cmd = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            cmd = subprocess.Popen(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE)
             stdout, stderr = cmd.communicate()
         finally:
             os.chdir(old_cwd)
 
         if cmd.returncode != 0:
-            raise CVSError('CVS %s for %r failed.\n%s' % (command, name, stderr))
+            raise CVSError(
+                'CVS %s for %r failed.\n%s' %
+                (command, name, stderr))
         if command == 'tags':
             return self._format_tags_list(stdout)
         if kwargs.get('verbose', False):
@@ -104,7 +109,10 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
             if update:
                 self.update(**kwargs)
             elif self.matches():
-                self.output((logger.info, 'Skipped checkout of existing package %r.' % name))
+                self.output(
+                    (logger.info,
+                     'Skipped checkout of existing package %r.' %
+                     name))
             else:
                 raise CVSError(
                     'Source URL for existing package %r differs. '
@@ -191,12 +199,18 @@ class CVSWorkingCopy(common.BaseWorkingCopy):
             tags = self.cvs_command('tags')
         except OSError:
             return None
-        mask = self.source.get('newest_tag_prefix', self.source.get('newest_tag_mask', ''))
+        mask = self.source.get(
+            'newest_tag_prefix',
+            self.source.get(
+                'newest_tag_mask',
+                ''))
         if mask:
             tags = [t for t in tags if t.startswith(mask)]
         tags = common.version_sorted(tags, reverse=True)
         if not tags:
             return None
         newest_tag = tags[0]
-        self.output((logger.info, 'Picked newest tag for %r from CVS: %r.' % (self.source['name'], newest_tag)))
+        self.output(
+            (logger.info, 'Picked newest tag for %r from CVS: %r.' %
+             (self.source['name'], newest_tag)))
         return newest_tag

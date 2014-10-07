@@ -17,12 +17,14 @@ class GitSVNWorkingCopy(SVNWorkingCopy):
         path = self.source['path']
         self.output((logger.info, "Gitified '%s'." % name))
         cmd = subprocess.Popen(["gitify", "init"],
-            cwd=path,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE)
+                               cwd=path,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            raise GitSVNError("gitify init for '%s' failed.\n%s" % (name, stdout))
+            raise GitSVNError(
+                "gitify init for '%s' failed.\n%s" %
+                (name, stdout))
         if kwargs.get('verbose', False):
             return stdout
 
@@ -39,12 +41,14 @@ class GitSVNWorkingCopy(SVNWorkingCopy):
         path = self.source['path']
         self.output((logger.info, "Updated '%s' with gitify." % name))
         cmd = subprocess.Popen(["gitify", "update"],
-            cwd=path,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE)
+                               cwd=path,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            raise GitSVNError("gitify update for '%s' failed.\n%s" % (name, stdout))
+            raise GitSVNError(
+                "gitify update for '%s' failed.\n%s" %
+                (name, stdout))
         if kwargs.get('verbose', False):
             return stdout
 

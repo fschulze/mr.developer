@@ -3,6 +3,7 @@ from unittest import TestCase
 
 
 class MockConfig(object):
+
     def __init__(self):
         self.develop = {}
 
@@ -11,6 +12,7 @@ class MockConfig(object):
 
 
 class MockDevelop(object):
+
     def __init__(self):
         from mr.developer.develop import ArgumentParser
         self.config = MockConfig()
@@ -19,11 +21,13 @@ class MockDevelop(object):
 
 
 class MockSource(dict):
+
     def exists(self):
         return getattr(self, '_exists', True)
 
 
 class TestCommand(TestCase):
+
     def setUp(self):
         self.develop = MockDevelop()
         self.develop.sources = ['foo', 'bar', 'baz', 'ham']
@@ -93,6 +97,7 @@ class TestCommand(TestCase):
 
 
 class TestDeactivateCommand(TestCase):
+
     def setUp(self):
         from mr.developer.develop import CmdDeactivate
         self.develop = MockDevelop()
@@ -135,8 +140,14 @@ class TestDeactivateCommand(TestCase):
             foo='auto',
             ham='auto')
         assert logger.mock_calls == [
-            ('info', ("Deactivated 'bar'.",), {}),
-            ('warn', ("Don't forget to run buildout again, so the deactived packages are actually not used anymore.",), {})]
+            ('info',
+             ("Deactivated 'bar'.",
+              ),
+                {}),
+            ('warn',
+             ("Don't forget to run buildout again, so the deactived packages are actually not used anymore.",
+              ),
+                {})]
 
     def testDeactivateAutoCheckoutPackage(self):
         args = self.develop.parser.parse_args(args=['deactivate', 'foo'])
@@ -150,5 +161,11 @@ class TestDeactivateCommand(TestCase):
             foo=False,
             ham='auto')
         assert logger.mock_calls == [
-            ('info', ("Deactivated 'foo'.",), {}),
-            ('warn', ("Don't forget to run buildout again, so the deactived packages are actually not used anymore.",), {})]
+            ('info',
+             ("Deactivated 'foo'.",
+              ),
+                {}),
+            ('warn',
+             ("Don't forget to run buildout again, so the deactived packages are actually not used anymore.",
+              ),
+                {})]

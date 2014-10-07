@@ -30,15 +30,26 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         url = self.source['url']
 
         if os.path.exists(path):
-            self.output((logger.info, 'Skipped cloning of existing package %r.' % name))
+            self.output(
+                (logger.info,
+                 'Skipped cloning of existing package %r.' %
+                 name))
             return
         rev = self.get_rev()
         self.output((logger.info, 'Cloned %r with mercurial.' % name))
         env = dict(os.environ)
         env.pop('PYTHONPATH', None)
-        cmd = subprocess.Popen(
-            ['hg', 'clone', '--updaterev', rev, '--quiet', '--noninteractive', url, path],
-            env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        cmd = subprocess.Popen(['hg',
+                                'clone',
+                                '--updaterev',
+                                rev,
+                                '--quiet',
+                                '--noninteractive',
+                                url,
+                                path],
+                               env=env,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise MercurialError(
@@ -52,7 +63,8 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
 
         if branch != 'default':
             if rev:
-                raise ValueError("'branch' and 'rev' parameters cannot be used simultanously")
+                raise ValueError(
+                    "'branch' and 'rev' parameters cannot be used simultanously")
             else:
                 rev = branch
         else:
@@ -104,7 +116,11 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         return [tag for tag in tags if tag and tag != 'tip']
 
     def _get_newest_tag(self):
-        mask = self.source.get('newest_tag_prefix', self.source.get('newest_tag_mask', ''))
+        mask = self.source.get(
+            'newest_tag_prefix',
+            self.source.get(
+                'newest_tag_mask',
+                ''))
         name = self.source['name']
         tags = self._get_tags()
         if mask:
@@ -113,7 +129,9 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         if not tags:
             return None
         newest_tag = tags[0]
-        self.output((logger.info, 'Picked newest tag for %r from Mercurial: %r.' % (name, newest_tag)))
+        self.output(
+            (logger.info, 'Picked newest tag for %r from Mercurial: %r.' %
+             (name, newest_tag)))
         return newest_tag
 
     def hg_pull(self, **kwargs):
@@ -150,7 +168,10 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
             if update:
                 self.update(**kwargs)
             elif self.matches():
-                self.output((logger.info, 'Skipped checkout of existing package %r.' % name))
+                self.output(
+                    (logger.info,
+                     'Skipped checkout of existing package %r.' %
+                     name))
             else:
                 raise MercurialError(
                     'Source URL for existing package %r differs. '

@@ -7,6 +7,7 @@ import tempfile
 
 
 class MockBuildout(object):
+
     def __init__(self, config=None):
         if config is None:
             config = dict()
@@ -26,6 +27,7 @@ class MockBuildout(object):
 
 
 class MockConfig(object):
+
     def __init__(self):
         self.buildout_args = []
         self.develop = {}
@@ -36,6 +38,7 @@ class MockConfig(object):
 
 
 class MockWorkingCopies(object):
+
     def __init__(self, sources):
         self.sources = sources
         self._events = []
@@ -46,6 +49,7 @@ class MockWorkingCopies(object):
 
 
 class TestExtensionClass(TestCase):
+
     def setUp(self):
         from mr.developer.extension import memoize, Extension
 
@@ -58,6 +62,7 @@ class TestExtensionClass(TestCase):
         ))
 
         class MockExtension(Extension):
+
             @memoize
             def get_config(self):
                 return MockConfig()
@@ -168,8 +173,14 @@ class TestExtensionClass(TestCase):
                          os.path.join(os.sep, 'buildout', 'src', 'pkg.bar'))
         self.assertEqual(sources['pkg.ham']['path'],
                          os.path.join(os.sep, 'buildout', 'ham', 'pkg.ham'))
-        self.assertEqual(sources['pkg.baz']['path'],
-                         os.path.join(os.sep, 'buildout', 'other', 'baz', 'pkg.baz'))
+        self.assertEqual(
+            sources['pkg.baz']['path'],
+            os.path.join(
+                os.sep,
+                'buildout',
+                'other',
+                'baz',
+                'pkg.baz'))
         self.assertEqual(sources['pkg.foo']['path'],
                          os.path.join(os.sep, 'foo', 'pkg.foo'))
 
@@ -185,8 +196,14 @@ class TestExtensionClass(TestCase):
                          os.path.join(os.sep, 'buildout', 'src', 'pkg.bar'))
         self.assertEqual(sources['pkg.ham']['path'],
                          os.path.join(os.sep, 'buildout', 'ham', 'pkg.ham'))
-        self.assertEqual(sources['pkg.baz']['path'],
-                         os.path.join(os.sep, 'buildout', 'other', 'baz', 'pkg.baz'))
+        self.assertEqual(
+            sources['pkg.baz']['path'],
+            os.path.join(
+                os.sep,
+                'buildout',
+                'other',
+                'baz',
+                'pkg.baz'))
         self.assertEqual(sources['pkg.foo']['path'],
                          os.path.join(os.sep, 'foo', 'pkg.foo'))
 
@@ -286,10 +303,14 @@ class TestExtensionClass(TestCase):
             (develop, develeggs, versions) = self.extension.get_develop_info()
         finally:
             _exists.__exit__()
-        assert develop == ['/normal/develop', '/develop/with/slash/', 'src/pkg.bar']
+        assert develop == [
+            '/normal/develop',
+            '/develop/with/slash/',
+            'src/pkg.bar']
 
 
 class TestExtension(TestCase):
+
     def setUp(self):
         self.tempdir = tempfile.mkdtemp()
         self.buildout = MockBuildout(dict(
@@ -310,6 +331,7 @@ class TestExtension(TestCase):
 
 
 class TestSourcesDir(TestCase):
+
     def setUp(self):
         self.tempdir = tempfile.mkdtemp()
 

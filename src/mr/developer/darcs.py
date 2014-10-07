@@ -11,16 +11,23 @@ class DarcsError(common.WCError):
 
 
 class DarcsWorkingCopy(common.BaseWorkingCopy):
+
     def darcs_checkout(self, **kwargs):
         name = self.source['name']
         path = self.source['path']
         url = self.source['url']
         if os.path.exists(path):
-            self.output((logger.info, "Skipped getting of existing package '%s'." % name))
+            self.output(
+                (logger.info,
+                 "Skipped getting of existing package '%s'." %
+                 name))
             return
         self.output((logger.info, "Getting '%s' with darcs." % name))
         cmd = ["darcs", "get", "--quiet", "--lazy", url, path]
-        cmd = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        cmd = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise DarcsError("darcs get for '%s' failed.\n%s" % (name, stderr))
@@ -37,7 +44,9 @@ class DarcsWorkingCopy(common.BaseWorkingCopy):
                                stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            raise DarcsError("darcs pull for '%s' failed.\n%s" % (name, stderr))
+            raise DarcsError(
+                "darcs pull for '%s' failed.\n%s" %
+                (name, stderr))
         if kwargs.get('verbose', False):
             return stdout
 
@@ -49,9 +58,14 @@ class DarcsWorkingCopy(common.BaseWorkingCopy):
             if update:
                 self.update(**kwargs)
             elif self.matches():
-                self.output((logger.info, "Skipped checkout of existing package '%s'." % name))
+                self.output(
+                    (logger.info,
+                     "Skipped checkout of existing package '%s'." %
+                     name))
             else:
-                raise DarcsError("Checkout URL for existing package '%s' differs. Expected '%s'." % (name, self.source['url']))
+                raise DarcsError(
+                    "Checkout URL for existing package '%s' differs. Expected '%s'." %
+                    (name, self.source['url']))
         else:
             return self.darcs_checkout(**kwargs)
 
@@ -69,7 +83,9 @@ class DarcsWorkingCopy(common.BaseWorkingCopy):
                                    stderr=subprocess.PIPE)
             stdout, stderr = cmd.communicate()
             if cmd.returncode != 0:
-                self.output((logger.error, "darcs info for '%s' failed.\n%s" % (name, stderr)))
+                self.output(
+                    (logger.error, "darcs info for '%s' failed.\n%s" %
+                     (name, stderr)))
                 return
 
             lines = stdout.splitlines()
@@ -107,7 +123,11 @@ class DarcsWorkingCopy(common.BaseWorkingCopy):
     def update(self, **kwargs):
         name = self.source['name']
         if not self.matches():
-            raise DarcsError("Can't update package '%s' because it's URL doesn't match." % name)
+            raise DarcsError(
+                "Can't update package '%s' because it's URL doesn't match." %
+                name)
         if self.status() != 'clean' and not kwargs.get('force', False):
-            raise DarcsError("Can't update package '%s' because it's dirty." % name)
+            raise DarcsError(
+                "Can't update package '%s' because it's dirty." %
+                name)
         return self.darcs_update(**kwargs)
