@@ -51,7 +51,8 @@ class GitTests(JailSetup):
         process = Process(cwd=repository)
         rc, lines = process.popen("git init")
         assert rc == 0
-        rc, lines = process.popen('git config user.email "florian.schulze@gmx.net"')
+        rc, lines = process.popen(
+            'git config user.email "florian.schulze@gmx.net"')
         assert rc == 0
         rc, lines = process.popen('git config user.name "Florian Schulze"')
         assert rc == 0
@@ -130,9 +131,17 @@ class GitTests(JailSetup):
                 url='%s' % repository,
                 path=os.path.join(src, 'egg'))}
         CmdCheckout(develop)(develop.parser.parse_args(['co', 'egg']))
-        assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.git', 'foo', 'foo2'))
+        assert set(
+            os.listdir(
+                os.path.join(
+                    src, 'egg'))) == set(
+            ('.git', 'foo', 'foo2'))
         CmdUpdate(develop)(develop.parser.parse_args(['up', 'egg']))
-        assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.git', 'foo', 'foo2'))
+        assert set(
+            os.listdir(
+                os.path.join(
+                    src, 'egg'))) == set(
+            ('.git', 'foo', 'foo2'))
 
         shutil.rmtree(os.path.join(src, 'egg'))
 
@@ -145,9 +154,17 @@ class GitTests(JailSetup):
                 url='%s' % repository,
                 path=os.path.join(src, 'egg'))}
         CmdCheckout(develop)(develop.parser.parse_args(['co', 'egg']))
-        assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.git', 'foo', 'foo2'))
+        assert set(
+            os.listdir(
+                os.path.join(
+                    src, 'egg'))) == set(
+            ('.git', 'foo', 'foo2'))
         CmdUpdate(develop)(develop.parser.parse_args(['up', 'egg']))
-        assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.git', 'foo', 'foo2'))
+        assert set(
+            os.listdir(
+                os.path.join(
+                    src, 'egg'))) == set(
+            ('.git', 'foo', 'foo2'))
 
         CmdStatus(develop)(develop.parser.parse_args(['status']))
 
@@ -201,9 +218,17 @@ class GitTests(JailSetup):
         log = _log.__enter__()
         try:
             CmdCheckout(develop)(develop.parser.parse_args(['co', 'egg']))
-            assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.git', 'bar', 'foo'))
+            assert set(
+                os.listdir(
+                    os.path.join(
+                        src, 'egg'))) == set(
+                ('.git', 'bar', 'foo'))
             CmdUpdate(develop)(develop.parser.parse_args(['up', 'egg']))
-            assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.git', 'bar', 'foo'))
+            assert set(
+                os.listdir(
+                    os.path.join(
+                        src, 'egg'))) == set(
+                ('.git', 'bar', 'foo'))
             assert log.method_calls == [
                 ('info', ("Cloned 'egg' with git.",), {}),
                 ('info', ("Updated 'egg' with git.",), {})]

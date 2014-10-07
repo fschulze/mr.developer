@@ -11,11 +11,13 @@ logger = logging.getLogger("mr.developer")
 
 
 class Source(dict):
+
     def exists(self):
         return os.path.exists(self['path'])
 
 
 class Extension(object):
+
     def __init__(self, buildout):
         self.buildout = buildout
         self.buildout_dir = buildout['buildout']['directory']
@@ -64,18 +66,24 @@ class Extension(object):
                     options.append(item)
             options.reverse()
             if len(info) < 2:
-                logger.error("The source definition of '%s' needs at least the repository kind and URL." % name)
+                logger.error(
+                    "The source definition of '%s' needs at least the repository kind and URL." %
+                    name)
                 sys.exit(1)
             kind = info[0]
             if kind not in workingcopytypes:
-                logger.error("Unknown repository type '%s' for source '%s'." % (kind, name))
+                logger.error(
+                    "Unknown repository type '%s' for source '%s'." %
+                    (kind, name))
                 sys.exit(1)
             url = info[1]
 
             path = None
             if len(info) > 2:
                 if '=' not in info[2]:
-                    logger.warn("You should use 'path=%s' to set the path." % info[2])
+                    logger.warn(
+                        "You should use 'path=%s' to set the path." %
+                        info[2])
                     path = os.path.join(info[2], name)
                     if not os.path.isabs(path):
                         path = os.path.join(self.buildout_dir, path)
@@ -133,10 +141,15 @@ class Extension(object):
         if not auto_checkout.issubset(packages):
             diff = list(sorted(auto_checkout.difference(packages)))
             if len(diff) > 1:
-                pkgs = "%s and '%s'" % (", ".join("'%s'" % x for x in diff[:-1]), diff[-1])
-                logger.error("The packages %s from auto-checkout have no source information." % pkgs)
+                pkgs = "%s and '%s'" % (
+                    ", ".join("'%s'" % x for x in diff[:-1]), diff[-1])
+                logger.error(
+                    "The packages %s from auto-checkout have no source information." %
+                    pkgs)
             else:
-                logger.error("The package '%s' from auto-checkout has no source information." % diff[0])
+                logger.error(
+                    "The package '%s' from auto-checkout has no source information." %
+                    diff[0])
             sys.exit(1)
 
         return auto_checkout
@@ -188,7 +201,9 @@ class Extension(object):
         return develop, develeggs, versions
 
     def get_always_accept_server_certificate(self):
-        always_accept_server_certificate = self.buildout['buildout'].get('always-accept-server-certificate', False)
+        always_accept_server_certificate = self.buildout['buildout'].get(
+            'always-accept-server-certificate',
+            False)
         if isinstance(always_accept_server_certificate, bool):
             pass
         elif always_accept_server_certificate.lower() in ('true', 'yes', 'on'):
@@ -196,13 +211,17 @@ class Extension(object):
         elif always_accept_server_certificate.lower() in ('false', 'no', 'off'):
             always_accept_server_certificate = False
         else:
-            logger.error("Unknown value '%s' for always-accept-server-certificate option." % always_accept_server_certificate)
+            logger.error(
+                "Unknown value '%s' for always-accept-server-certificate option." %
+                always_accept_server_certificate)
             sys.exit(1)
         return always_accept_server_certificate
 
     def add_fake_part(self):
         if FAKE_PART_ID in self.buildout._raw:
-            logger.error("The buildout already has a '%s' section, this shouldn't happen" % FAKE_PART_ID)
+            logger.error(
+                "The buildout already has a '%s' section, this shouldn't happen" %
+                FAKE_PART_ID)
             sys.exit(1)
         self.buildout._raw[FAKE_PART_ID] = dict(
             recipe='zc.recipe.egg',
@@ -217,7 +236,10 @@ class Extension(object):
         config = self.get_config()
 
         # store arguments when running from buildout
-        if os.path.split(self.executable)[1] in ('buildout', 'buildout-script.py'):
+        if os.path.split(
+                self.executable)[1] in (
+                'buildout',
+                'buildout-script.py'):
             config.buildout_args = list(sys.argv)
 
         auto_checkout = self.get_auto_checkout()
@@ -236,13 +258,16 @@ class Extension(object):
                 if always_checkout or sources[pkg].get('update'):
                     packages.add(pkg)
 
-        offline = self.buildout['buildout'].get('offline', '').lower() == 'true'
-        workingcopies.checkout(sorted(packages),
-                               verbose=root_logger.level <= 10,
-                               update=always_checkout,
-                               submodules=update_git_submodules,
-                               always_accept_server_certificate=always_accept_server_certificate,
-                               offline=offline)
+        offline = self.buildout['buildout'].get(
+            'offline',
+            '').lower() == 'true'
+        workingcopies.checkout(
+            sorted(packages),
+            verbose=root_logger.level <= 10,
+            update=always_checkout,
+            submodules=update_git_submodules,
+            always_accept_server_certificate=always_accept_server_certificate,
+            offline=offline)
 
         # get updated info after checkout
         (develop, develeggs, versions) = self.get_develop_info()

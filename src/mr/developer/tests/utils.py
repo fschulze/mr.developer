@@ -57,6 +57,7 @@ def tee2(process, filter_func):
 
 
 class background_thread(object):
+
     """Context manager to start and stop a background thread."""
 
     def __init__(self, target, args):
@@ -116,6 +117,7 @@ def popen(cmd, echo=True, echo2=True, env=None, cwd=None):
 
 
 class On(object):
+
     """A tee filter printing all lines."""
 
     def __call__(self, line):
@@ -123,6 +125,7 @@ class On(object):
 
 
 class Off(object):
+
     """A tee filter suppressing all lines."""
 
     def __call__(self, line):
@@ -130,6 +133,7 @@ class Off(object):
 
 
 class Process(object):
+
     """Process related functions using the tee module."""
 
     def __init__(self, quiet=False, env=None, cwd=None):
@@ -158,11 +162,14 @@ class Process(object):
         if self.quiet:
             cmd = cmd + ' >%s 2>&1' % os.devnull
         if self.env:
-            cmd = ''.join('export %s="%s"\n' % (k, v) for k, v in self.env.items()) + cmd
+            cmd = ''.join(
+                'export %s="%s"\n' %
+                (k, v) for k, v in self.env.items()) + cmd
         return os.system(cmd)
 
 
 class DirStack(object):
+
     """Stack of current working directories."""
 
     def __init__(self):
@@ -185,6 +192,7 @@ class DirStack(object):
 
 
 class JailSetup(unittest.TestCase):
+
     """Manage a temporary working directory."""
 
     dirstack = None

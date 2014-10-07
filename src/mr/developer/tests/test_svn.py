@@ -6,6 +6,7 @@ import os
 
 
 class MockConfig(object):
+
     def __init__(self):
         self.develop = {}
 
@@ -14,6 +15,7 @@ class MockConfig(object):
 
 
 class MockDevelop(object):
+
     def __init__(self):
         self.always_accept_server_certificate = True
         self.always_checkout = False
@@ -25,6 +27,7 @@ class MockDevelop(object):
 
 
 class SVNTests(JailSetup):
+
     def setUp(self):
         JailSetup.setUp(self)
         from mr.developer.svn import SVNWorkingCopy
@@ -75,9 +78,17 @@ class SVNTests(JailSetup):
         log = _log.__enter__()
         try:
             CmdCheckout(develop)(develop.parser.parse_args(['co', 'egg']))
-            assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.svn', 'bar', 'foo'))
+            assert set(
+                os.listdir(
+                    os.path.join(
+                        src, 'egg'))) == set(
+                ('.svn', 'bar', 'foo'))
             CmdUpdate(develop)(develop.parser.parse_args(['up', 'egg']))
-            assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.svn', 'bar', 'foo'))
+            assert set(
+                os.listdir(
+                    os.path.join(
+                        src, 'egg'))) == set(
+                ('.svn', 'bar', 'foo'))
             assert log.method_calls == [
                 ('info', ("Checked out 'egg' with subversion.",), {}),
                 ('info', ("Updated 'egg' with subversion.",), {})]
@@ -126,6 +137,14 @@ class SVNTests(JailSetup):
                 url='file://%s@1' % repository,
                 path=os.path.join(src, 'egg'))}
         CmdCheckout(develop)(develop.parser.parse_args(['co', 'egg']))
-        assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.svn', 'foo'))
+        assert set(
+            os.listdir(
+                os.path.join(
+                    src, 'egg'))) == set(
+            ('.svn', 'foo'))
         CmdUpdate(develop)(develop.parser.parse_args(['up', 'egg']))
-        assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.svn', 'foo'))
+        assert set(
+            os.listdir(
+                os.path.join(
+                    src, 'egg'))) == set(
+            ('.svn', 'foo'))

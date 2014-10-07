@@ -40,7 +40,8 @@ setup(name='mr.developer',
           "\n\n",
           get_text_from_file(os.path.join("docs", "HELP.txt")),
           get_text_from_file(os.path.join("docs", "HISTORY.txt"))]),
-      # Get more strings from http://www.python.org/pypi?%3Aaction=list_classifiers
+      # Get more strings from
+      # http://www.python.org/pypi?%3Aaction=list_classifiers
       classifiers=[
           "Programming Language :: Python",
           "Programming Language :: Python :: 3",
