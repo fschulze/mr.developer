@@ -278,7 +278,9 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise GitError("git submodule init failed.\n")
-        initialized_submodules = re.findall(r'Submodule\s+[\'"](.*?)[\'"]\s+\(.+\)', s(stdout))
+        initialized_submodules = re.findall(
+            r'\s+[\'"](.*?)[\'"]\s+\(.+\)',
+            s(stdout))
         return (stdout_in + stdout, stderr_in + stderr, initialized_submodules)
 
     def git_update_submodules(self, stdout_in, stderr_in, submodule='all'):

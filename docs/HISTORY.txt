@@ -4,6 +4,9 @@ Changelog
 1.31 - Unreleased
 -----------------
 
+* Fixed submodule matching for some git versions.
+  [jod (Josip Delic), fschulze]
+
 * Added compat.py for Python 3.
   [jod (Josip Delic)]
 
