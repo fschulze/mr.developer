@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from mr.developer import common
+from mr.developer.compat import b, s
 import os
 import subprocess
 import re
@@ -8,13 +9,6 @@ import sys
 
 
 logger = common.logger
-
-if sys.version_info < (3, 0):
-    b = lambda x: x
-    s = lambda x: x
-else:
-    b = lambda x: x.encode('ascii')
-    s = lambda x: x.decode('ascii')
 
 
 class GitError(common.WCError):
@@ -285,6 +279,10 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         if cmd.returncode != 0:
             raise GitError("git submodule init failed.\n")
         initialized_submodules = re.findall(r'Submodule\s+[\'"](.*?)[\'"]\s+\(.+\)', s(stdout))
+        if not initialized_submodules:
+            initialized_submodules = re.findall(
+                r'\s+[\'"](.*?)[\'"]\s+\(.+\)',
+                s(stdout))
         return (stdout_in + stdout, stderr_in + stderr, initialized_submodules)
 
     def git_update_submodules(self, stdout_in, stderr_in, submodule='all'):
