@@ -4,6 +4,9 @@ Changelog
 1.31 - Unreleased
 -----------------
 
+* Added compat for python3. Fixed UnicodeError with git.
+  [jod]
+
 * More info when svn cannot switch because of dirty checkout.
   [gotcha]
 
