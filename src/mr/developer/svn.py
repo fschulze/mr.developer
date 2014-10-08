@@ -1,4 +1,5 @@
 from mr.developer import common
+from mr.developer.compat import b, s
 try:
     from urllib.parse import urlparse, urlunparse
 except ImportError:
@@ -13,13 +14,6 @@ import os
 import re
 import subprocess
 import sys
-
-if sys.version_info < (3, 0):
-    b = lambda x: x
-    s = lambda x: x
-else:
-    b = lambda x: x.encode('ascii')
-    s = lambda x: x.decode('ascii')
 
 
 try:

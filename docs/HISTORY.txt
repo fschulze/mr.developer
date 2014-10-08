@@ -4,6 +4,9 @@ Changelog
 1.31 - Unreleased
 -----------------
 
+* Added compat.py for Python 3.
+  [jod (Josip Delic)]
+
 * More info when svn cannot switch because of dirty checkout.
   [gotcha]
 

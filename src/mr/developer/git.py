@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from mr.developer import common
+from mr.developer.compat import b, s
 import os
 import subprocess
 import re
@@ -8,13 +9,6 @@ import sys
 
 
 logger = common.logger
-
-if sys.version_info < (3, 0):
-    b = lambda x: x
-    s = lambda x: x
-else:
-    b = lambda x: x.encode('ascii')
-    s = lambda x: x.decode('ascii')
 
 
 class GitError(common.WCError):

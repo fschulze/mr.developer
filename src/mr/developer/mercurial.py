@@ -1,16 +1,10 @@
 from mr.developer import common
+from mr.developer.compat import b
 import re
 import os
 import subprocess
-import sys
 
 logger = common.logger
-
-
-if sys.version_info < (3, 0):
-    b = lambda x: x
-else:
-    b = lambda x: x.encode('ascii')
 
 
 class MercurialError(common.WCError):
