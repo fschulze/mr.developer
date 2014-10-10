@@ -1,4 +1,5 @@
 *.py[co]
+*.swp
 *.egg-info
 /.cache
 /.coverage
