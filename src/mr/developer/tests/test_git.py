@@ -1,6 +1,5 @@
 import argparse
 import os
-import sys
 import shutil
 
 import pytest
@@ -8,12 +7,6 @@ from mock import patch
 
 from mr.developer.extension import Source
 from mr.developer.tests.utils import Process, JailSetup
-
-
-if sys.version_info < (3, 0):
-    b = lambda x: x
-else:
-    b = lambda x: x.encode('ascii')
 
 
 class MockConfig(object):

@@ -1,18 +1,12 @@
 import argparse
 import os
-import sys
 
 import pytest
 from mock import patch
 
 from mr.developer.extension import Source
 from mr.developer.tests.utils import Process, JailSetup
-
-
-if sys.version_info < (3, 0):
-    b = lambda x: x
-else:
-    b = lambda x: x.encode('ascii')
+from mr.developer.compat import b
 
 
 class MockConfig(object):
@@ -126,7 +120,12 @@ class MercurialTests(JailSetup):
             "hg log %s" % foo,
             echo=False)
         assert rc == 0
-        rev = lines[0].split()[1].split(b(':'))[1]
+
+        try:
+            # XXX older version
+            rev = lines[0].split()[1].split(b(':'))[1]
+        except:
+            rev = lines[0].split()[1]
 
         # return to default branch
         rc, lines = process.popen(
