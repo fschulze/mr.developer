@@ -425,9 +425,13 @@ def parse_buildout_args(args):
                 raise ValueError("Invalid option", '-' + op[0])
         elif '=' in args[0]:
             option, value = args.pop(0).split('=', 1)
-            if len(option.split(':')) != 2:
+            parts = option.split(':')
+            if len(parts) == 2:
+                section, option = parts
+            elif len(parts) == 1:
+                section = 'buildout'
+            else:
                 raise ValueError('Invalid option:', option)
-            section, option = option.split(':')
             options.append((section.strip(), option.strip(), value.strip()))
         else:
             # We've run out of command-line options and option assignnemnts
