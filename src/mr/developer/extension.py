@@ -3,7 +3,6 @@ import logging
 import os
 import re
 import sys
-import zc.buildout.buildout
 
 
 FAKE_PART_ID = '_mr.developer'
@@ -50,12 +49,13 @@ class Extension(object):
 
     @memoize
     def get_sources(self):
+        from zc.buildout.buildout import MissingSection
         sources_dir = self.get_sources_dir()
         sources = {}
         sources_section = self.buildout['buildout'].get('sources', 'sources')
         try:
             section = self.buildout[sources_section]
-        except zc.buildout.buildout.MissingSection as e:
+        except MissingSection as e:
             if e.message == sources_section:
                 section = {}
             else:
