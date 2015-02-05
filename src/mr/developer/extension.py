@@ -56,7 +56,7 @@ class Extension(object):
         try:
             section = self.buildout[sources_section]
         except MissingSection:
-            if sys.exc_info()[1].message == sources_section:
+            if sys.exc_info()[1].args[0] == sources_section:
                 section = {}
             else:
                 raise
