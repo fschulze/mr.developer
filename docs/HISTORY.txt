@@ -4,8 +4,7 @@ Changelog
 1.32 - Unreleased
 -----------------
 
-* Raise exception sources section cannot be computed due to a missing needed
-  section instead of ignoring the error.
+* Raise an exception if the sources section references a missing section.
   [icemac (Michael Howitz)]
 
 
