@@ -52,7 +52,7 @@ class Extension(object):
         sources_dir = self.get_sources_dir()
         sources = {}
         sources_section = self.buildout['buildout'].get('sources', 'sources')
-        section = self.buildout.get(sources_section, {})
+        section = self.buildout[sources_section]
         workingcopytypes = get_workingcopytypes()
         for name in section:
             info = section[name].split()
