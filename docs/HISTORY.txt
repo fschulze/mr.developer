@@ -4,6 +4,8 @@ Changelog
 1.32 - Unreleased
 -----------------
 
+* Raise an exception if the sources section references a missing section.
+  [icemac (Michael Howitz)]
 
 
 1.31 - 2014-10-29

@@ -3,6 +3,7 @@ import logging
 import os
 import re
 import sys
+import zc.buildout.buildout
 
 
 FAKE_PART_ID = '_mr.developer'
@@ -52,7 +53,13 @@ class Extension(object):
         sources_dir = self.get_sources_dir()
         sources = {}
         sources_section = self.buildout['buildout'].get('sources', 'sources')
-        section = self.buildout.get(sources_section, {})
+        try:
+            section = self.buildout[sources_section]
+        except zc.buildout.buildout.MissingSection as e:
+            if e.message == sources_section:
+                section = {}
+            else:
+                raise
         workingcopytypes = get_workingcopytypes()
         for name in section:
             info = section[name].split()
