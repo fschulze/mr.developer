@@ -15,8 +15,15 @@ class MockBuildout(object):
     def __contains__(self, key):
         return key in self._raw
 
+    def __delitem__(self, key):
+        del self._raw[key]
+
     def __getitem__(self, key):
-        return self._raw[key]
+        try:
+            return self._raw[key]
+        except KeyError:
+            from zc.buildout.buildout import MissingSection
+            raise MissingSection(key)
 
     def get(self, key, default=None):
         return self._raw.get(key, default)
@@ -287,6 +294,10 @@ class TestExtensionClass(TestCase):
         finally:
             _exists.__exit__()
         assert develop == ['/normal/develop', '/develop/with/slash/', 'src/pkg.bar']
+
+    def testMissingSourceSection(self):
+        del self.buildout['sources']
+        assert self.extension.get_sources() == {}
 
 
 class TestExtension(TestCase):
