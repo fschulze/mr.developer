@@ -204,7 +204,6 @@ def get_workingcopytypes():
     _workingcopytypes.update(addons)
     return _workingcopytypes
 
-
 _commands = {}
 
 

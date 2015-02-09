@@ -36,8 +36,8 @@ class MercurialTests(JailSetup):
         JailSetup.setUp(self)
 
     def testUpdateWithoutRevisionPin(self):
-        from mr.developer.develop import CmdCheckout
-        from mr.developer.develop import CmdUpdate
+        from mr.developer.commands import CmdCheckout
+        from mr.developer.commands import CmdUpdate
         repository = os.path.join(self.tempdir, 'repository')
         os.mkdir(repository)
         process = Process(cwd=repository)
@@ -89,8 +89,8 @@ class MercurialTests(JailSetup):
             _log.__exit__()
 
     def testUpdateWithRevisionPin(self):
-        from mr.developer.develop import CmdCheckout
-        from mr.developer.develop import CmdUpdate
+        from mr.developer.commands import CmdCheckout
+        from mr.developer.commands import CmdUpdate
         repository = os.path.join(self.tempdir, 'repository')
         os.mkdir(repository)
         process = Process(cwd=repository)
