@@ -4,9 +4,9 @@ from unittest import TestCase
 class TestGetCommands(TestCase):
     def testFindInternalCommands(self):
         from mr.developer.common import get_commands
-        self.assertIn('activate', get_commands())
-        self.assertIn('deactivate', get_commands())
-        self.assertIn('help', get_commands())
+        self.assertTrue('activate' in get_commands())
+        self.assertTrue('deactivate' in get_commands())
+        self.assertTrue('help' in get_commands())
 
 
 class TestParseBuildoutArgs(TestCase):
