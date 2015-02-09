@@ -1,4 +1,4 @@
-from mr.developer.common import logger, memoize, WorkingCopies, Config, yesno
+from mr.developer.common import logger, memoize, WorkingCopies, Config, yesno, get_commands
 from mr.developer.extension import Extension
 from zc.buildout.buildout import Buildout
 import argparse
@@ -809,19 +809,10 @@ class Develop(object):
                                  action='version',
                                  version='mr.developer %s' % version)
         self.parsers = self.parser.add_subparsers(title="commands", metavar="")
-        CmdActivate(self)
-        CmdArguments(self)
-        CmdCheckout(self)
-        CmdDeactivate(self)
-        CmdHelp(self)
-        CmdInfo(self)
-        CmdList(self)
-        CmdPony(self)
-        CmdPurge(self)
-        CmdRebuild(self)
-        CmdReset(self)
-        CmdStatus(self)
-        CmdUpdate(self)
+
+        for command in get_commands():
+            command(self)
+
         args = self.parser.parse_args()
 
         try:

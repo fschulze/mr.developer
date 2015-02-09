@@ -205,6 +205,31 @@ def get_workingcopytypes():
     return _workingcopytypes
 
 
+_commands = {}
+
+
+def get_commands():
+    if _commands:
+        return _commands
+    group = 'mr.developer.commands'
+    addons = {}
+    for entrypoint in pkg_resources.iter_entry_points(group=group):
+        key = entrypoint.name
+        command = entrypoint.load()
+        if entrypoint.dist.project_name == 'mr.developer':
+            _commands[key] = command
+        else:
+            if key in addons:
+                logger.error('There already is a working copy type addon '
+                             'registered for "%s".', key)
+                sys.exit(1)
+            logger.info('Overwriting "%s" with addon from "%s".',
+                        key, entrypoint.dist.project_name)
+            addons[key] = command
+    _commands.update(addons)
+    return _commands
+
+
 class WorkingCopies(object):
     def __init__(self, sources, threads=5):
         self.sources = sources

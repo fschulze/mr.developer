@@ -74,4 +74,18 @@ setup(name='mr.developer',
       fs = mr.developer.filesystem:FilesystemWorkingCopy
       cvs = mr.developer.cvs:CVSWorkingCopy
       darcs = mr.developer.darcs:DarcsWorkingCopy
+      [mr.developer.commands]
+      activate = mr.developer.commands:CmdActivate
+      arguments = mr.developer.commands:CmdArguments
+      checkout = mr.developer.commands:CmdCheckout
+      deactivate = mr.developer.commands:CmdDeactivate
+      help = mr.developer.commands:CmdHelp
+      info = mr.developer.commands:CmdInfo
+      list = mr.developer.commands:CmdList
+      pony = mr.developer.commands:CmdPony
+      purge = mr.developer.commands:CmdPurge
+      rebuild = mr.developer.commands:CmdRebuild
+      reset = mr.developer.commands:CmdReset
+      status = mr.developer.commands:CmdStatus
+      update = mr.developer.commands:CmdUpdate
       """)

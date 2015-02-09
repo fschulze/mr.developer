@@ -1,6 +1,14 @@
 from unittest import TestCase
 
 
+class TestGetCommands(TestCase):
+    def testFindInternalCommands(self):
+        from mr.developer.common import get_commands
+        self.assertIn('activate', get_commands())
+        self.assertIn('deactivate', get_commands())
+        self.assertIn('help', get_commands())
+
+
 class TestParseBuildoutArgs(TestCase):
     def setUp(self):
         from mr.developer.common import parse_buildout_args
