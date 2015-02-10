@@ -4,6 +4,9 @@ Changelog
 1.32 - Unreleased
 -----------------
 
+* Add plugin interface for adding commands using entry points.
+  [fschulze]
+
 * Raise an exception if the sources section references a missing section.
   [icemac (Michael Howitz)]
 
