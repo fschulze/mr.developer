@@ -76,7 +76,7 @@ class GITTests(JailSetup):
         """
             Tests the checkout of a module 'egg' with a submodule 'submodule_a' in it
         """
-        from mr.developer.develop import CmdCheckout
+        from mr.developer.commands import CmdCheckout
         submodule_name = 'submodule_a'
         submodule_a = self.createRepo(submodule_name)
         self.addFileToRepo(submodule_a, 'foo')
@@ -109,7 +109,7 @@ class GITTests(JailSetup):
             Tests the checkout of a module 'egg' with a submodule 'submodule_a'
             and a submodule 'submodule_b' in it.
         """
-        from mr.developer.develop import CmdCheckout
+        from mr.developer.commands import CmdCheckout
         submodule_name = 'submodule_a'
         submodule = self.createRepo(submodule_name)
         submodule_b_name = 'submodule_b'
@@ -149,7 +149,7 @@ class GITTests(JailSetup):
             Tests the checkout of a module 'egg' with a submodule 'submodule_a' in it.
             Add a new 'submodule_b' to 'egg' and check it succesfully initializes.
         """
-        from mr.developer.develop import CmdCheckout, CmdUpdate
+        from mr.developer.commands import CmdCheckout, CmdUpdate
         submodule_name = 'submodule_a'
         submodule = self.createRepo(submodule_name)
         self.addFileToRepo(submodule, 'foo')
@@ -199,7 +199,7 @@ class GITTests(JailSetup):
             without initializing the submodule, restricted by global 'never'
         """
 
-        from mr.developer.develop import CmdCheckout
+        from mr.developer.commands import CmdCheckout
         submodule_name = 'submodule_a'
         submodule_a = self.createRepo(submodule_name)
         self.addFileToRepo(submodule_a, 'foo')
@@ -234,7 +234,7 @@ class GITTests(JailSetup):
             on egg that has the 'always' option
         """
 
-        from mr.developer.develop import CmdCheckout
+        from mr.developer.commands import CmdCheckout
         submodule_name = 'submodule_a'
         submodule_a = self.createRepo(submodule_name)
         self.addFileToRepo(submodule_a, 'foo')
@@ -284,7 +284,7 @@ class GITTests(JailSetup):
             on egg2 that has the 'never' option
 
         """
-        from mr.developer.develop import CmdCheckout
+        from mr.developer.commands import CmdCheckout
         submodule_name = 'submodule_a'
         submodule_a = self.createRepo(submodule_name)
         self.addFileToRepo(submodule_a, 'foo')
@@ -331,7 +331,7 @@ class GITTests(JailSetup):
             Tests the checkout of a module 'egg' with a submodule 'submodule_a' in it.
             Add a new 'submodule_b' to 'egg' and check it doesn't get initialized.
         """
-        from mr.developer.develop import CmdCheckout, CmdUpdate
+        from mr.developer.commands import CmdCheckout, CmdUpdate
         submodule_name = 'submodule_a'
         submodule = self.createRepo(submodule_name)
         self.addFileToRepo(submodule, 'foo')
@@ -381,7 +381,7 @@ class GITTests(JailSetup):
             Commits changes in the detached submodule, and checks update didn't break
             the changes.
         """
-        from mr.developer.develop import CmdCheckout, CmdUpdate
+        from mr.developer.commands import CmdCheckout, CmdUpdate
         submodule_name = 'submodule_a'
         submodule = self.createRepo(submodule_name)
         self.addFileToRepo(submodule, 'foo')

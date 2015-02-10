@@ -31,8 +31,8 @@ class SVNTests(JailSetup):
         SVNWorkingCopy._clear_caches()
 
     def testUpdateWithoutRevisionPin(self):
-        from mr.developer.develop import CmdCheckout
-        from mr.developer.develop import CmdUpdate
+        from mr.developer.commands import CmdCheckout
+        from mr.developer.commands import CmdUpdate
         process = Process()
         repository = os.path.join(self.tempdir, 'repository')
         rc, lines = process.popen(
@@ -85,8 +85,8 @@ class SVNTests(JailSetup):
             _log.__exit__()
 
     def testUpdateWithRevisionPin(self):
-        from mr.developer.develop import CmdCheckout
-        from mr.developer.develop import CmdUpdate
+        from mr.developer.commands import CmdCheckout
+        from mr.developer.commands import CmdUpdate
         process = Process()
         repository = os.path.join(self.tempdir, 'repository')
         rc, lines = process.popen(

@@ -51,9 +51,9 @@ class GitTests(JailSetup):
         return repository
 
     def testUpdateWithRevisionPin(self):
-        from mr.developer.develop import CmdCheckout
-        from mr.developer.develop import CmdUpdate
-        from mr.developer.develop import CmdStatus
+        from mr.developer.commands import CmdCheckout
+        from mr.developer.commands import CmdUpdate
+        from mr.developer.commands import CmdStatus
         repository = self.createRepo('repository')
         process = Process(cwd=repository)
         foo = os.path.join(repository, 'foo')
@@ -170,8 +170,8 @@ class GitTests(JailSetup):
         """)
 
     def testUpdateWithoutRevisionPin(self):
-        from mr.developer.develop import CmdCheckout
-        from mr.developer.develop import CmdUpdate
+        from mr.developer.commands import CmdCheckout
+        from mr.developer.commands import CmdUpdate
         repository = self.createRepo('repository')
         process = Process(cwd=repository)
         foo = os.path.join(repository, 'foo')
