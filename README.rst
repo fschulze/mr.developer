@@ -255,6 +255,103 @@ The following are useful examples::
     url ~ fschulze/
     me/
 
+Extending
+=========
+
+You can extend mr.developer to teach it new types of VCS, to modify the
+behavior of provided VCS and to add or modify existing commands.
+
+Mr.developer uses entrypoints for this. TO see examples on how to create entry
+points in detail, you can have a look at the existing entry points.
+
+Adding a new VCS
+----------------
+Add en entry to the entry point group ``mr.developer.workingcopytypes``.
+They key of the entry is going to be used in the sources section of your
+buildout file. The value should be a class.
+The referenced class must implement the following methods::
+
+    - __init__(self, source)
+    - matches(self)
+    - checkout(self, **kwargs)
+    - status(self, verbose=False, **kwargs)
+    - update(self, **kwargs)
+
+The source is a dictionary like object. The source object provides the
+attributes::
+
+    - name
+    - url
+    - path
+
+In addition it contains all key value pairs one can define on the source line
+in buildout, and a methods ``exists`` that returns, whether the ``path``
+already exists.
+
+The matches method must return, if the checkout at the ``path`` matches the
+repository at ``url``
+
+
+The commands map to the commands mr.developer provides. To see the list of
+potential arguments, check the documentation of the commands.
+The commands ``checkout`` and update only return what they want to have printed
+out on stdout, the ``status`` command must check the verbose flag. If the
+verbose flag is set, it must return a tuple with what it wants to print out and
+what the VCS commands generated as output.
+
+All objects must have list ``_output`` which contains logging information.
+Please refer to existing implementations for how to fill this information.
+
+If your VCS Handler needs to throw an error, throw errors with
+``mr.developer.common.WCError`` as a base clase.
+
+If you need to add new functionality for new commands or change behavior of
+something, try not to write a new VCS handler. Try your best your changes
+generically useful and get them into mr.developer.
+
+Adding a new command
+--------------------
+Add an entry to the entry point group ``mr.developer.commands``.
+The key will be the name of the command itself.
+
+The referenced class must implement the following methods::
+
+    - __init__(self, develop)
+    - __call__(self, args)
+
+An inversion of control happens here. On initalization, you receive a develop
+object that represents the class handling invocation of ``./bin/develop``
+It is now your job to modify the attributes of the ``develop`` object to handle
+argument parsing.
+Create an ArgumentParser and add it to ``develop.parsers``.
+
+Upon calling, you can perform your actions. It is a good idea to subclass from
+``mr.developer.commands.Command``. It provides convenient helper methods::
+
+    - get_workingcopies(self, sources)
+    - get_packages(args, auto_checkout, develop, checked_out)
+
+``get_workingcopies`` gives you a WorkingCopies object that will delegate all
+your VCS actions to the right VCS handler.
+
+``get_packages`` is a little helper to get sources filterd by the rules.
+``args`` can be one or more regular expression filtr on source names, the other
+attributes are boolean flags that by default are ``False``. False means _not_
+to filter. Calling the method only with the ``arg`` '.' would thus return all
+packges. THe returned object is a set containing only the names of the sources.
+
+To perform an action, you get the package names via get_packages. then you get
+the WorkingCopies object and call the action you want to perform on this
+object. THe WorkingCopies object checks, which working copy is responsible for
+the given package and delegates the action to this object. The WorkingCopies
+object is also handling threading functionality.
+
+The ``develop`` object has a ``config`` property. This object can be used to
+store configuration of your actions. under ``config.develop`` a dictionary
+resides which stores, whether the source with the given key is going to be used
+from source checkout.
+
+
 Troubleshooting
 ===============
 
