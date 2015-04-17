@@ -258,14 +258,14 @@ The following are useful examples::
 Extending
 =========
 
-You can extend mr.developer to teach it new types of VCS, to modify the
-behavior of provided VCS and to add or modify existing commands.
+You can extend mr.developer to teach it new types of Working Copies
+and to add or modify existing commands.
 
 Mr.developer uses entrypoints for this. TO see examples on how to create entry
 points in detail, you can have a look at the existing entry points.
 
-Adding a new VCS
-----------------
+Adding support for a new working copy type
+------------------------------------------
 Add en entry to the entry point group ``mr.developer.workingcopytypes``.
 They key of the entry is going to be used in the sources section of your
 buildout file. The value should be a class.
@@ -291,7 +291,6 @@ already exists.
 The matches method must return, if the checkout at the ``path`` matches the
 repository at ``url``
 
-
 The commands map to the commands mr.developer provides. To see the list of
 potential arguments, check the documentation of the commands.
 The commands ``checkout`` and update only return what they want to have printed
@@ -302,12 +301,12 @@ what the VCS commands generated as output.
 All objects must have list ``_output`` which contains logging information.
 Please refer to existing implementations for how to fill this information.
 
-If your VCS Handler needs to throw an error, throw errors with
+If your working copy Handler needs to throw an error, throw errors with
 ``mr.developer.common.WCError`` as a base clase.
 
 If you need to add new functionality for new commands or change behavior of
-something, try not to write a new VCS handler. Try your best your changes
-generically useful and get them into mr.developer.
+something, try not to write a new working copy handler. Try your best your
+changes generically useful and get them into mr.developer.
 
 Adding a new command
 --------------------
@@ -332,7 +331,7 @@ Upon calling, you can perform your actions. It is a good idea to subclass from
     - get_packages(args, auto_checkout, develop, checked_out)
 
 ``get_workingcopies`` gives you a WorkingCopies object that will delegate all
-your VCS actions to the right VCS handler.
+your working copy actions to the right working copy handler.
 
 ``get_packages`` is a little helper to get sources filterd by the rules.
 ``args`` can be one or more regular expression filtr on source names, the other
