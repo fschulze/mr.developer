@@ -272,6 +272,37 @@ class TestExtensionClass(TestCase):
         self.assertEqual(develeggs['slash'], '/develop/with/slash/')
         self.assertEqual(develeggs['develop'], '/normal/develop')
 
+    def testDevelopSafeName(self):
+        '''We have two source packages:
+         - pkg.bar_foo
+         - pkg.foo_bar
+        both of the hae a version picked.
+
+        If we auto-checkout pkg.foo_bar it gets unpinned!
+        '''
+        self.buildout['sources'].update({
+            'pkg.bar_foo': 'svn dummy://pkg.bar_foo',
+            'pkg.foo_bar': 'svn dummy://pkg.foo_bar',
+        })
+        self.buildout['buildout']['auto-checkout'] = 'pkg.foo_bar'
+        self.buildout._raw['buildout']['versions'] = 'versions'
+        self.buildout._raw['versions'] = {
+            'pkg.foo-bar': '1.0',
+            'pkg.bar-foo': '1.0',
+        }
+        _exists = patch('os.path.exists')
+        exists = _exists.__enter__()
+        try:
+            exists().return_value = True
+
+            (develop, develeggs, versions) = self.extension.get_develop_info()
+        finally:
+            _exists.__exit__()
+        self.assertEqual(
+            self.buildout['versions'],
+            {'pkg.bar-foo': '1.0'}
+        )
+
     def testDevelopOrder(self):
         self.buildout['buildout']['develop'] = '/normal/develop ' \
             '/develop/with/slash/'

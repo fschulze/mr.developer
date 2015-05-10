@@ -1,4 +1,5 @@
 from mr.developer.common import memoize, WorkingCopies, Config, get_workingcopytypes
+from setuptools.package_index import safe_name
 import logging
 import os
 import re
@@ -202,8 +203,8 @@ class Extension(object):
                         config_develop.setdefault(name, True)
                     develeggs[name] = path
                     develeggs_order.append(name)
-                    if name in versions:
-                        del versions[name]
+                    if safe_name(name) in versions:
+                        del versions[safe_name(name)]
         develop = []
         for path in [develeggs[k] for k in develeggs_order]:
             if path.startswith(self.buildout_dir):
