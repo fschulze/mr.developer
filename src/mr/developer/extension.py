@@ -113,6 +113,11 @@ class Extension(object):
                         value = True
                     elif value.lower() in ('false', 'no', 'off'):
                         value = False
+                if key == 'depth':
+                    try:
+                        value = int(value)
+                    except ValueError:
+                        raise ValueError('depth value needs to be a number.')
                 source[key] = value
             if 'path' not in source:
                 if 'full-path' in source:

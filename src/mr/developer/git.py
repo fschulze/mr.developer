@@ -139,7 +139,11 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         # here, but just on 1.6, if a branch was provided we could checkout it
         # directly via the -b <branchname> option instead of doing a separate
         # checkout later: I however think it outweighs the benefits
-        cmd = self.run_git(["clone", "--quiet", url, path])
+        args = ["clone", "--quiet"]
+        if 'depth' in self.source:
+            args.extend(["--depth", self.source["depth"]])
+        args.extend([url, path])
+        cmd = self.run_git(args)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise GitError("git cloning of '%s' failed.\n%s" % (name, stderr))

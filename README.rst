@@ -140,6 +140,11 @@ Common options
   Default value is controled by the buildout option ``update-git-submodules``.
   Possible values are the same described before in ``update-git-submodules`` option,
 
+  The ``depth`` option allows to specify how much history you want to clone.
+  This is the so called *shallow clones*.
+  Note that this is mostly not useful at all for regular clones,
+  on the other hand for one time usages (continuous integration for example) it makes clones much faster.
+
   Note that the ``branch`` and ``rev`` option are mutually exclusive.
 
 ``hg``
