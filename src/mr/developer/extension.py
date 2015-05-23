@@ -113,12 +113,21 @@ class Extension(object):
                         value = True
                     elif value.lower() in ('false', 'no', 'off'):
                         value = False
+                if key == 'depth':
+                    try:
+                        value = int(value)
+                    except ValueError:
+                        raise ValueError('depth value needs to be a number.')
                 source[key] = value
             if 'path' not in source:
                 if 'full-path' in source:
                     source['path'] = source['full-path']
                 else:
                     source['path'] = os.path.join(sources_dir, name)
+
+            if 'depth' not in source and \
+                    self.get_git_clone_depth():
+                source['depth'] = self.get_git_clone_depth()
 
             for rewrite in self.get_config().rewrites:
                 rewrite(source)
@@ -153,6 +162,15 @@ class Extension(object):
 
     def get_update_git_submodules(self):
         return self.buildout['buildout'].get('update-git-submodules', 'always')
+
+    def get_git_clone_depth(self):
+        value = self.buildout['buildout'].get('git-clone-depth', '')
+        if value:
+            try:
+                value = int(value)
+            except ValueError:
+                raise ValueError('git-clone-depth needs to be a number.')
+        return value
 
     def get_develop_info(self):
         auto_checkout = self.get_auto_checkout()

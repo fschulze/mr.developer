@@ -66,6 +66,13 @@ This enables additional ``[buildout]`` options:
   This sets the number of threads used for parallel checkouts. See
   `Lockups during checkouts and updates`_ why you might need this.
 
+``git-clone-depth``
+  This sets the git clone history size (git clone --depth parameter).
+  Not really useful for development, but really useful on CI environments.
+  The other big benefit is the speedup on cloning,
+  as only few revisions are downloaded.
+  Default is to get the full history.
+
 The format of entries in the ``[sources]`` section is::
 
   [sources]
@@ -139,6 +146,13 @@ Common options
   The ``submodules`` option allows you to initialize existing submodules.
   Default value is controled by the buildout option ``update-git-submodules``.
   Possible values are the same described before in ``update-git-submodules`` option,
+
+  The ``depth`` option allows to specify how much history you want to clone.
+  This is the so called *shallow clones*.
+  Note that this is mostly not useful at all for regular clones,
+  on the other hand for one time usages (continuous integration for example) it makes clones much faster.
+  This option overrides a general ``git-clone-depth`` value,
+  so per-source depth can be specified.
 
   Note that the ``branch`` and ``rev`` option are mutually exclusive.
 
