@@ -4,7 +4,9 @@ Changelog
 1.33 - Unreleased
 -----------------
 
-
+* Fix git-clone-depth global option, it needs to be kept as a string and not
+  converted to a number.
+  [gforcada (Gil Forcada)]
 
 1.32 - 2015-05-23
 -----------------
