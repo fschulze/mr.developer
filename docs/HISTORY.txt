@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.32 - Unreleased
+1.32 - 2015-05-23
 -----------------
 
 * Add git-clone-depth global option and depth per source option to specify on
