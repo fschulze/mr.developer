@@ -115,7 +115,7 @@ class Extension(object):
                         value = False
                 if key == 'depth':
                     try:
-                        value = int(value)
+                        not_used = int(value)  # noqa
                     except ValueError:
                         raise ValueError('depth value needs to be a number.')
                 source[key] = value
@@ -167,7 +167,7 @@ class Extension(object):
         value = self.buildout['buildout'].get('git-clone-depth', '')
         if value:
             try:
-                value = int(value)
+                not_used = int(value)  # noqa
             except ValueError:
                 raise ValueError('git-clone-depth needs to be a number.')
         return value
