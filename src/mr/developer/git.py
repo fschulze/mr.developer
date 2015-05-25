@@ -185,8 +185,9 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         elif re.search(b("^(\*| ) %s$" % re.escape(branch)), stdout, re.M):
             # the branch is local, normal checkout will work
             argv = ["checkout", branch]
-        elif re.search(b("^  " + re.escape(rbp) + "\/" + re.escape(branch)
-                + "$"), stdout, re.M):
+        elif re.search(
+                b("^  " + re.escape(rbp) + "\/" + re.escape(branch) + "$"),
+                stdout, re.M):
             # the branch is not local, normal checkout won't work here
             argv = ["checkout", "-b", branch, "%s/%s" % (rbp, branch)]
         elif accept_missing:
