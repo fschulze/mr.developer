@@ -4,9 +4,10 @@ from unittest import TestCase
 class TestGetCommands(TestCase):
     def testFindInternalCommands(self):
         from mr.developer.common import get_commands
-        self.assertTrue('activate' in get_commands())
-        self.assertTrue('deactivate' in get_commands())
-        self.assertTrue('help' in get_commands())
+        cmds = [x.__name__ for x in get_commands()]
+        self.assertTrue('CmdActivate' in cmds)
+        self.assertTrue('CmdDeactivate' in cmds)
+        self.assertTrue('CmdHelp' in cmds)
 
 
 class TestParseBuildoutArgs(TestCase):
