@@ -10,22 +10,6 @@ import sys
 import textwrap
 
 
-def find_base():
-    path = os.getcwd()
-    while path:
-        if os.path.exists(os.path.join(path, '.mr.developer.cfg')):
-            break
-        old_path = path
-        path = os.path.dirname(path)
-        if old_path == path:
-            path = None
-            break
-    if path is None:
-        raise IOError(".mr.developer.cfg not found")
-
-    return path
-
-
 class ChoicesPseudoAction(argparse.Action):
 
     def __init__(self, *args, **kwargs):
