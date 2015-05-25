@@ -106,22 +106,4 @@ class Develop(object):
         if os.path.exists(self.original_dir):
             os.chdir(self.original_dir)
 
-    @property
-    def commands(self):
-        commands = getattr(self, '_commands', None)
-        if commands is not None:
-            return commands
-        self._commands = commands = dict()
-        for key in dir(self):
-            if key.startswith('cmd_'):
-                commands[key[4:]] = getattr(self, key)
-            if key.startswith('alias_'):
-                commands[key[6:]] = getattr(self, key)
-        return commands
-
-    def unknown(self):
-        logger.error("Unknown command '%s'." % sys.argv[1])
-        logger.info("Type '%s help' for usage." % os.path.basename(sys.argv[0]))
-        sys.exit(1)
-
 develop = Develop()
