@@ -50,6 +50,13 @@ class GitTests(JailSetup):
         assert rc == 0
         return repository
 
+    def createFile(self, name, content):
+        name = os.path.join(self.tempdir, name)
+        f = open(name, 'w')
+        f.write('\n'.join(content))
+        f.close()
+        return name
+
     def testUpdateWithRevisionPin(self):
         from mr.developer.commands import CmdCheckout
         from mr.developer.commands import CmdUpdate
@@ -216,7 +223,7 @@ class GitTests(JailSetup):
             _log.__exit__()
 
     def testDepthOption(self):
-        from mr.developer.commands import CmdCheckout
+        from mr.developer.develop import develop
 
         # create repository and make two commits on it
         repository = self.createRepo('repository')
@@ -243,14 +250,15 @@ class GitTests(JailSetup):
         assert rc == 0
 
         src = os.path.join(self.tempdir, 'src')
-        develop = MockDevelop()
-        develop.sources = {
-            'egg': Source(
-                kind='git',
-                name='egg',
-                url='file:///%s' % repository,
-                path=os.path.join(src, 'egg'))}
-        CmdCheckout(develop)(develop.parser.parse_args(['co', 'egg']))
+        self.createFile(
+            'buildout.cfg', [
+                '[buildout]',
+                'mr.developer-threads = 1',
+                '[sources]',
+                'egg = git file:///%s' % repository])
+        self.createFile('.mr.developer.cfg', [])
+        os.chdir(self.tempdir)
+        develop('co', 'egg')
 
         # check that there are two commits in history
         process = Process(cwd=os.path.join(src, 'egg'))
@@ -264,16 +272,34 @@ class GitTests(JailSetup):
 
         shutil.rmtree(os.path.join(src, 'egg'))
 
-        src = os.path.join(self.tempdir, 'src')
-        develop = MockDevelop()
-        develop.sources = {
-            'egg': Source(
-                kind='git',
-                name='egg',
-                url='file:///%s' % repository,
-                path=os.path.join(src, 'egg'),
-                depth='1')}
-        CmdCheckout(develop)(develop.parser.parse_args(['co', 'egg']))
+        self.createFile(
+            'buildout.cfg', [
+                '[buildout]',
+                'mr.developer-threads = 1',
+                '[sources]',
+                'egg = git file:///%s depth=1' % repository])
+        develop('co', 'egg')
+
+        # check that there is only one commit in history
+        process = Process(cwd=os.path.join(src, 'egg'))
+        rc, lines = process.popen(
+            "git log",
+            echo=False)
+        assert rc == 0
+        commits = [msg for msg in lines
+                   if msg.decode('utf-8').startswith('commit')]
+        assert len(commits) == 1
+
+        shutil.rmtree(os.path.join(src, 'egg'))
+
+        self.createFile(
+            'buildout.cfg', [
+                '[buildout]',
+                'mr.developer-threads = 1',
+                'git-clone-depth = 1',
+                '[sources]',
+                'egg = git file:///%s' % repository])
+        develop('co', 'egg')
 
         # check that there is only one commit in history
         process = Process(cwd=os.path.join(src, 'egg'))
