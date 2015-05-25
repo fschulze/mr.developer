@@ -49,7 +49,7 @@ class HelpFormatter(argparse.HelpFormatter):
 
 
 class Develop(object):
-    def __call__(self, **kwargs):
+    def __call__(self, *args, **kwargs):
         logger.setLevel(logging.INFO)
         ch = logging.StreamHandler()
         ch.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
@@ -64,7 +64,9 @@ class Develop(object):
         for command in get_commands():
             command(self)
 
-        args = self.parser.parse_args()
+        if not args:
+            args = None
+        args = self.parser.parse_args(args)
 
         try:
             self.buildout_dir = find_base()
@@ -101,7 +103,8 @@ class Develop(object):
         args.func(args)
 
     def restore_original_dir(self):
-        os.chdir(self.original_dir)
+        if os.path.exists(self.original_dir):
+            os.chdir(self.original_dir)
 
     @property
     def commands(self):
