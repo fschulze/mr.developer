@@ -241,6 +241,22 @@ reset
                            develop packages are processed.
     
 
+shell (s)
+---------
+
+::
+
+    usage: develop shell [-h] cmd
+
+    Runs the given shell command on active sources.
+
+    positional arguments:
+      cmd         The command to run, i.e. 'git grep SOMETHING'.
+
+    optional arguments:
+      -h, --help  show this help message and exit
+
+
 status (stat, st)
 -----------------
 
