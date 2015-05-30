@@ -4,6 +4,10 @@ Changelog
 1.34 - Unreleased
 -----------------
 
+* Fix unpinning of eggs with a name containing characters not in [^A-Za-z0-9.]
+  This means that to correctly unpin pkg.foo_bar we have to delete from buildout [version] section
+  pkg.foo-bar
+  [ale-rt]
 
 
 1.33 - 2015-05-25
@@ -26,7 +30,6 @@ Changelog
 
 * Raise an exception if the sources section references a missing section.
   [icemac (Michael Howitz)]
-
 
 1.31 - 2014-10-29
 -----------------
