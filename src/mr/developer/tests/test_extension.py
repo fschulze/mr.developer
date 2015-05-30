@@ -276,7 +276,7 @@ class TestExtensionClass(TestCase):
         '''We have two source packages:
          - pkg.bar_foo
          - pkg.foo_bar
-        both of the hae a version picked.
+        both of them have a pinned version.
 
         If we auto-checkout pkg.foo_bar it gets unpinned!
         '''
