@@ -4,6 +4,8 @@ Changelog
 1.34 - Unreleased
 -----------------
 
+* Checkout branch when cloning a git repository.
+  [gforcada]
 
 
 1.33 - 2015-05-25
