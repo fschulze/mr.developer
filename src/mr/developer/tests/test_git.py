@@ -57,11 +57,9 @@ class GitTests(JailSetup):
         f.close()
         return name
 
-    def testUpdateWithRevisionPin(self):
-        from mr.developer.commands import CmdCheckout
-        from mr.developer.commands import CmdUpdate
-        from mr.developer.commands import CmdStatus
-        repository = self.createRepo('repository')
+    def createDefaultContent(self, repository):
+        # Create default content and branches in a repository.
+        # Return a revision number.
         process = Process(cwd=repository)
         foo = os.path.join(repository, 'foo')
         self.mkfile(foo, 'foo')
@@ -89,7 +87,7 @@ class GitTests(JailSetup):
         assert rc == 0
 
         rc, lines = process.popen(
-            "git commit -m foo",
+            "git commit -m foo2",
             echo=False)
         assert rc == 0
 
@@ -116,6 +114,17 @@ class GitTests(JailSetup):
             "git commit -m bar",
             echo=False)
         assert rc == 0
+
+        # Return revision of one of the commits, the one that adds the
+        # foo2 file.
+        return rev
+
+    def testUpdateWithRevisionPin(self):
+        from mr.developer.commands import CmdCheckout
+        from mr.developer.commands import CmdUpdate
+        from mr.developer.commands import CmdStatus
+        repository = self.createRepo('repository')
+        rev = self.createDefaultContent(repository)
         src = os.path.join(self.tempdir, 'src')
         os.mkdir(src)
         develop = MockDevelop()
@@ -246,27 +255,8 @@ class GitTests(JailSetup):
 
         # create repository and make two commits on it
         repository = self.createRepo('repository')
+        self.createDefaultContent(repository)
         process = Process(cwd=repository)
-        foo = os.path.join(repository, 'foo')
-        self.mkfile(foo, 'foo')
-        rc, lines = process.popen(
-            "git add %s" % foo,
-            echo=False)
-        assert rc == 0
-        rc, lines = process.popen(
-            "git commit %s -m foo" % foo,
-            echo=False)
-        assert rc == 0
-        bar = os.path.join(repository, 'bar')
-        self.mkfile(bar, 'bar')
-        rc, lines = process.popen(
-            "git add %s" % bar,
-            echo=False)
-        assert rc == 0
-        rc, lines = process.popen(
-            "git commit %s -m bar" % bar,
-            echo=False)
-        assert rc == 0
 
         src = os.path.join(self.tempdir, 'src')
         self.createFile(
@@ -329,3 +319,31 @@ class GitTests(JailSetup):
         commits = [msg for msg in lines
                    if msg.decode('utf-8').startswith('commit')]
         assert len(commits) == 1
+
+        # You should be able to combine depth and cloning a branch.
+        # Otherwise with a depth of 1 you could clone the master
+        # branch and then not be able to switch to the wanted branch,
+        # because this branch would not be there: the revision that it
+        # points to is not in the downloaded history.
+        shutil.rmtree(os.path.join(src, 'egg'))
+        self.createFile(
+            'buildout.cfg', [
+                '[buildout]',
+                'mr.developer-threads = 1',
+                'git-clone-depth = 1',
+                '[sources]',
+                'egg = git file:///%s branch=test' % repository])
+        develop('co', 'egg')
+
+        # check that there is only one commit in history
+        process = Process(cwd=os.path.join(src, 'egg'))
+        rc, lines = process.popen(
+            "git log",
+            echo=False)
+        assert rc == 0
+        commits = [msg for msg in lines
+                   if msg.decode('utf-8').startswith('commit')]
+        assert len(commits) == 1
+
+        # Check that the expected files from the branch are there
+        assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.git', 'foo', 'foo2'))

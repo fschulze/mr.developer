@@ -142,12 +142,14 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         args = ["clone", "--quiet"]
         if 'depth' in self.source:
             args.extend(["--depth", self.source["depth"]])
+        if "branch" in self.source:
+            args.extend(["-b", self.source["branch"]])
         args.extend([url, path])
         cmd = self.run_git(args)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise GitError("git cloning of '%s' failed.\n%s" % (name, stderr))
-        if 'branch' in self.source or 'rev' in self.source:
+        if 'rev' in self.source:
             stdout, stderr = self.git_switch_branch(stdout, stderr)
         if 'pushurl' in self.source:
             stdout, stderr = self.git_set_pushurl(stdout, stderr)

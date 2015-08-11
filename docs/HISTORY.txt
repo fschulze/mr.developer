@@ -16,6 +16,9 @@ Changelog
   ``pkg.foo-bar`` from the buildout ``[version]`` section.
   [ale-rt (Alessandro Pisa)]
 
+* Checkout branch when cloning a git repository.
+  [gforcada]
+
 
 1.33 - 2015-05-25
 -----------------
