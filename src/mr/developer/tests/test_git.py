@@ -57,11 +57,9 @@ class GitTests(JailSetup):
         f.close()
         return name
 
-    def testUpdateWithRevisionPin(self):
-        from mr.developer.commands import CmdCheckout
-        from mr.developer.commands import CmdUpdate
-        from mr.developer.commands import CmdStatus
-        repository = self.createRepo('repository')
+    def createDefaultContent(self, repository):
+        # Create default content and branches in a repository.
+        # Return a revision number.
         process = Process(cwd=repository)
         foo = os.path.join(repository, 'foo')
         self.mkfile(foo, 'foo')
@@ -89,7 +87,7 @@ class GitTests(JailSetup):
         assert rc == 0
 
         rc, lines = process.popen(
-            "git commit -m foo",
+            "git commit -m foo2",
             echo=False)
         assert rc == 0
 
@@ -116,6 +114,17 @@ class GitTests(JailSetup):
             "git commit -m bar",
             echo=False)
         assert rc == 0
+
+        # Return revision of one of the commits, the one that adds the
+        # foo2 file.
+        return rev
+
+    def testUpdateWithRevisionPin(self):
+        from mr.developer.commands import CmdCheckout
+        from mr.developer.commands import CmdUpdate
+        from mr.developer.commands import CmdStatus
+        repository = self.createRepo('repository')
+        rev = self.createDefaultContent(repository)
         src = os.path.join(self.tempdir, 'src')
         os.mkdir(src)
         develop = MockDevelop()
