@@ -236,27 +236,8 @@ class GitTests(JailSetup):
 
         # create repository and make two commits on it
         repository = self.createRepo('repository')
+        self.createDefaultContent(repository)
         process = Process(cwd=repository)
-        foo = os.path.join(repository, 'foo')
-        self.mkfile(foo, 'foo')
-        rc, lines = process.popen(
-            "git add %s" % foo,
-            echo=False)
-        assert rc == 0
-        rc, lines = process.popen(
-            "git commit %s -m foo" % foo,
-            echo=False)
-        assert rc == 0
-        bar = os.path.join(repository, 'bar')
-        self.mkfile(bar, 'bar')
-        rc, lines = process.popen(
-            "git add %s" % bar,
-            echo=False)
-        assert rc == 0
-        rc, lines = process.popen(
-            "git commit %s -m bar" % bar,
-            echo=False)
-        assert rc == 0
 
         src = os.path.join(self.tempdir, 'src')
         self.createFile(
