@@ -300,3 +300,31 @@ class GitTests(JailSetup):
         commits = [msg for msg in lines
                    if msg.decode('utf-8').startswith('commit')]
         assert len(commits) == 1
+
+        # You should be able to combine depth and cloning a branch.
+        # Otherwise with a depth of 1 you could clone the master
+        # branch and then not be able to switch to the wanted branch,
+        # because this branch would not be there: the revision that it
+        # points to is not in the downloaded history.
+        shutil.rmtree(os.path.join(src, 'egg'))
+        self.createFile(
+            'buildout.cfg', [
+                '[buildout]',
+                'mr.developer-threads = 1',
+                'git-clone-depth = 1',
+                '[sources]',
+                'egg = git file:///%s branch=test' % repository])
+        develop('co', 'egg')
+
+        # check that there is only one commit in history
+        process = Process(cwd=os.path.join(src, 'egg'))
+        rc, lines = process.popen(
+            "git log",
+            echo=False)
+        assert rc == 0
+        commits = [msg for msg in lines
+                   if msg.decode('utf-8').startswith('commit')]
+        assert len(commits) == 1
+
+        # Check that the expected files from the branch are there
+        assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.git', 'foo', 'foo2'))
