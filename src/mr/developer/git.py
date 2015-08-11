@@ -209,16 +209,12 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         name = self.source['name']
         path = self.source['path']
         self.output((logger.info, "Updated '%s' with git." % name))
-        if 'rev' in self.source:
-            # Specific revision, so we only fetch.  Pull is fetch plus
-            # merge, which is not possible here.
-            argv = ["fetch"]
-        else:
-            argv = ["pull"]
+        # First we fetch.  This should always be possible.
+        argv = ["fetch"]
         cmd = self.run_git(argv, cwd=path)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            raise GitError("git pull of '%s' failed.\n%s" % (name, stderr))
+            raise GitError("git fetch of '%s' failed.\n%s" % (name, stderr))
         if 'rev' in self.source:
             stdout, stderr = self.git_switch_branch(stdout, stderr)
         elif 'branch' in self.source:
