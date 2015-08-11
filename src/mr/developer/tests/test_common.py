@@ -29,6 +29,19 @@ class TestParseBuildoutArgs(TestCase):
         options, settings, args = self.parse_buildout_args(['-t', '5', 'install', 'partname'])
         self.assertEquals(len(args), 2)
 
+    def testAssignments(self):
+        # You can override parameters from buildout sections on the command line.
+        options, settings, args = self.parse_buildout_args(['versions:foo=42'])
+        self.checkOptions(options)
+        self.assertEquals(options[0], ('versions', 'foo', '42'))
+        self.assertEquals(len(args), 0)
+        # Without a colon in it, zc.buildout itself defaults to the
+        # 'buildout' section.  Issue 151.
+        options, settings, args = self.parse_buildout_args(['foo=42'])
+        self.checkOptions(options)
+        self.assertEquals(options[0], ('buildout', 'foo', '42'))
+        self.assertEquals(len(args), 0)
+
 
 class TestRewrites(TestCase):
     def setUp(self):
