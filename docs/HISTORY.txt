@@ -4,6 +4,13 @@ Changelog
 1.34 - Unreleased
 -----------------
 
+* Fix switching to git branch from revision.  When currently you are
+  not on a git branch (for example on a tag), running a develop update
+  would try to pull and fail.  Now we simply fetch, and handle
+  possible branch switching and merging the same as we always do.
+  Fixes issue #162
+  [maurits]
+
 * Fix unpinning of eggs with a name containing characters not in [^A-Za-z0-9.]
   This means that to correctly unpin pkg.foo_bar we have to delete
   ``pkg.foo-bar`` from the buildout ``[version]`` section.

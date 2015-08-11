@@ -7,4 +7,4 @@ if $($PYTHON --version >/dev/null 2>&1); then
 else
     export PYTHON_VERSION="Python 2.4.x"
 fi
-./bin/py.test --cov src/mr/developer
+./bin/py.test --cov src/mr/developer $*
