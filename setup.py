@@ -86,6 +86,7 @@ setup(name='mr.developer',
       purge = mr.developer.commands:CmdPurge
       rebuild = mr.developer.commands:CmdRebuild
       reset = mr.developer.commands:CmdReset
+      shell = mr.developer.commands:CmdShell
       status = mr.developer.commands:CmdStatus
       update = mr.developer.commands:CmdUpdate
       """)
