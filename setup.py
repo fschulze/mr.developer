@@ -35,9 +35,8 @@ def get_text_from_file(fn):
 setup(name='mr.developer',
       version=version,
       description="A zc.buildout extension to ease the development of large projects with lots of packages.",
-      long_description="".join([
+      long_description="\n\n".join([
           get_text_from_file("README.rst"),
-          "\n\n",
           get_text_from_file("HELP.rst"),
           get_text_from_file("CHANGES.rst")]),
       # Get more strings from http://www.python.org/pypi?%3Aaction=list_classifiers
