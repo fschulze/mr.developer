@@ -38,7 +38,7 @@ setup(name='mr.developer',
       long_description="".join([
           get_text_from_file("README.rst"),
           "\n\n",
-          get_text_from_file(os.path.join("docs", "HELP.txt")),
+          get_text_from_file("HELP.rst"),
           get_text_from_file("CHANGES.rst")]),
       # Get more strings from http://www.python.org/pypi?%3Aaction=list_classifiers
       classifiers=[
