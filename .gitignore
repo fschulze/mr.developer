@@ -14,3 +14,4 @@
 /etc
 /htmlcov/
 /.installed.cfg
+/parts/
