@@ -3,4 +3,4 @@ if [[ $PYTHON == "" ]]; then
     export PYTHON=python
 fi
 $PYTHON bootstrap.py
-./bin/buildout buildout:parts=test
+./bin/buildout
