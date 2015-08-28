@@ -21,9 +21,7 @@ except ImportError:
 
 def get_text_from_file(fn):
     text = open(fn, 'rb').read()
-    if sys.version_info >= (2, 6):
-        return text.decode('utf-8')
-    return text
+    return text.decode('utf-8')
 
 
 setup(name='mr.developer',
