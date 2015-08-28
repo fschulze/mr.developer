@@ -39,7 +39,7 @@ except NameError:
 
 # shameless copy from
 # http://stackoverflow.com/questions/377017/test-if-executable-exists-in-python
-def which(name_root):
+def which(name_root, default=None):
     def is_exe(fpath):
         return os.path.exists(fpath) and os.access(fpath, os.X_OK)
 
@@ -56,6 +56,9 @@ def which(name_root):
             exe_file = os.path.join(path, name)
             if is_exe(exe_file):
                 return exe_file
+
+    if default is not None:
+        return default
 
     logger.error("Cannot find executable %s in PATH", name_root)
     sys.exit(1)
