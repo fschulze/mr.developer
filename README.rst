@@ -94,7 +94,10 @@ Where individual parts are:
 ``key=value``
   You can add options for each individual package with this. No whitespace is
   allowed in ``key``, ``value``, and around the equal sign. For a
-  description of the options see below.
+  description of the options see below. (*Note*: don't surround your ``key=value``
+  with square brackets: we only use ``[ ]`` here to indicate that it
+  is optional to add options.)
+  
 
 The per-package options are:
 
