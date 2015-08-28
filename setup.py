@@ -12,12 +12,6 @@ tests_require = [
     'mr.developer.addon']
 
 try:
-    import xml.etree
-    xml.etree  # shutup pyflakes
-except ImportError:
-    install_requires.append('elementtree')
-
-try:
     import argparse
     argparse  # shutup pyflakes
 except ImportError:
