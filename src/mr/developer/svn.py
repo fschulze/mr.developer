@@ -72,12 +72,13 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
 
     def __init__(self, *args, **kwargs):
         common.BaseWorkingCopy.__init__(self, *args, **kwargs)
+        self.svn_executable = common.which("svn")
         self._svn_check_version()
 
     def _svn_check_version(self):
         global _svn_version_warning
         try:
-            cmd = subprocess.Popen(["svn", "--version"],
+            cmd = subprocess.Popen([self.svn_executable, "--version"],
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
         except OSError:
@@ -172,7 +173,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
         name = self.source['name']
         path = self.source['path']
         url = self.source['url']
-        args = ["svn", "checkout", url, path]
+        args = [self.svn_executable, "checkout", url, path]
         stdout, stderr, returncode = self._svn_communicate(args, url, **kwargs)
         if returncode != 0:
             raise SVNError("Subversion checkout for '%s' failed.\n%s" % (name, s(stderr)))
@@ -219,7 +220,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
         if name in self._svn_info_cache:
             return self._svn_info_cache[name]
         path = self.source['path']
-        cmd = subprocess.Popen(["svn", "info", "--non-interactive", "--xml",
+        cmd = subprocess.Popen([self.svn_executable, "info", "--non-interactive", "--xml",
                                 path],
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
@@ -248,7 +249,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
         name = self.source['name']
         path = self.source['path']
         url, rev = self._normalized_url_rev()
-        args = ["svn", "switch", url, path]
+        args = [self.svn_executable, "switch", url, path]
         if rev is not None and not rev.startswith('>'):
             args.insert(2, '-r%s' % rev)
         stdout, stderr, returncode = self._svn_communicate(args, url, **kwargs)
@@ -261,7 +262,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
         name = self.source['name']
         path = self.source['path']
         url, rev = self._normalized_url_rev()
-        args = ["svn", "update", path]
+        args = [self.svn_executable, "update", path]
         if rev is not None and not rev.startswith('>'):
             args.insert(2, '-r%s' % rev)
         stdout, stderr, returncode = self._svn_communicate(args, url, **kwargs)
@@ -331,7 +332,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
     def status(self, **kwargs):
         name = self.source['name']
         path = self.source['path']
-        cmd = subprocess.Popen(["svn", "status", "--xml", path],
+        cmd = subprocess.Popen([self.svn_executable, "status", "--xml", path],
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
@@ -350,7 +351,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
         else:
             status = 'dirty'
         if kwargs.get('verbose', False):
-            cmd = subprocess.Popen(["svn", "status", path],
+            cmd = subprocess.Popen([self.svn_executable, "status", path],
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
             stdout, stderr = cmd.communicate()

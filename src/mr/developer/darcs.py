@@ -11,6 +11,11 @@ class DarcsError(common.WCError):
 
 
 class DarcsWorkingCopy(common.BaseWorkingCopy):
+
+    def __init__(self, source):
+        super(DarcsWorkingCopy, self).__init__(source)
+        self.darcs_executable = common.which('darcs')
+
     def darcs_checkout(self, **kwargs):
         name = self.source['name']
         path = self.source['path']
@@ -19,7 +24,7 @@ class DarcsWorkingCopy(common.BaseWorkingCopy):
             self.output((logger.info, "Skipped getting of existing package '%s'." % name))
             return
         self.output((logger.info, "Getting '%s' with darcs." % name))
-        cmd = ["darcs", "get", "--quiet", "--lazy", url, path]
+        cmd = [self.darcs_executable, "get", "--quiet", "--lazy", url, path]
         cmd = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
@@ -31,7 +36,7 @@ class DarcsWorkingCopy(common.BaseWorkingCopy):
         name = self.source['name']
         path = self.source['path']
         self.output((logger.info, "Updating '%s' with darcs." % name))
-        cmd = subprocess.Popen(["darcs", "pull", "-a"],
+        cmd = subprocess.Popen([self.darcs_executable, "pull", "-a"],
                                cwd=path,
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
@@ -63,7 +68,7 @@ class DarcsWorkingCopy(common.BaseWorkingCopy):
             for line in open(repos).readlines():
                 yield line.strip()
         else:
-            cmd = subprocess.Popen(["darcs", "show", "repo"],
+            cmd = subprocess.Popen([self.darcs_executable, "show", "repo"],
                                    cwd=path,
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
@@ -89,7 +94,7 @@ class DarcsWorkingCopy(common.BaseWorkingCopy):
 
     def status(self, **kwargs):
         path = self.source['path']
-        cmd = subprocess.Popen(["darcs", "whatsnew"],
+        cmd = subprocess.Popen([self.darcs_executable, "whatsnew"],
                                cwd=path,
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)

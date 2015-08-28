@@ -14,6 +14,7 @@ class MercurialError(common.WCError):
 class MercurialWorkingCopy(common.BaseWorkingCopy):
 
     def __init__(self, source):
+        self.hg_executable = common.which('hg')
         source.setdefault('branch', 'default')
         source.setdefault('rev')
         super(MercurialWorkingCopy, self).__init__(source)
@@ -31,7 +32,7 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         env = dict(os.environ)
         env.pop('PYTHONPATH', None)
         cmd = subprocess.Popen(
-            ['hg', 'clone', '--updaterev', rev, '--quiet', '--noninteractive', url, path],
+            [self.hg_executable, 'clone', '--updaterev', rev, '--quiet', '--noninteractive', url, path],
             env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
@@ -62,7 +63,7 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         env = dict(os.environ)
         env.pop('PYTHONPATH', None)
         cmd = subprocess.Popen(
-            ['hg', 'checkout', rev, '-c'],
+            [self.hg_executable, 'checkout', rev, '-c'],
             cwd=path, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode:
@@ -78,7 +79,7 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         env.pop('PYTHONPATH', None)
         try:
             cmd = subprocess.Popen(
-                ['hg', 'tags'],
+                [self.hg_executable, 'tags'],
                 cwd=path, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         except OSError:
             return []
@@ -120,7 +121,7 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         env = dict(os.environ)
         env.pop('PYTHONPATH', None)
         cmd = subprocess.Popen(
-            ['hg', 'pull', '-u'],
+            [self.hg_executable, 'pull', '-u'],
             cwd=path, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
@@ -158,7 +159,7 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         env = dict(os.environ)
         env.pop('PYTHONPATH', None)
         cmd = subprocess.Popen(
-            ['hg', 'showconfig', 'paths.default'], cwd=path,
+            [self.hg_executable, 'showconfig', 'paths.default'], cwd=path,
             env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
@@ -172,13 +173,13 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
         env = dict(os.environ)
         env.pop('PYTHONPATH', None)
         cmd = subprocess.Popen(
-            ['hg', 'status'], cwd=path,
+            [self.hg_executable, 'status'], cwd=path,
             env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         status = stdout and 'dirty' or 'clean'
         if status == 'clean':
             cmd = subprocess.Popen(
-                ['hg', 'outgoing'], cwd=path,
+                [self.hg_executable, 'outgoing'], cwd=path,
                 env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             outgoing_stdout, stderr = cmd.communicate()
             stdout += b('\n') + outgoing_stdout

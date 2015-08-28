@@ -10,6 +10,11 @@ class BazaarError(common.WCError):
 
 
 class BazaarWorkingCopy(common.BaseWorkingCopy):
+
+    def __init__(self, source):
+        super(BazaarWorkingCopy, self).__init__(source)
+        self.bzr_executable = common.which('bzr')
+
     def bzr_branch(self, **kwargs):
         name = self.source['name']
         path = self.source['path']
@@ -22,7 +27,7 @@ class BazaarWorkingCopy(common.BaseWorkingCopy):
         env = dict(os.environ)
         env.pop('PYTHONPATH', None)
         cmd = subprocess.Popen(
-            ['bzr', 'branch', '--quiet', url, path],
+            [self.bzr_executable, 'branch', '--quiet', url, path],
             env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
@@ -38,7 +43,7 @@ class BazaarWorkingCopy(common.BaseWorkingCopy):
         self.output((logger.info, 'Updated %r with bazaar.' % name))
         env = dict(os.environ)
         env.pop('PYTHONPATH', None)
-        cmd = subprocess.Popen(['bzr', 'pull', url], cwd=path,
+        cmd = subprocess.Popen([self.bzr_executable, 'pull', url], cwd=path,
             env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
@@ -70,7 +75,7 @@ class BazaarWorkingCopy(common.BaseWorkingCopy):
         env = dict(os.environ)
         env.pop('PYTHONPATH', None)
         cmd = subprocess.Popen(
-            ['bzr', 'info'], cwd=path,
+            [self.bzr_executable, 'info'], cwd=path,
             env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
@@ -83,7 +88,7 @@ class BazaarWorkingCopy(common.BaseWorkingCopy):
         env = dict(os.environ)
         env.pop('PYTHONPATH', None)
         cmd = subprocess.Popen(
-            ['bzr', 'status'], cwd=path,
+            [self.bzr_executable, 'status'], cwd=path,
             env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         status = stdout and 'dirty' or 'clean'
