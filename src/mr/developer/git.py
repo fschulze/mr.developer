@@ -27,9 +27,6 @@ class GitWorkingCopy(common.BaseWorkingCopy):
 
     def __init__(self, source):
         self.git_executable = common.which('git')
-        if self.git_executable is None:
-            logger.error("Cannot find git executable in PATH")
-            sys.exit(1)
         if 'rev' in source and 'revision' in source:
             raise ValueError("The source definition of '%s' contains "
                              "duplicate revision options." % source['name'])
