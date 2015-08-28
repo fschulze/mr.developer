@@ -6,7 +6,5 @@ python:
   - "3.3"
   - "3.4"
 install:
-  - easy_install -U setuptools
-  - easy_install -U py
   - ./bootstrap.sh
 script: ./test.sh
