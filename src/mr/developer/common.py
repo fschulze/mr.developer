@@ -57,7 +57,8 @@ def which(name_root):
             if is_exe(exe_file):
                 return exe_file
 
-    return None
+    logger.error("Cannot find executable %s in PATH", name_root)
+    sys.exit(1)
 
 
 def version_sorted(inp, *args, **kwargs):
