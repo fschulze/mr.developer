@@ -6,6 +6,5 @@ python:
   - "3.3"
   - "3.4"
 sudo: false
-install:
-  - ./bootstrap.sh
+install: ./bootstrap.sh
 script: ./test.sh
