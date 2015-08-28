@@ -1,5 +1,4 @@
 from setuptools import setup
-import os
 import sys
 
 version = '1.34'
@@ -13,23 +12,16 @@ tests_require = [
     'mr.developer.addon']
 
 try:
-    import xml.etree
-    xml.etree  # shutup pyflakes
-except ImportError:
-    install_requires.append('elementtree')
-
-try:
     import argparse
     argparse  # shutup pyflakes
 except ImportError:
+    # python 2.6 doesn't have it.
     install_requires.append('argparse')
 
 
 def get_text_from_file(fn):
     text = open(fn, 'rb').read()
-    if sys.version_info >= (2, 6):
-        return text.decode('utf-8')
-    return text
+    return text.decode('utf-8')
 
 
 setup(name='mr.developer',

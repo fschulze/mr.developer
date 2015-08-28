@@ -4,6 +4,10 @@ Changelog
 1.34 - Unreleased
 -----------------
 
+* Remove support for python 2.4 and 2.5. Use python 2.6 or higher or python
+  3.2 or higher.
+  [reinout]
+
 * Fix bug with assignments lacking the section.  According to
   buildout's documentation ``option=value`` is equivalent to
   ``buildout:option=value``.
@@ -807,4 +811,3 @@ Changelog
 ----------------
 
 * Initial release
-
