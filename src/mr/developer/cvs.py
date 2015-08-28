@@ -37,7 +37,7 @@ def build_cvs_command(command, name, url, tag='', cvs_root='', tag_file=None):
     if command == 'status':
         return ['cvs', '-q', '-n', 'update']
 
-    cmd = [common.which('cvs')]
+    cmd = ['cvs']
     if cvs_root:
         cmd.extend(['-d', cvs_root])
 
