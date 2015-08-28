@@ -8,6 +8,10 @@ Changelog
   3.2 or higher.
   [reinout]
 
+* Report missing executables (like 'hg') instead of reporting a too-generic
+  "file not found" error.
+  [reinout]
+
 * Fix bug with assignments lacking the section.  According to
   buildout's documentation ``option=value`` is equivalent to
   ``buildout:option=value``.
