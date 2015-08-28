@@ -15,6 +15,7 @@ try:
     import argparse
     argparse  # shutup pyflakes
 except ImportError:
+    # python 2.6 doesn't have it.
     install_requires.append('argparse')
 
 
