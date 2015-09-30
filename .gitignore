@@ -13,5 +13,7 @@
 /eggs/*
 /etc
 /htmlcov/
+/include/
 /.installed.cfg
+/lib/
 /parts/
