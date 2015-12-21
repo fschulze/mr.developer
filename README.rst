@@ -97,7 +97,7 @@ Where individual parts are:
   description of the options see below. (*Note*: don't surround your ``key=value``
   with square brackets: we only use ``[ ]`` here to indicate that it
   is optional to add options.)
-  
+
 
 The per-package options are:
 
@@ -411,3 +411,9 @@ in the ``[mr.developer]`` section or in your buildout in the ``buildout``
 section with the ``mr.developer-threads`` option. Setting it to ``1`` should
 fix these issues, but this disables parallel checkouts and makes the process a
 bit slower.
+
+Also, if you have `ControlPersist` in your local ssh config, and you
+have a source checkout that uses ssh (for example
+``git@github.com:...``) the checkout or update may work fine, but the
+ssh connection may stay open and ``mr.developer`` cannot exit because
+it waits for the ssh process to finish.
