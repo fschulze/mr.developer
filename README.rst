@@ -107,7 +107,11 @@ Common options
   the base path. If ``path`` is not set, ``sources-dir`` is used.
 
   With ``full-path`` you can set the directory where the package will be
-  checked out. This is the actual destination, nothing will be added.
+  checked out. This is the actual destination, nothing will be added. As 
+  an example::
+  
+    [sources]
+    pkg = fs pkg full-path=/path/to/pkg
 
   The ``update`` option allows you to specify whether a package will be
   updated during buildout or not. If it's ``true``, then it will always be
