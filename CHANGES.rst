@@ -4,8 +4,11 @@ Changelog
 1.35 - (unreleased)
 -----------------
 
+* No longer test on Python 3.2.  [maurits]
+
 * Improve error message when a directory isn't found in fs mode.
   [idgserpro]
+
 
 1.34 - 2015-09-30
 -----------------
