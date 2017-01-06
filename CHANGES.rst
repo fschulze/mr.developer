@@ -4,7 +4,7 @@ Changelog
 1.35 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- No longer test on Python 3.2.  [maurits]
 
 
 1.34 - 2015-09-30
