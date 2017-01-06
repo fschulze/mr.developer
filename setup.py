@@ -1,5 +1,4 @@
 from setuptools import setup
-import sys
 
 version = '1.35.dev0'
 
