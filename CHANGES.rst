@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.35 - (unreleased)
+-----------------
+
+* Improve error message when a directory isn't found in fs mode.
+  [idgserpro]
+
 1.34 - 2015-09-30
 -----------------
 

@@ -21,7 +21,9 @@ class FilesystemWorkingCopy(common.BaseWorkingCopy):
                     'Expected %r.' % (name, self.source['url']))
         else:
             raise FilesystemError(
-                'Directory for package %r doesn\'t exist.' % name)
+                "Directory %r for package %r doesn't exist. "
+                "Check in the documentation if you need to add/change a 'sources-dir' option in "
+                "your [buildout] section or a 'path' option in [sources]." % (path, name))
         return ''
 
     def matches(self):
