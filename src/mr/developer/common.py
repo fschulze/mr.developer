@@ -1,7 +1,3 @@
-try:
-    from configparser import RawConfigParser
-except ImportError:
-    from ConfigParser import RawConfigParser
 import logging
 import os
 import pkg_resources
@@ -14,6 +10,10 @@ import re
 import subprocess
 import sys
 import threading
+if sys.version_info < (3, ):
+    from ConfigParser import RawConfigParser
+else:
+    from configparser import RawConfigParser
 
 
 logger = logging.getLogger("mr.developer")
