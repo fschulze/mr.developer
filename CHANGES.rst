@@ -4,6 +4,9 @@ Changelog
 1.35 - (unreleased)
 -----------------
 
+* Do not use the backport of configparser on Python2, to fix "Option values must be strings" exception on some commands.
+  [MatthewWilkes]
+
 * No longer test on Python 3.2.  [maurits]
 
 * Improve error message when a directory isn't found in fs mode.
