@@ -5,6 +5,7 @@ python:
   - "3.3"
   - "3.4"
   - "3.5"
+  - "3.6"
 sudo: false
-install: pip install tox
-script: tox -e $(./travis-tox-env.sh $TRAVIS_PYTHON_VERSION)
+install: pip install tox-travis
+script: tox
