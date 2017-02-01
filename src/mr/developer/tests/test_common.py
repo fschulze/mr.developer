@@ -1,3 +1,4 @@
+import tempfile
 from unittest import TestCase
 
 
@@ -41,6 +42,24 @@ class TestParseBuildoutArgs(TestCase):
         self.checkOptions(options)
         self.assertEquals(options[0], ('buildout', 'foo', '42'))
         self.assertEquals(len(args), 0)
+
+
+class TestConfigParser(TestCase):
+    def setUp(self):
+        from mr.developer.common import Config
+        self.Config = Config
+
+    def test_buildout_args_key_is_str(self):
+        config = self.Config('.')
+        with tempfile.NamedTemporaryFile() as config_file:
+            config_file.write(b'''[buildout]
+args = './bin/buildout'
+    '-c'
+    'buildout.cfg'
+''')
+            config_file.flush()
+            read_config = config.read_config(config_file.name)
+        self.assertEqual(type(read_config.get('buildout', 'args')), str)
 
 
 class TestRewrites(TestCase):
