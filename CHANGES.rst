@@ -1,10 +1,11 @@
 Changelog
 =========
 
-1.35 - (unreleased)
+1.35 - 2017-02-01
 -----------------
 
-* Do not use the backport of configparser on Python2, to fix "Option values must be strings" exception on some commands.
+* Do not use the backport of configparser on Python2, to fix
+  "Option values must be strings" exception on some commands.
   [MatthewWilkes]
 
 * No longer test on Python 3.2.  [maurits]
