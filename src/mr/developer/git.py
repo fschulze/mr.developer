@@ -243,7 +243,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         update = self.should_update(**kwargs)
         if os.path.exists(path):
             if update:
-                self.update(**kwargs)
+                return self.update(**kwargs)
             elif self.matches():
                 self.output((logger.info, "Skipped checkout of existing package '%s'." % name))
             else:

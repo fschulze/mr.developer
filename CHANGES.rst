@@ -4,6 +4,12 @@ Changelog
 1.36 - Unreleased
 -----------------
 
+* Add the buildout option mr.developer-verbose that enables showing
+  the same out when running buildout as when running ./bin/develop up -v.
+  [sunew]
+
+* Respect the buildout -v setting for updates, just as it already does for checkouts.
+  [sunew]
 
 
 1.35 - 2017-02-01

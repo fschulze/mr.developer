@@ -39,6 +39,10 @@ class Extension(object):
         return threads
 
     @memoize
+    def get_mrdev_verbose(self):
+        return self.buildout['buildout'].get('mr.developer-verbose', '').lower() == 'true'
+
+    @memoize
     def get_sources_dir(self):
         sources_dir = self.buildout['buildout'].get('sources-dir', 'src')
         if not os.path.isabs(sources_dir):
@@ -263,8 +267,9 @@ class Extension(object):
                     packages.add(pkg)
 
         offline = self.buildout['buildout'].get('offline', '').lower() == 'true'
+        verbose = root_logger.level <= 10 or self.get_mrdev_verbose()
         workingcopies.checkout(sorted(packages),
-                               verbose=root_logger.level <= 10,
+                               verbose=verbose,
                                update=always_checkout,
                                submodules=update_git_submodules,
                                always_accept_server_certificate=always_accept_server_certificate,
