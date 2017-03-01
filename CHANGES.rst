@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.36 - Unreleased
+1.36 (2017-03-01)
 -----------------
 
 * Add the buildout option mr.developer-verbose that enables showing
