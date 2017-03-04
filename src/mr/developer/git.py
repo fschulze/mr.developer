@@ -132,10 +132,11 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         if os.path.exists(path):
             self.output((logger.info, "Skipped cloning of existing package '%s'." % name))
             return
-        self.output((logger.info, "Cloned '%s' with git." % name))
-        # here, but just on 1.6, if a branch was provided we could checkout it
-        # directly via the -b <branchname> option instead of doing a separate
-        # checkout later: I however think it outweighs the benefits
+        msg = "Cloned '%s' with git" % name
+        if "branch" in self.source:
+            msg += " using branch '%s'" % self.source['branch']
+        msg += " from '%s'." % url
+        self.output((logger.info, msg))
         args = ["clone", "--quiet"]
         if 'depth' in self.source:
             args.extend(["--depth", self.source["depth"]])
@@ -181,20 +182,24 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         if 'rev' in self.source:
             # A tag or revision was specified instead of a branch
             argv = ["checkout", self.source['rev']]
+            self.output((logger.info, "Switching to rev '%s'." % self.source['rev']))
         elif re.search(b("^(\*| ) %s$" % re.escape(branch)), stdout, re.M):
             # the branch is local, normal checkout will work
             argv = ["checkout", branch]
+            self.output((logger.info, "Switching to branch '%s'." % branch))
         elif re.search(
                 b("^  " + re.escape(rbp) + "\/" + re.escape(branch) + "$"),
                 stdout, re.M):
             # the branch is not local, normal checkout won't work here
-            argv = ["checkout", "-b", branch, "%s/%s" % (rbp, branch)]
+            rbranch = "%s/%s" % (rbp, branch)
+            argv = ["checkout", "-b", branch, rbranch]
+            self.output((logger.info, "Switching to remote branch '%s'." % rbranch))
         elif accept_missing:
-            logger.info("No such branch %r", branch)
+            self.output((logger.info, "No such branch %r", branch))
             return (stdout_in + stdout,
                     stderr_in + stderr)
         else:
-            logger.error("No such branch %r", branch)
+            self.output((logger.error, "No such branch %r", branch))
             sys.exit(1)
         # runs the checkout with predetermined arguments
         cmd = self.run_git(argv, cwd=path)
