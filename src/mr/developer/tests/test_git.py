@@ -230,12 +230,13 @@ class GitTests(JailSetup):
             echo=False)
         assert rc == 0
         src = os.path.join(self.tempdir, 'src')
+        url = 'file:///%s' % repository
         develop = MockDevelop()
         develop.sources = {
             'egg': Source(
                 kind='git',
                 name='egg',
-                url='file:///%s' % repository,
+                url=url,
                 path=os.path.join(src, 'egg'))}
         _log = patch('mr.developer.git.logger')
         log = _log.__enter__()
@@ -245,8 +246,9 @@ class GitTests(JailSetup):
             CmdUpdate(develop)(develop.parser.parse_args(['up', 'egg']))
             assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.git', 'bar', 'foo'))
             assert log.method_calls == [
-                ('info', ("Cloned 'egg' with git.",), {}),
-                ('info', ("Updated 'egg' with git.",), {})]
+                ('info', ("Cloned 'egg' with git from '%s'." % url,), {}),
+                ('info', ("Updated 'egg' with git.",), {}),
+                ('info', ("Switching to branch 'master'.",), {})]
         finally:
             _log.__exit__()
 

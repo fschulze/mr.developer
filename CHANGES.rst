@@ -4,8 +4,13 @@ Changelog
 1.37 (unreleased)
 -----------------
 
+* Add more info on git operations, so one can see which repository is cloned
+  and which branch is used.
+  [fschulze]
+
 * Fix git submodules with git 2.x.
   [fschulze]
+
 
 
 1.36 (2017-03-01)

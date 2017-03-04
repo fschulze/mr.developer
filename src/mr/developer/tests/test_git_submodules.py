@@ -85,12 +85,13 @@ class GITTests(JailSetup):
         self.addSubmoduleToRepo(egg, submodule_a, submodule_name)
 
         src = os.path.join(self.tempdir, 'src')
+        url = 'file:///%s' % egg
         develop = MockDevelop()
         develop.sources = {
             'egg': Source(
                 kind='git',
                 name='egg',
-                url='file:///%s' % egg,
+                url=url,
                 path=os.path.join(src, 'egg'))}
         _log = patch('mr.developer.git.logger')
         log = _log.__enter__()
@@ -99,7 +100,7 @@ class GITTests(JailSetup):
             assert set(os.listdir(os.path.join(src, 'egg'))) == set(('submodule_a', '.git', 'bar', '.gitmodules'))
             assert set(os.listdir(os.path.join(src, 'egg/%s' % submodule_name))) == set(('.git', 'foo'))
             assert log.method_calls == [
-                ('info', ("Cloned 'egg' with git.",), {}),
+                ('info', ("Cloned 'egg' with git from '%s'." % url,), {}),
                 ('info', ("Initialized 'egg' submodule at '%s' with git." % submodule_name,), {})]
         finally:
             _log.__exit__()
@@ -123,12 +124,13 @@ class GITTests(JailSetup):
         self.addSubmoduleToRepo(egg, submodule_b, submodule_b_name)
 
         src = os.path.join(self.tempdir, 'src')
+        url = 'file:///%s' % egg
         develop = MockDevelop()
         develop.sources = {
             'egg': Source(
                 kind='git',
                 name='egg',
-                url='file:///%s' % egg,
+                url=url,
                 path=os.path.join(src, 'egg'))}
         _log = patch('mr.developer.git.logger')
         log = _log.__enter__()
@@ -138,7 +140,7 @@ class GITTests(JailSetup):
             assert set(os.listdir(os.path.join(src, 'egg/%s' % submodule_name))) == set(('.git', 'foo'))
             assert set(os.listdir(os.path.join(src, 'egg/%s' % submodule_b_name))) == set(('.git', 'foo_b'))
             assert log.method_calls == [
-                ('info', ("Cloned 'egg' with git.",), {}),
+                ('info', ("Cloned 'egg' with git from '%s'." % url,), {}),
                 ('info', ("Initialized 'egg' submodule at '%s' with git." % submodule_name,), {}),
                 ('info', ("Initialized 'egg' submodule at '%s' with git." % submodule_b_name,), {})]
         finally:
@@ -158,12 +160,13 @@ class GITTests(JailSetup):
         self.addSubmoduleToRepo(egg, submodule, submodule_name)
 
         src = os.path.join(self.tempdir, 'src')
+        url = 'file:///%s' % egg
         develop = MockDevelop()
         develop.sources = {
             'egg': Source(
                 kind='git',
                 name='egg',
-                url='file:///%s' % egg,
+                url=url,
                 path=os.path.join(src, 'egg'))}
         _log = patch('mr.developer.git.logger')
         log = _log.__enter__()
@@ -172,7 +175,7 @@ class GITTests(JailSetup):
             assert set(os.listdir(os.path.join(src, 'egg'))) == set(('submodule_a', '.git', 'bar', '.gitmodules'))
             assert set(os.listdir(os.path.join(src, 'egg/%s' % submodule_name))) == set(('.git', 'foo'))
             assert log.method_calls == [
-                ('info', ("Cloned 'egg' with git.",), {}),
+                ('info', ("Cloned 'egg' with git from '%s'." % url,), {}),
                 ('info', ("Initialized 'egg' submodule at '%s' with git." % submodule_name,), {})]
         finally:
             _log.__exit__()
@@ -189,6 +192,7 @@ class GITTests(JailSetup):
             assert set(os.listdir(os.path.join(src, 'egg/%s' % submodule_b_name))) == set(('.git', 'foo_b'))
             assert log.method_calls == [
                 ('info', ("Updated 'egg' with git.",), {}),
+                ('info', ("Switching to branch 'master'.",), {}),
                 ('info', ("Initialized 'egg' submodule at '%s' with git." % submodule_b_name,), {})]
         finally:
             _log.__exit__()
@@ -208,13 +212,14 @@ class GITTests(JailSetup):
         self.addSubmoduleToRepo(egg, submodule_a, submodule_name)
 
         src = os.path.join(self.tempdir, 'src')
+        url = 'file:///%s' % egg
         develop = MockDevelop()
         develop.update_git_submodules = 'never'
         develop.sources = {
             'egg': Source(
                 kind='git',
                 name='egg',
-                url='file:///%s' % egg,
+                url=url,
                 path=os.path.join(src, 'egg'))}
         _log = patch('mr.developer.git.logger')
         log = _log.__enter__()
@@ -223,7 +228,7 @@ class GITTests(JailSetup):
             assert set(os.listdir(os.path.join(src, 'egg'))) == set(('submodule_a', '.git', 'bar', '.gitmodules'))
             assert set(os.listdir(os.path.join(src, 'egg/%s' % submodule_name))) == set()
             assert log.method_calls == [
-                ('info', ("Cloned 'egg' with git.",), {})]
+                ('info', ("Cloned 'egg' with git from '%s'." % url,), {})]
         finally:
             _log.__exit__()
 
@@ -247,19 +252,21 @@ class GITTests(JailSetup):
         self.addSubmoduleToRepo(egg2, submodule_a, submodule_name)
 
         src = os.path.join(self.tempdir, 'src')
+        url = 'file:///%s' % egg
+        url2 = 'file:///%s' % egg2
         develop = MockDevelop()
         develop.update_git_submodules = 'never'
         develop.sources = {
             'egg': Source(
                 kind='git',
                 name='egg',
-                url='file:///%s' % egg,
+                url=url,
                 path=os.path.join(src, 'egg'),
                 submodules='always'),
             'egg2': Source(
                 kind='git',
                 name='egg2',
-                url='file:///%s' % egg2,
+                url=url2,
                 path=os.path.join(src, 'egg2'))}
         _log = patch('mr.developer.git.logger')
         log = _log.__enter__()
@@ -271,9 +278,9 @@ class GITTests(JailSetup):
             assert set(os.listdir(os.path.join(src, 'egg2/%s' % submodule_name))) == set()
 
             assert log.method_calls == [
-                ('info', ("Cloned 'egg' with git.",), {}),
+                ('info', ("Cloned 'egg' with git from '%s'." % url,), {}),
                 ('info', ("Initialized 'egg' submodule at '%s' with git." % submodule_name,), {}),
-                ('info', ("Cloned 'egg2' with git.",), {})]
+                ('info', ("Cloned 'egg2' with git from '%s'." % url2,), {})]
         finally:
             _log.__exit__()
 
@@ -297,17 +304,19 @@ class GITTests(JailSetup):
         self.addSubmoduleToRepo(egg2, submodule_a, submodule_name)
 
         src = os.path.join(self.tempdir, 'src')
+        url = 'file:///%s' % egg
+        url2 = 'file:///%s' % egg2
         develop = MockDevelop()
         develop.sources = {
             'egg': Source(
                 kind='git',
                 name='egg',
-                url='file:///%s' % egg,
+                url=url,
                 path=os.path.join(src, 'egg')),
             'egg2': Source(
                 kind='git',
                 name='egg2',
-                url='file:///%s' % egg2,
+                url=url2,
                 path=os.path.join(src, 'egg2'),
                 submodules='never')}
         _log = patch('mr.developer.git.logger')
@@ -320,9 +329,9 @@ class GITTests(JailSetup):
             assert set(os.listdir(os.path.join(src, 'egg2/%s' % submodule_name))) == set()
 
             assert log.method_calls == [
-                ('info', ("Cloned 'egg' with git.",), {}),
+                ('info', ("Cloned 'egg' with git from '%s'." % url,), {}),
                 ('info', ("Initialized 'egg' submodule at '%s' with git." % submodule_name,), {}),
-                ('info', ("Cloned 'egg2' with git.",), {})]
+                ('info', ("Cloned 'egg2' with git from '%s'." % url2,), {})]
         finally:
             _log.__exit__()
 
@@ -340,12 +349,13 @@ class GITTests(JailSetup):
         self.addSubmoduleToRepo(egg, submodule, submodule_name)
 
         src = os.path.join(self.tempdir, 'src')
+        url = 'file:///%s' % egg
         develop = MockDevelop()
         develop.sources = {
             'egg': Source(
                 kind='git',
                 name='egg',
-                url='file:///%s' % egg,
+                url=url,
                 path=os.path.join(src, 'egg'),
                 submodules='checkout')}
         _log = patch('mr.developer.git.logger')
@@ -355,7 +365,7 @@ class GITTests(JailSetup):
             assert set(os.listdir(os.path.join(src, 'egg'))) == set(('submodule_a', '.git', 'bar', '.gitmodules'))
             assert set(os.listdir(os.path.join(src, 'egg/%s' % submodule_name))) == set(('.git', 'foo'))
             assert log.method_calls == [
-                ('info', ("Cloned 'egg' with git.",), {}),
+                ('info', ("Cloned 'egg' with git from '%s'." % url,), {}),
                 ('info', ("Initialized 'egg' submodule at '%s' with git." % submodule_name,), {})]
         finally:
             _log.__exit__()
@@ -371,7 +381,8 @@ class GITTests(JailSetup):
             assert set(os.listdir(os.path.join(src, 'egg'))) == set(('submodule_a', 'submodule_b', '.git', 'bar', '.gitmodules'))
             assert set(os.listdir(os.path.join(src, 'egg/%s' % submodule_b_name))) == set()
             assert log.method_calls == [
-                ('info', ("Updated 'egg' with git.",), {})]
+                ('info', ("Updated 'egg' with git.",), {}),
+                ('info', ("Switching to branch 'master'.",), {})]
         finally:
             _log.__exit__()
 
@@ -390,12 +401,13 @@ class GITTests(JailSetup):
         self.addSubmoduleToRepo(egg, submodule, submodule_name)
 
         src = os.path.join(self.tempdir, 'src')
+        url = 'file:///%s' % egg
         develop = MockDevelop()
         develop.sources = {
             'egg': Source(
                 kind='git',
                 name='egg',
-                url='file:///%s' % egg,
+                url=url,
                 path=os.path.join(src, 'egg'))}
         _log = patch('mr.developer.git.logger')
         log = _log.__enter__()
@@ -404,7 +416,7 @@ class GITTests(JailSetup):
             assert set(os.listdir(os.path.join(src, 'egg'))) == set(('submodule_a', '.git', 'bar', '.gitmodules'))
             assert set(os.listdir(os.path.join(src, 'egg/%s' % submodule_name))) == set(('.git', 'foo'))
             assert log.method_calls == [
-                ('info', ("Cloned 'egg' with git.",), {}),
+                ('info', ("Cloned 'egg' with git from '%s'." % url,), {}),
                 ('info', ("Initialized 'egg' submodule at '%s' with git." % submodule_name,), {})]
         finally:
             _log.__exit__()
@@ -418,6 +430,7 @@ class GITTests(JailSetup):
             assert set(os.listdir(os.path.join(src, 'egg'))) == set(('submodule_a', '.git', 'bar', '.gitmodules'))
             assert set(os.listdir(os.path.join(src, 'egg/%s' % submodule_name))) == set(('.git', 'foo', 'newfile'))
             assert log.method_calls == [
-                ('info', ("Updated 'egg' with git.",), {})]
+                ('info', ("Updated 'egg' with git.",), {}),
+                ('info', ("Switching to branch 'master'.",), {})]
         finally:
             _log.__exit__()
