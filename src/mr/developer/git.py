@@ -155,7 +155,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         if update_git_submodules in ['always', 'checkout']:
             stdout, stderr, initialized = self.git_init_submodules(stdout, stderr)
             # Update only new submodules that we just registered. this is for safety reasons
-            # as git submodule update on modified subomdules may cause code loss
+            # as git submodule update on modified submodules may cause code loss
             for submodule in initialized:
                 stdout, stderr = self.git_update_submodules(stdout, stderr, submodule=submodule)
                 self.output((logger.info, "Initialized '%s' submodule at '%s' with git." % (name, submodule)))
@@ -310,9 +310,12 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise GitError("git submodule init failed.\n")
+        output = s(stdout)
+        if not output:
+            output = s(stderr)
         initialized_submodules = re.findall(
             r'\s+[\'"](.*?)[\'"]\s+\(.+\)',
-            s(stdout))
+            output)
         return (stdout_in + stdout, stderr_in + stderr, initialized_submodules)
 
     def git_update_submodules(self, stdout_in, stderr_in, submodule='all'):
