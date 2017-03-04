@@ -6,6 +6,22 @@ python:
   - "3.4"
   - "3.5"
   - "3.6"
+env:
+  matrix:
+    - USE_GIT_VERSION=
+    - USE_GIT_VERSION=1.8.5.6
+    - USE_GIT_VERSION=2.11.0
 sudo: false
-install: pip install tox-travis
-script: tox
+cache:
+  directories:
+    - git
+install:
+  - ./build_git.sh
+  - pip install tox-travis
+script:
+  - export PATH=$(pwd)/git/prefix-$USE_GIT_VERSION/bin:$PATH
+  - echo $PATH
+  - hash -r
+  - which git
+  - git --version
+  - tox

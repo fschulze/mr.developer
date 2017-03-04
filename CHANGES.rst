@@ -4,7 +4,8 @@ Changelog
 1.37 (unreleased)
 -----------------
 
-- Nothing changed yet.
+* Fix git submodules with git 2.x.
+  [fschulze]
 
 
 1.36 (2017-03-01)
