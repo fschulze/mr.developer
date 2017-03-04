@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.37 (unreleased)
+1.37 (2017-03-04)
 -----------------
 
 * Add more info on git operations, so one can see which repository is cloned
