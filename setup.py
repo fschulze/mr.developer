@@ -31,8 +31,7 @@ install_requires = [
     'zc.buildout']
 
 tests_require = [
-    'mock',
-    'mr.developer.addon']
+    'mock']
 
 extras_require = {
     'test': tests_require}
