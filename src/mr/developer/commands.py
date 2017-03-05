@@ -1,3 +1,4 @@
+from __future__ import print_function
 from mr.developer.common import logger, memoize, WorkingCopies, yesno
 import argparse
 import errno

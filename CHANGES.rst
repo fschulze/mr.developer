@@ -4,7 +4,8 @@ Changelog
 1.38 (Unreleased)
 -----------------
 
-*
+* Use ``from __future__ import print_function`` to fix output of ``help --rst``.
+  [fschulze]
 
 
 1.37 (2017-03-04)
