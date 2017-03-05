@@ -2,8 +2,15 @@ import sys
 
 
 if sys.version_info < (3, 0):
-    b = lambda x: x
-    s = lambda x: x
+    def b(x):
+        return x
+
+    def s(x):
+        return x
+
 else:
-    b = lambda x: bytes(x, "utf-8")
-    s = lambda x: str(x, "utf-8")
+    def b(x):
+        return bytes(x, "utf-8")
+
+    def s(x):
+        return str(x, "utf-8")

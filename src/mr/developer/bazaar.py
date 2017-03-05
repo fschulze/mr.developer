@@ -20,8 +20,8 @@ class BazaarWorkingCopy(common.BaseWorkingCopy):
         path = self.source['path']
         url = self.source['url']
         if os.path.exists(path):
-            self.output((logger.info,
-                'Skipped branching existing package %r.' % name))
+            self.output(
+                (logger.info, 'Skipped branching existing package %r.' % name))
             return
         self.output((logger.info, 'Branched %r with bazaar.' % name))
         env = dict(os.environ)
@@ -43,7 +43,8 @@ class BazaarWorkingCopy(common.BaseWorkingCopy):
         self.output((logger.info, 'Updated %r with bazaar.' % name))
         env = dict(os.environ)
         env.pop('PYTHONPATH', None)
-        cmd = subprocess.Popen([self.bzr_executable, 'pull', url], cwd=path,
+        cmd = subprocess.Popen(
+            [self.bzr_executable, 'pull', url], cwd=path,
             env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
@@ -60,8 +61,8 @@ class BazaarWorkingCopy(common.BaseWorkingCopy):
             if update:
                 self.update(**kwargs)
             elif self.matches():
-                self.output((logger.info,
-                    'Skipped checkout of existing package %r.' % name))
+                self.output(
+                    (logger.info, 'Skipped checkout of existing package %r.' % name))
             else:
                 raise BazaarError(
                     'Source URL for existing package %r differs. '
