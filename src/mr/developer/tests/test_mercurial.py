@@ -1,73 +1,30 @@
-import argparse
 import os
 
 import pytest
 from mock import patch
 
 from mr.developer.extension import Source
-from mr.developer.tests.utils import Process, JailSetup
+from mr.developer.tests.utils import Process
 from mr.developer.compat import b
 
 
-class MockConfig(object):
-
-    def __init__(self):
-        self.develop = {}
-
-    def save(self):
-        pass
-
-
-class MockDevelop(object):
-
-    def __init__(self):
-        self.always_accept_server_certificate = True
-        self.always_checkout = False
-        self.update_git_submodules = 'always'
-        self.config = MockConfig()
-        self.parser = argparse.ArgumentParser()
-        self.parsers = self.parser.add_subparsers(title="commands", metavar="")
-        self.threads = 1
-
-
-class MercurialTests(JailSetup):
-
-    def setUp(self):
-        JailSetup.setUp(self)
-
-    def testUpdateWithoutRevisionPin(self):
+class TestMercurial:
+    def testUpdateWithoutRevisionPin(self, develop, src, tempdir):
         from mr.developer.commands import CmdCheckout
         from mr.developer.commands import CmdUpdate
-        repository = os.path.join(self.tempdir, 'repository')
+        repository = tempdir['repository']
         os.mkdir(repository)
         process = Process(cwd=repository)
-        rc, lines = process.popen(
-            "hg init %s" % repository)
-        assert rc == 0
+        process.check_call("hg init %s" % repository)
 
-        foo = os.path.join(repository, 'foo')
-        self.mkfile(foo, 'foo')
-        rc, lines = process.popen(
-            "hg add %s" % foo,
-            echo=False)
-        assert rc == 0
-        rc, lines = process.popen(
-            "hg commit %s -m foo -u test" % foo,
-            echo=False)
-        assert rc == 0
-        bar = os.path.join(repository, 'bar')
-        self.mkfile(bar, 'bar')
-        rc, lines = process.popen(
-            "hg add %s" % bar,
-            echo=False)
-        assert rc == 0
-        rc, lines = process.popen(
-            "hg commit %s -m bar -u test" % bar,
-            echo=False)
-        assert rc == 0
-        src = os.path.join(self.tempdir, 'src')
-        os.mkdir(src)
-        develop = MockDevelop()
+        foo = repository['foo']
+        foo.create_file('foo')
+        process.check_call("hg add %s" % foo, echo=False)
+        process.check_call("hg commit %s -m foo -u test" % foo, echo=False)
+        bar = repository['bar']
+        bar.create_file('bar')
+        process.check_call("hg add %s" % bar, echo=False)
+        process.check_call("hg commit %s -m bar -u test" % bar, echo=False)
         develop.sources = {
             'egg': Source(
                 kind='hg',
@@ -88,38 +45,24 @@ class MercurialTests(JailSetup):
         finally:
             _log.__exit__()
 
-    def testUpdateWithRevisionPin(self):
+    def testUpdateWithRevisionPin(self, develop, src, tempdir):
         from mr.developer.commands import CmdCheckout
         from mr.developer.commands import CmdUpdate
-        repository = os.path.join(self.tempdir, 'repository')
+        repository = tempdir['repository']
         os.mkdir(repository)
         process = Process(cwd=repository)
-        rc, lines = process.popen(
-            "hg init %s" % repository)
-        assert rc == 0
-        foo = os.path.join(repository, 'foo')
-        self.mkfile(foo, 'foo')
-        rc, lines = process.popen(
-            "hg add %s" % foo,
-            echo=False)
-        assert rc == 0
+        lines = process.check_call("hg init %s" % repository)
+        foo = repository['foo']
+        foo.create_file('foo')
+        lines = process.check_call("hg add %s" % foo, echo=False)
 
         # create branch for testing
-        rc, lines = process.popen(
-            "hg branch test",
-            echo=False)
-        assert rc == 0
+        lines = process.check_call("hg branch test", echo=False)
 
-        rc, lines = process.popen(
-            "hg commit %s -m foo -u test" % foo,
-            echo=False)
-        assert rc == 0
+        lines = process.check_call("hg commit %s -m foo -u test" % foo, echo=False)
 
         # get comitted rev
-        rc, lines = process.popen(
-            "hg log %s" % foo,
-            echo=False)
-        assert rc == 0
+        lines = process.check_call("hg log %s" % foo, echo=False)
 
         try:
             # XXX older version
@@ -128,24 +71,12 @@ class MercurialTests(JailSetup):
             rev = lines[0].split()[1]
 
         # return to default branch
-        rc, lines = process.popen(
-            "hg branch default",
-            echo=False)
-        assert rc == 0
+        lines = process.check_call("hg branch default", echo=False)
 
-        bar = os.path.join(repository, 'bar')
-        self.mkfile(bar, 'bar')
-        rc, lines = process.popen(
-            "hg add %s" % bar,
-            echo=False)
-        assert rc == 0
-        rc, lines = process.popen(
-            "hg commit %s -m bar -u test" % bar,
-            echo=False)
-        assert rc == 0
-        src = os.path.join(self.tempdir, 'src')
-        os.mkdir(src)
-        develop = MockDevelop()
+        bar = repository['bar']
+        bar.create_file('bar')
+        lines = process.check_call("hg add %s" % bar, echo=False)
+        lines = process.check_call("hg commit %s -m bar -u test" % bar, echo=False)
 
         # check rev
         develop.sources = {

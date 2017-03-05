@@ -1,21 +1,5 @@
 from mock import patch
-from unittest import TestCase
-
-
-class MockConfig(object):
-    def __init__(self):
-        self.develop = {}
-
-    def save(self):
-        pass
-
-
-class MockDevelop(object):
-    def __init__(self):
-        from mr.developer.develop import ArgumentParser
-        self.config = MockConfig()
-        self.parser = ArgumentParser()
-        self.parsers = self.parser.add_subparsers(title="commands", metavar="")
+import pytest
 
 
 class MockSource(dict):
@@ -23,114 +7,108 @@ class MockSource(dict):
         return getattr(self, '_exists', True)
 
 
-class TestCommand(TestCase):
-    def setUp(self):
-        self.develop = MockDevelop()
-        self.develop.sources = ['foo', 'bar', 'baz', 'ham']
-        self.develop.auto_checkout = set(['foo', 'ham'])
-
-    def testEmptyMatchList(self):
+class TestCommand:
+    @pytest.fixture
+    def command(self, develop):
         from mr.developer.commands import Command
-        pkgs = Command(self.develop).get_packages([])
-        self.assertEquals(pkgs, set(['foo', 'bar', 'baz', 'ham']))
+        develop.sources = ['foo', 'bar', 'baz', 'ham']
+        develop.auto_checkout = set(['foo', 'ham'])
+        return Command(develop)
 
-    def testEmptyMatchListAuto(self):
-        from mr.developer.commands import Command
-        pkgs = Command(self.develop).get_packages([], auto_checkout=True)
-        self.assertEquals(pkgs, set(['foo', 'ham']))
+    def testEmptyMatchList(self, command):
+        pkgs = command.get_packages([])
+        assert pkgs == set(['foo', 'bar', 'baz', 'ham'])
 
-    def testSingleArgMatchingOne(self):
-        from mr.developer.commands import Command
-        pkgs = Command(self.develop).get_packages(['ha'])
-        self.assertEquals(pkgs, set(['ham']))
+    def testEmptyMatchListAuto(self, command):
+        pkgs = command.get_packages([], auto_checkout=True)
+        assert pkgs == set(['foo', 'ham'])
 
-    def testSingleArgMatchingMultiple(self):
-        from mr.developer.commands import Command
-        pkgs = Command(self.develop).get_packages(['ba'])
-        self.assertEquals(pkgs, set(['bar', 'baz']))
+    def testSingleArgMatchingOne(self, command):
+        pkgs = command.get_packages(['ha'])
+        assert pkgs == set(['ham'])
 
-    def testArgsMatchingOne(self):
-        from mr.developer.commands import Command
-        pkgs = Command(self.develop).get_packages(['ha', 'zap'])
-        self.assertEquals(pkgs, set(['ham']))
+    def testSingleArgMatchingMultiple(self, command):
+        pkgs = command.get_packages(['ba'])
+        assert pkgs == set(['bar', 'baz'])
 
-    def testArgsMatchingMultiple(self):
-        from mr.developer.commands import Command
-        pkgs = Command(self.develop).get_packages(['ba', 'zap'])
-        self.assertEquals(pkgs, set(['bar', 'baz']))
+    def testArgsMatchingOne(self, command):
+        pkgs = command.get_packages(['ha', 'zap'])
+        assert pkgs == set(['ham'])
 
-    def testArgsMatchingMultiple2(self):
-        from mr.developer.commands import Command
-        pkgs = Command(self.develop).get_packages(['ha', 'ba'])
-        self.assertEquals(pkgs, set(['bar', 'baz', 'ham']))
+    def testArgsMatchingMultiple(self, command):
+        pkgs = command.get_packages(['ba', 'zap'])
+        assert pkgs == set(['bar', 'baz'])
 
-    def testSingleArgMatchingOneAuto(self):
-        from mr.developer.commands import Command
-        pkgs = Command(self.develop).get_packages(['ha'], auto_checkout=True)
-        self.assertEquals(pkgs, set(['ham']))
+    def testArgsMatchingMultiple2(self, command):
+        pkgs = command.get_packages(['ha', 'ba'])
+        assert pkgs == set(['bar', 'baz', 'ham'])
 
-    def testSingleArgMatchingMultipleAuto(self):
-        from mr.developer.commands import Command
-        self.assertRaises(SystemExit, Command(self.develop).get_packages,
-                          ['ba'], auto_checkout=True)
+    def testSingleArgMatchingOneAuto(self, command):
+        pkgs = command.get_packages(['ha'], auto_checkout=True)
+        assert pkgs == set(['ham'])
 
-    def testArgsMatchingOneAuto(self):
-        from mr.developer.commands import Command
-        pkgs = Command(self.develop).get_packages(['ha', 'zap'],
-                                                  auto_checkout=True)
-        self.assertEquals(pkgs, set(['ham']))
+    def testSingleArgMatchingMultipleAuto(self, command):
+        pytest.raises(
+            SystemExit,
+            command.get_packages, ['ba'], auto_checkout=True)
 
-    def testArgsMatchingMultipleAuto(self):
-        from mr.developer.commands import Command
-        self.assertRaises(SystemExit, Command(self.develop).get_packages,
-                          ['ba', 'zap'], auto_checkout=True)
+    def testArgsMatchingOneAuto(self, command):
+        pkgs = command.get_packages(['ha', 'zap'], auto_checkout=True)
+        assert pkgs == set(['ham'])
 
-    def testArgsMatchingMultiple2Auto(self):
-        from mr.developer.commands import Command
-        pkgs = Command(self.develop).get_packages(['ha', 'ba'],
-                                                  auto_checkout=True)
-        self.assertEquals(pkgs, set(['ham']))
+    def testArgsMatchingMultipleAuto(self, command):
+        pytest.raises(
+            SystemExit,
+            command.get_packages, ['ba', 'zap'], auto_checkout=True)
+
+    def testArgsMatchingMultiple2Auto(self, command):
+        pkgs = command.get_packages(['ha', 'ba'], auto_checkout=True)
+        assert pkgs == set(['ham'])
 
 
-class TestDeactivateCommand(TestCase):
-    def setUp(self):
-        from mr.developer.commands import CmdDeactivate
-        self.develop = MockDevelop()
-        self.develop.sources = dict(
+class TestDeactivateCommand:
+    @pytest.fixture
+    def develop(self, develop):
+        develop.sources = dict(
             foo=MockSource(),
             bar=MockSource(),
             baz=MockSource(),
             ham=MockSource())
-        self.develop.auto_checkout = set(['foo', 'ham'])
-        self.develop.config.develop['foo'] = 'auto'
-        self.develop.config.develop['ham'] = 'auto'
-        self.cmd = CmdDeactivate(self.develop)
+        develop.auto_checkout = set(['foo', 'ham'])
+        develop.config.develop['foo'] = 'auto'
+        develop.config.develop['ham'] = 'auto'
+        return develop
 
-    def testDeactivateDeactivatedPackage(self):
-        self.develop.config.develop['bar'] = False
-        args = self.develop.parser.parse_args(args=['deactivate', 'bar'])
+    @pytest.fixture
+    def cmd(self, develop):
+        from mr.developer.commands import CmdDeactivate
+        return CmdDeactivate(develop)
+
+    def testDeactivateDeactivatedPackage(self, cmd, develop):
+        develop.config.develop['bar'] = False
+        args = develop.parser.parse_args(args=['deactivate', 'bar'])
         _logger = patch('mr.developer.develop.logger')
         logger = _logger.__enter__()
         try:
-            self.cmd(args)
+            cmd(args)
         finally:
             _logger.__exit__()
-        assert self.develop.config.develop == dict(
+        assert develop.config.develop == dict(
             bar=False,
             foo='auto',
             ham='auto')
         assert logger.mock_calls == []
 
-    def testDeactivateActivatedPackage(self):
-        self.develop.config.develop['bar'] = True
-        args = self.develop.parser.parse_args(args=['deactivate', 'bar'])
+    def testDeactivateActivatedPackage(self, cmd, develop):
+        develop.config.develop['bar'] = True
+        args = develop.parser.parse_args(args=['deactivate', 'bar'])
         _logger = patch('mr.developer.commands.logger')
         logger = _logger.__enter__()
         try:
-            self.cmd(args)
+            cmd(args)
         finally:
             _logger.__exit__()
-        assert self.develop.config.develop == dict(
+        assert develop.config.develop == dict(
             bar=False,
             foo='auto',
             ham='auto')
@@ -138,15 +116,15 @@ class TestDeactivateCommand(TestCase):
             ('info', ("Deactivated 'bar'.",), {}),
             ('warn', ("Don't forget to run buildout again, so the deactived packages are actually not used anymore.",), {})]
 
-    def testDeactivateAutoCheckoutPackage(self):
-        args = self.develop.parser.parse_args(args=['deactivate', 'foo'])
+    def testDeactivateAutoCheckoutPackage(self, cmd, develop):
+        args = develop.parser.parse_args(args=['deactivate', 'foo'])
         _logger = patch('mr.developer.commands.logger')
         logger = _logger.__enter__()
         try:
-            self.cmd(args)
+            cmd(args)
         finally:
             _logger.__exit__()
-        assert self.develop.config.develop == dict(
+        assert develop.config.develop == dict(
             foo=False,
             ham='auto')
         assert logger.mock_calls == [

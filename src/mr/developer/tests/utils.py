@@ -1,11 +1,8 @@
 from subprocess import Popen, PIPE
 from mr.developer.compat import s
 import os
-import shutil
 import sys
-import tempfile
 import threading
-import unittest
 
 
 def tee(process, filter_func):
@@ -136,79 +133,64 @@ class Process(object):
             echo = echo2 = False
         return popen(cmd, echo, echo2, env=self.env, cwd=self.cwd or cwd)
 
-    def pipe(self, cmd):
-        rc, lines = self.popen(cmd, echo=False)
-        if rc == 0 and lines:
-            return lines[0]
-        return ''
-
-    def system(self, cmd):
-        rc, lines = self.popen(cmd)
-        return rc
-
-    def os_system(self, cmd):
-        # env *updates* os.environ
-        if self.quiet:
-            cmd = cmd + ' >%s 2>&1' % os.devnull
-        if self.env:
-            cmd = ''.join('export %s="%s"\n' % (k, v) for k, v in self.env.items()) + cmd
-        return os.system(cmd)
+    def check_call(self, cmd, **kw):
+        rc, lines = self.popen(cmd, **kw)
+        assert rc == 0
+        return lines
 
 
-class DirStack(object):
-    """Stack of current working directories."""
-
+class MockConfig(object):
     def __init__(self):
-        self.stack = []
+        self.buildout_args = []
+        self.develop = {}
+        self.rewrites = []
 
-    def __len__(self):
-        return len(self.stack)
-
-    def push(self, dir):
-        """Push cwd on stack and change to 'dir'.
-        """
-        self.stack.append(os.getcwd())
-        os.chdir(dir)
-
-    def pop(self):
-        """Pop dir off stack and change to it.
-        """
-        if len(self.stack):
-            os.chdir(self.stack.pop())
+    def save(self):
+        pass
 
 
-class JailSetup(unittest.TestCase):
-    """Manage a temporary working directory."""
+class MockDevelop(object):
+    def __init__(self):
+        from mr.developer.develop import ArgumentParser
+        self.always_accept_server_certificate = True
+        self.always_checkout = False
+        self.auto_checkout = ''
+        self.update_git_submodules = 'always'
+        self.develeggs = ''
+        self.config = MockConfig()
+        self.parser = ArgumentParser()
+        self.parsers = self.parser.add_subparsers(title="commands", metavar="")
+        self.threads = 1
 
-    dirstack = None
-    tempdir = None
 
-    def setUp(self):
-        self.dirstack = DirStack()
-        try:
-            self.tempdir = os.path.realpath(self.mkdtemp())
-            self.dirstack.push(self.tempdir)
-        except:
-            self.cleanUp()
-            raise
+class GitRepo(object):
+    def __init__(self, base):
+        self.base = base
+        self.url = 'file:///%s' % self.base
+        self.process = Process(cwd=self.base)
 
-    def tearDown(self):
-        self.cleanUp()
+    def __call__(self, cmd, **kw):
+        return self.process.check_call(cmd, **kw)
 
-    def cleanUp(self):
-        if self.dirstack is not None:
-            while self.dirstack:
-                self.dirstack.pop()
-        if self.tempdir is not None:
-            if os.path.isdir(self.tempdir):
-                shutil.rmtree(self.tempdir)
+    def init(self):
+        os.mkdir(self.base)
+        self("git init")
 
-    def mkdtemp(self):
-        return tempfile.mkdtemp()
+    def setup_user(self):
+        self('git config user.email "florian.schulze@gmx.net"')
+        self('git config user.name "Florian Schulze"')
 
-    def mkfile(self, name, body=''):
-        f = open(name, 'wt')
-        try:
-            f.write(body)
-        finally:
-            f.close()
+    def add_file(self, fname, msg=None):
+        repo_file = self.base[fname]
+        repo_file.create_file(fname)
+        self("git add %s" % repo_file, echo=False)
+        if msg is None:
+            msg = fname
+        self("git commit %s -m %s" % (repo_file, msg), echo=False)
+
+    def add_submodule(self, submodule, submodule_name):
+        assert isinstance(submodule, GitRepo)
+        self("git submodule add %s %s" % (submodule.url, submodule_name))
+        self("git add .gitmodules")
+        self("git add %s" % submodule_name)
+        self("git commit -m 'Add submodule %s'" % submodule_name)
