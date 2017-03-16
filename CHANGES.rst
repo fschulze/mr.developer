@@ -7,6 +7,10 @@ Changelog
 * Use ``from __future__ import print_function`` to fix output of ``help --rst``.
   [fschulze]
 
+* Set empty version pin for develop packages instead of removing the version
+  pin from the section.
+  [fschulze]
+
 
 1.37 (2017-03-04)
 -----------------

@@ -272,7 +272,9 @@ class TestExtensionClass:
             (develop, develeggs, versions) = extension.get_develop_info()
         finally:
             _exists.__exit__()
-        assert buildout['versions'] == {'pkg.bar-foo': '1.0'}
+        assert buildout['versions'] == {
+            'pkg.foo-bar': '',
+            'pkg.bar-foo': '1.0'}
 
     def testDevelopOrder(self, buildout, extension):
         buildout['buildout']['develop'] = '/normal/develop ' \
