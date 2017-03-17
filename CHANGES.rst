@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.38 (Unreleased)
+1.38 (2017-03-17)
 -----------------
 
 * Use ``from __future__ import print_function`` to fix output of ``help --rst``.
