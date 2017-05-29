@@ -239,6 +239,8 @@ class GitWorkingCopy(common.BaseWorkingCopy):
                 stdout, stderr = self.git_update_submodules(stdout, stderr, submodule=submodule)
                 self.output((logger.info, "Initialized '%s' submodule at '%s' with git." % (name, submodule)))
 
+        self.run_git(["clean", "-f", "-X", "-d"])  # Remove .pycs
+
         if kwargs.get('verbose', False):
             return stdout
 
