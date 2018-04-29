@@ -766,7 +766,7 @@ class CmdStatus(Command):
             if args.verbose:
                 output = output.strip()
                 if output:
-                    for line in output.split('\n'):
+                    for line in output.split(b'\n'):
                         print("      %s" % line)
                     print()
 
