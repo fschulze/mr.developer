@@ -1,11 +1,15 @@
 Changelog
 =========
 
-1.38 (Unreleased)
------------------
+2.0.0 (Unreleased)
+------------------
 
 * Fix verbose status in python 3.
   [pbauer]
+
+* Drop testing with Python 2.6 and Python 3.3, from now on there is no
+  guarantee it will work with those Python versions.
+  [fschulze]
 
 
 1.38 (2017-03-17)
