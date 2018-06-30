@@ -28,7 +28,9 @@ def has_environment_marker_support():
 
 install_requires = [
     'setuptools',
-    'zc.buildout']
+    'zc.buildout',
+    'six',
+    ]
 
 tests_require = [
     'mock']

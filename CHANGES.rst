@@ -4,6 +4,8 @@ Changelog
 1.38 (Unreleased)
 -----------------
 
+* Fix verbose status in python 3.
+  [pbauer]
 
 
 1.38 (2017-03-17)
