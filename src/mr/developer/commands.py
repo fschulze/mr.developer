@@ -5,6 +5,7 @@ import errno
 import os
 import re
 import shutil
+import six
 import stat
 import subprocess
 import sys
@@ -764,9 +765,11 @@ class CmdStatus(Command):
             info.append(name)
             print(" ".join(info))
             if args.verbose:
-                output = output.strip()
+                output = output.strip().decode('utf8')
+                if six.PY3 and isinstance(output, six.binary_type):
+                    output = output.decode('utf8')
                 if output:
-                    for line in output.split(b'\n'):
+                    for line in output.split('\n'):
                         print("      %s" % line)
                     print()
 
