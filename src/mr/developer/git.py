@@ -218,7 +218,6 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         cmd = self.run_git(argv, cwd=path)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            import pdb; pdb.set_trace()
             raise GitError("git fetch of '%s' failed.\n%s" % (name, stderr))
         if 'rev' in self.source:
             stdout, stderr = self.git_switch_branch(stdout, stderr)
