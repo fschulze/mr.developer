@@ -765,9 +765,9 @@ class CmdStatus(Command):
             info.append(name)
             print(" ".join(info))
             if args.verbose:
-                output = output.strip().decode('utf8')
                 if six.PY3 and isinstance(output, six.binary_type):
                     output = output.decode('utf8')
+                output = output.strip()
                 if output:
                     for line in output.split('\n'):
                         print("      %s" % line)

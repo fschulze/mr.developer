@@ -60,7 +60,6 @@ class TestGit:
         assert set(os.listdir(src['egg'])) == set(('.git', 'foo', 'foo2'))
         CmdUpdate(develop)(develop.parser.parse_args(['up', 'egg']))
         assert set(os.listdir(src['egg'])) == set(('.git', 'foo', 'foo2'))
-
         CmdStatus(develop)(develop.parser.parse_args(['status']))
 
         # switch implicitly to master branch
@@ -107,12 +106,14 @@ class TestGit:
             CmdCheckout(develop)(develop.parser.parse_args(['co', 'egg']))
         """)
 
-    def testUpdateWithoutRevisionPin(self, develop, mkgitrepo, src):
+    def testUpdateWithoutRevisionPin(self, develop, mkgitrepo, src, capsys):
         from mr.developer.commands import CmdCheckout
         from mr.developer.commands import CmdUpdate
+        from mr.developer.commands import CmdStatus
         repository = mkgitrepo('repository')
         repository.add_file('foo')
         repository.add_file('bar')
+        repository.add_branch('develop')
         develop.sources = {
             'egg': Source(
                 kind='git',
@@ -124,12 +125,56 @@ class TestGit:
         try:
             CmdCheckout(develop)(develop.parser.parse_args(['co', 'egg']))
             assert set(os.listdir(src['egg'])) == set(('.git', 'bar', 'foo'))
+            captured = capsys.readouterr()
+            assert captured.out.startswith("Initialized empty Git repository in")
             CmdUpdate(develop)(develop.parser.parse_args(['up', 'egg']))
             assert set(os.listdir(src['egg'])) == set(('.git', 'bar', 'foo'))
             assert log.method_calls == [
                 ('info', ("Cloned 'egg' with git from '%s'." % repository.url,), {}),
                 ('info', ("Updated 'egg' with git.",), {}),
-                ('info', ("Switching to branch 'master'.",), {})]
+                ('info', ("Switching to remote branch 'remotes/origin/master'.",), {})]
+            captured = capsys.readouterr()
+            assert captured.out == ""
+            CmdStatus(develop)(develop.parser.parse_args(['status', '-v']))
+            captured = capsys.readouterr()
+            assert captured.out == "~   A egg\n      ## master...origin/master\n\n"
+
+        finally:
+            _log.__exit__()
+
+    def testUpdateVerbose(self, develop, mkgitrepo, src, capsys):
+        from mr.developer.commands import CmdCheckout
+        from mr.developer.commands import CmdUpdate
+        from mr.developer.commands import CmdStatus
+        repository = mkgitrepo('repository')
+        repository.add_file('foo')
+        repository.add_file('bar')
+        repository.add_branch('develop')
+        develop.sources = {
+            'egg': Source(
+                kind='git',
+                name='egg',
+                url=repository.url,
+                path=src['egg'])}
+        _log = patch('mr.developer.git.logger')
+        log = _log.__enter__()
+        try:
+            CmdCheckout(develop)(develop.parser.parse_args(['co', 'egg', '-v']))
+            assert set(os.listdir(src['egg'])) == set(('.git', 'bar', 'foo'))
+            captured = capsys.readouterr()
+            assert captured.out.startswith("Initialized empty Git repository in")
+            CmdUpdate(develop)(develop.parser.parse_args(['up', 'egg', '-v']))
+            assert set(os.listdir(src['egg'])) == set(('.git', 'bar', 'foo'))
+            assert log.method_calls == [
+                ('info', ("Cloned 'egg' with git from '%s'." % repository.url,), {}),
+                ('info', ("Updated 'egg' with git.",), {}),
+                ('info', ("Switching to remote branch 'remotes/origin/master'.",), {})]
+            captured = capsys.readouterr()
+            assert captured.out == "* develop\n  remotes/origin/HEAD -> origin/develop\n  remotes/origin/develop\n  remotes/origin/master\nBranch master set up to track remote branch master from origin.\n  develop\n* master\n  remotes/origin/HEAD -> origin/develop\n  remotes/origin/develop\n  remotes/origin/master\nAlready up-to-date.\n\n"
+            CmdStatus(develop)(develop.parser.parse_args(['status', '-v']))
+            captured = capsys.readouterr()
+            assert captured.out == "~   A egg\n      ## master...origin/master\n\n"
+
         finally:
             _log.__exit__()
 
