@@ -4,6 +4,9 @@ Changelog
 1.38 (Unreleased)
 -----------------
 
+* Use universal_newlines to deal with all output for git.
+  [pbauer]
+
 * Fix verbose status in python 3.
   [pbauer]
 
