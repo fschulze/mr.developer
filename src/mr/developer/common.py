@@ -220,8 +220,7 @@ def get_commands():
             commands[key] = command
         else:
             if key in addons:
-                logger.error('There already is a working copy type addon '
-                             'registered for "%s".', key)
+                logger.error('There already is a command addon registered for "%s".', key)
                 sys.exit(1)
             logger.info('Overwriting "%s" with addon from "%s".',
                         key, entrypoint.dist.project_name)
