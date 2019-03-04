@@ -75,6 +75,7 @@ setup(name='mr.developer',
       install_requires=install_requires,
       tests_require=tests_require,
       extras_require=extras_require,
+      python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
       test_suite='mr.developer.tests',
       entry_points="""
       [console_scripts]
