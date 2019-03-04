@@ -94,7 +94,7 @@ class TestGit:
         CmdStatus(develop)(develop.parser.parse_args(['status']))
 
         # we can't use both rev and branch
-        pytest.raises(SystemExit, """
+        with pytest.raises(SystemExit):
             develop.sources = {
                 'egg': Source(
                     kind='git',
@@ -104,7 +104,6 @@ class TestGit:
                     url='%s' % repository.base,
                     path=src['egg-failed'])}
             CmdCheckout(develop)(develop.parser.parse_args(['co', 'egg']))
-        """)
 
     def testUpdateWithoutRevisionPin(self, develop, mkgitrepo, src, capsys):
         from mr.developer.commands import CmdCheckout

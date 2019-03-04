@@ -87,7 +87,7 @@ class Extension(object):
             path = None
             if len(info) > 2:
                 if '=' not in info[2]:
-                    logger.warn("You should use 'path=%s' to set the path." % info[2])
+                    logger.warning("You should use 'path=%s' to set the path." % info[2])
                     path = os.path.join(info[2], name)
                     if not os.path.isabs(path):
                         path = os.path.join(self.buildout_dir, path)

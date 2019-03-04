@@ -185,7 +185,7 @@ class CmdCheckout(Command):
                     continue
                 config.develop[name] = True
                 logger.info("Activated '%s'." % name)
-            logger.warn("Don't forget to run buildout again, so the checked out packages are used as develop eggs.")
+            logger.warning("Don't forget to run buildout again, so the checked out packages are used as develop eggs.")
             config.save()
         except (ValueError, KeyError):
             logger.error(sys.exc_info()[1])
