@@ -4,6 +4,9 @@ Changelog
 2.0.0 (Unreleased)
 ------------------
 
+* Remove deprecated ``-n``/``--dry-run`` option from ``rebuild``/``rb`` command.
+  [fschulze]
+
 * Use universal_newlines to deal with all output for git.
   [pbauer]
 

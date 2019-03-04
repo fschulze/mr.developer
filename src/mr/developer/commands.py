@@ -595,22 +595,13 @@ class CmdRebuild(Command):
         self.develop.parsers._name_parser_map["rb"] = self.develop.parsers._name_parser_map["rebuild"]
         self.develop.parsers._choices_actions.append(ChoicesPseudoAction(
             "rebuild", "rb", help=description))
-        self.parser.add_argument(
-            "-n", "--dry-run", dest="dry_run",
-            action="store_true", default=False,
-            help="""DEPRECATED: Use 'arguments' command instead. Don't actually run buildout, just show the last used arguments.""")
         self.parser.set_defaults(func=self)
 
     def __call__(self, args):
         buildout_dir = self.develop.buildout_dir
         buildout_args = self.develop.config.buildout_args
         print("Last used buildout arguments: %s" % " ".join(buildout_args[1:]))
-        if args.dry_run:
-            logger.warning("Dry run, buildout not invoked.")
-            logger.warning("DEPRECATED: The use of '-n' and '--dry-run' is deprecated, use the 'arguments' command instead.")
-            return
-        else:
-            logger.info("Running buildout.")
+        logger.info("Running buildout.")
         os.chdir(buildout_dir)
         subprocess.call(buildout_args)
 
