@@ -194,3 +194,6 @@ class GitRepo(object):
         self("git add .gitmodules")
         self("git add %s" % submodule_name)
         self("git commit -m 'Add submodule %s'" % submodule_name)
+
+    def add_branch(self, bname, msg=None):
+        self("git checkout -b %s" % bname)

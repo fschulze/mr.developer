@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from mr.developer import common
-from mr.developer.compat import b, s
 import os
 import subprocess
 import re
@@ -50,7 +49,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
             logger.error("'git --version' output was:\n%s\n%s" % (stdout, stderr))
             sys.exit(1)
 
-        m = re.search(b("git version (\d+)\.(\d+)(\.\d+)?(\.\d+)?"), stdout)
+        m = re.search("git version (\d+)\.(\d+)(\.\d+)?(\.\d+)?", stdout)
         if m is None:
             logger.error("Unable to parse git version output")
             logger.error("'git --version' output was:\n%s\n%s" % (stdout, stderr))
@@ -94,6 +93,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         # This should ease things up when multiple processes are trying to send
         # back to the main one large chunks of output
         kwargs['bufsize'] = -1
+        kwargs['universal_newlines'] = True
         return subprocess.Popen(commands, **kwargs)
 
     def git_merge_rbranch(self, stdout_in, stderr_in, accept_missing=False):
@@ -106,7 +106,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
             raise GitError("'git branch -a' failed.\n%s" % stderr)
         stdout_in += stdout
         stderr_in += stderr
-        if not re.search(b("^(\*| ) %s$" % re.escape(branch)), stdout, re.M):
+        if not re.search("^(\*| ) %s$" % re.escape(branch), stdout, re.M):
             # The branch is not local.  We should not have reached
             # this, unless no branch was specified and we guess wrong
             # that it should be master.
@@ -183,12 +183,12 @@ class GitWorkingCopy(common.BaseWorkingCopy):
             # A tag or revision was specified instead of a branch
             argv = ["checkout", self.source['rev']]
             self.output((logger.info, "Switching to rev '%s'." % self.source['rev']))
-        elif re.search(b("^(\*| ) %s$" % re.escape(branch)), stdout, re.M):
+        elif re.search("^(\*| ) %s$" % re.escape(branch), stdout, re.M):
             # the branch is local, normal checkout will work
             argv = ["checkout", branch]
             self.output((logger.info, "Switching to branch '%s'." % branch))
         elif re.search(
-                b("^  " + re.escape(rbp) + "\/" + re.escape(branch) + "$"),
+                "^  " + re.escape(rbp) + "\/" + re.escape(branch) + "$",
                 stdout, re.M):
             # the branch is not local, normal checkout won't work here
             rbranch = "%s/%s" % (rbp, branch)
@@ -260,9 +260,9 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         path = self.source['path']
         cmd = self.run_git(["status", "-s", "-b"], cwd=path)
         stdout, stderr = cmd.communicate()
-        lines = stdout.strip().split(b('\n'))
+        lines = stdout.strip().split('\n')
         if len(lines) == 1:
-            if b('ahead') in lines[0]:
+            if 'ahead' in lines[0]:
                 status = 'ahead'
             else:
                 status = 'clean'
@@ -283,7 +283,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise GitError("git remote of '%s' failed.\n%s" % (name, stderr))
-        return (self.source['url'] in s(stdout).split())
+        return (self.source['url'] in stdout.split())
 
     def update(self, **kwargs):
         name = self.source['name']
@@ -315,9 +315,9 @@ class GitWorkingCopy(common.BaseWorkingCopy):
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise GitError("git submodule init failed.\n")
-        output = s(stdout)
+        output = stdout
         if not output:
-            output = s(stderr)
+            output = stderr
         initialized_submodules = re.findall(
             r'\s+[\'"](.*?)[\'"]\s+\(.+\)',
             output)

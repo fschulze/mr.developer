@@ -8,6 +8,7 @@ except ImportError:
     import Queue as queue
 import re
 import subprocess
+import six
 import sys
 import threading
 if sys.version_info < (3, ):
@@ -180,6 +181,8 @@ def worker(working_copies, the_queue):
             for lvl, msg in wc._output:
                 lvl(msg)
             if kwargs.get('verbose', False) and output is not None and output.strip():
+                if six.PY3 and isinstance(output, six.binary_type):
+                    output = output.decode('utf8')
                 print(output)
             output_lock.release()
 
