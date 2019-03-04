@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.0.0 (Unreleased)
+2.0.0 (2019-03-04)
 ------------------
 
 * Remove deprecated ``-n``/``--dry-run`` option from ``rebuild``/``rb`` command.
