@@ -67,7 +67,7 @@ class TestMercurial:
         try:
             # XXX older version
             rev = lines[0].split()[1].split(b(':'))[1]
-        except:
+        except Exception:
             rev = lines[0].split()[1]
 
         # return to default branch

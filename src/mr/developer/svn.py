@@ -90,7 +90,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
         lines = stdout.split(b('\n'))
         version = None
         if len(lines):
-            version = re.search(b('(\d+)\.(\d+)(\.\d+)?'), lines[0])
+            version = re.search(b(r'(\d+)\.(\d+)(\.\d+)?'), lines[0])
             if version is not None:
                 version = version.groups()
                 if len(version) == 3:

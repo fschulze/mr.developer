@@ -479,7 +479,7 @@ class CmdPony(Command):
         self.parser.set_defaults(func=self)
 
     def __call__(self, args):
-        pony = '''
+        pony = r'''
             .,,.
          ,;;*;;;;,
         .-'``;-');;.

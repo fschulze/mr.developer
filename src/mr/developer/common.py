@@ -468,7 +468,7 @@ def parse_buildout_args(args):
 
 
 class Rewrite(object):
-    _matcher = re.compile("(?P<option>^\w+) (?P<operator>[~=]{1,2}) (?P<value>.+)$")
+    _matcher = re.compile(r"(?P<option>^\w+) (?P<operator>[~=]{1,2}) (?P<value>.+)$")
 
     def _iter_prog_lines(self, prog):
         for line in prog.split('\n'):
@@ -610,7 +610,7 @@ class Config(object):
         self._config.add_section('develop')
         for package in sorted(self.develop):
             state = self.develop[package]
-            if state is 'auto':
+            if state == 'auto':
                 self._config.set('develop', package, 'auto')
             elif state is True:
                 self._config.set('develop', package, 'true')

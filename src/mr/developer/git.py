@@ -49,7 +49,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
             logger.error("'git --version' output was:\n%s\n%s" % (stdout, stderr))
             sys.exit(1)
 
-        m = re.search("git version (\d+)\.(\d+)(\.\d+)?(\.\d+)?", stdout)
+        m = re.search(r"git version (\d+)\.(\d+)(\.\d+)?(\.\d+)?", stdout)
         if m is None:
             logger.error("Unable to parse git version output")
             logger.error("'git --version' output was:\n%s\n%s" % (stdout, stderr))
@@ -106,7 +106,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
             raise GitError("'git branch -a' failed.\n%s" % stderr)
         stdout_in += stdout
         stderr_in += stderr
-        if not re.search("^(\*| ) %s$" % re.escape(branch), stdout, re.M):
+        if not re.search(r"^(\*| ) %s$" % re.escape(branch), stdout, re.M):
             # The branch is not local.  We should not have reached
             # this, unless no branch was specified and we guess wrong
             # that it should be master.
@@ -183,12 +183,12 @@ class GitWorkingCopy(common.BaseWorkingCopy):
             # A tag or revision was specified instead of a branch
             argv = ["checkout", self.source['rev']]
             self.output((logger.info, "Switching to rev '%s'." % self.source['rev']))
-        elif re.search("^(\*| ) %s$" % re.escape(branch), stdout, re.M):
+        elif re.search(r"^(\*| ) %s$" % re.escape(branch), stdout, re.M):
             # the branch is local, normal checkout will work
             argv = ["checkout", branch]
             self.output((logger.info, "Switching to branch '%s'." % branch))
         elif re.search(
-                "^  " + re.escape(rbp) + "\/" + re.escape(branch) + "$",
+                "^  " + re.escape(rbp) + r"\/" + re.escape(branch) + "$",
                 stdout, re.M):
             # the branch is not local, normal checkout won't work here
             rbranch = "%s/%s" % (rbp, branch)
