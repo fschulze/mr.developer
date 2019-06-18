@@ -286,7 +286,7 @@ class CmdHelp(Command):
             if name == 'pony':
                 continue
             cmds.setdefault(choices[name], set()).add(name)
-        for cmd, names in cmds.items():
+        for cmd, names in list(cmds.items()):
             names = list(reversed(sorted(names, key=len)))
             cmds[names[0]] = dict(
                 aliases=names[1:],
