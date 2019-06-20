@@ -5,6 +5,7 @@ Changelog
 2.0.1 (Unreleased)
 ------------------
 
+* Fix ``bin/develop help`` on Python 3.
 
 
 2.0.0 (2019-03-04)

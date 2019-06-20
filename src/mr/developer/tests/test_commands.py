@@ -130,3 +130,16 @@ class TestDeactivateCommand:
         assert logger.mock_calls == [
             ('info', ("Deactivated 'foo'.",), {}),
             ('warn', ("Don't forget to run buildout again, so the deactived packages are actually not used anymore.",), {})]
+
+
+class TestHelpCommand:
+    @pytest.fixture
+    def cmd(self, develop):
+        from mr.developer.commands import CmdHelp
+        return CmdHelp(develop)
+
+    def testHelp(self, cmd, develop, capsys):
+        args = develop.parser.parse_args(args=['help'])
+        cmd(args)
+        out, err = capsys.readouterr()
+        assert 'Available commands' in out
