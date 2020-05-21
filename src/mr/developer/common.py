@@ -449,7 +449,10 @@ def parse_buildout_args(args):
             elif op:
                 if orig_op == '--help':
                     return 'help'
-                raise ValueError("Invalid option", '-' + op[0])
+                elif orig_op == '--restart-after-upgrade':
+                    options.append(('buildout', 'restart-after-upgrade', 'true'))
+                else:
+                    raise ValueError("Invalid option", '-' + op[0])
         elif '=' in args[0]:
             option, value = args.pop(0).split('=', 1)
             parts = option.split(':')
