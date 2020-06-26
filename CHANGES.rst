@@ -5,6 +5,9 @@ Changelog
 2.0.1 (Unreleased)
 ------------------
 
+* Support buildout 3
+  [gotcha]
+
 * Fix ``bin/develop help`` on Python 3.
 
 
