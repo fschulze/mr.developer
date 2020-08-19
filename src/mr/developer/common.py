@@ -172,8 +172,8 @@ def worker(working_copies, the_queue):
             output_lock.acquire()
             for lvl, msg in wc._output:
                 lvl(msg)
-            for l in sys.exc_info()[1].args[0].split('\n'):
-                logger.error(l)
+            for line in sys.exc_info()[1].args[0].split('\n'):
+                logger.error(line)
             working_copies.errors = True
             output_lock.release()
         else:
@@ -333,8 +333,8 @@ class WorkingCopies(object):
                 sys.exit(1)
             return wc.matches()
         except WCError:
-            for l in sys.exc_info()[1].args[0].split('\n'):
-                logger.error(l)
+            for line in sys.exc_info()[1].args[0].split('\n'):
+                logger.error(line)
             sys.exit(1)
 
     def status(self, source, **kwargs):
@@ -351,8 +351,8 @@ class WorkingCopies(object):
                 sys.exit(1)
             return wc.status(**kwargs)
         except WCError:
-            for l in sys.exc_info()[1].args[0].split('\n'):
-                logger.error(l)
+            for line in sys.exc_info()[1].args[0].split('\n'):
+                logger.error(line)
             sys.exit(1)
 
     def update(self, packages, **kwargs):
