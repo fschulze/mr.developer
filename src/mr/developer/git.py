@@ -199,8 +199,7 @@ class GitWorkingCopy(common.BaseWorkingCopy):
             return (stdout_in + stdout,
                     stderr_in + stderr)
         else:
-            self.output((logger.error, "No such branch %r", branch))
-            sys.exit(1)
+            raise GitError("No such branch %r" % branch)
         # runs the checkout with predetermined arguments
         cmd = self.run_git(argv, cwd=path)
         stdout, stderr = cmd.communicate()
@@ -288,7 +287,10 @@ class GitWorkingCopy(common.BaseWorkingCopy):
     def update(self, **kwargs):
         name = self.source['name']
         if not self.matches():
-            self.output((logger.warning, "Can't update package '%s' because its URL doesn't match." % name))
+            message = "Can't update package '%s' because its URL doesn't match." % name
+            if kwargs.get("force"):
+                raise GitError(message)
+            self.output((logger.warning, message))
         if self.status() != 'clean' and not kwargs.get('force', False):
             raise GitError("Can't update package '%s' because it's dirty." % name)
         return self.git_update(**kwargs)
