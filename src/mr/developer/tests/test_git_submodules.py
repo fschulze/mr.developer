@@ -33,7 +33,7 @@ class TestGitSubmodules:
                 ('info', ("Cloned 'egg' with git from '%s'." % egg.url,), {}),
                 ('info', ("Initialized 'egg' submodule at '%s' with git." % submodule_name,), {})]
         finally:
-            _log.__exit__()
+            _log.__exit__(None, None, None)
 
     def testCheckoutWithTwoSubmodules(self, develop, mkgitrepo, src):
         """
@@ -71,7 +71,7 @@ class TestGitSubmodules:
                 ('info', ("Initialized 'egg' submodule at '%s' with git." % submodule_name,), {}),
                 ('info', ("Initialized 'egg' submodule at '%s' with git." % submodule_b_name,), {})]
         finally:
-            _log.__exit__()
+            _log.__exit__(None, None, None)
 
     def testUpdateWithSubmodule(self, develop, mkgitrepo, src):
         """
@@ -102,7 +102,7 @@ class TestGitSubmodules:
                 ('info', ("Cloned 'egg' with git from '%s'." % egg.url,), {}),
                 ('info', ("Initialized 'egg' submodule at '%s' with git." % submodule_name,), {})]
         finally:
-            _log.__exit__()
+            _log.__exit__(None, None, None)
 
         submodule_b_name = 'submodule_b'
         submodule_b = mkgitrepo(submodule_b_name)
@@ -119,7 +119,7 @@ class TestGitSubmodules:
                 ('info', ("Switching to branch 'master'.",), {}),
                 ('info', ("Initialized 'egg' submodule at '%s' with git." % submodule_b_name,), {})]
         finally:
-            _log.__exit__()
+            _log.__exit__(None, None, None)
 
     def testCheckoutWithSubmodulesOptionNever(self, develop, mkgitrepo, src):
         """
@@ -151,7 +151,7 @@ class TestGitSubmodules:
             assert log.method_calls == [
                 ('info', ("Cloned 'egg' with git from '%s'." % egg.url,), {})]
         finally:
-            _log.__exit__()
+            _log.__exit__(None, None, None)
 
     def testCheckoutWithSubmodulesOptionNeverSourceAlways(self, develop, mkgitrepo, src):
         """
@@ -199,7 +199,7 @@ class TestGitSubmodules:
                 ('info', ("Initialized 'egg' submodule at '%s' with git." % submodule_name,), {}),
                 ('info', ("Cloned 'egg2' with git from '%s'." % egg2.url,), {})]
         finally:
-            _log.__exit__()
+            _log.__exit__(None, None, None)
 
     def testCheckoutWithSubmodulesOptionAlwaysSourceNever(self, develop, mkgitrepo, src):
         """
@@ -246,7 +246,7 @@ class TestGitSubmodules:
                 ('info', ("Initialized 'egg' submodule at '%s' with git." % submodule_name,), {}),
                 ('info', ("Cloned 'egg2' with git from '%s'." % egg2.url,), {})]
         finally:
-            _log.__exit__()
+            _log.__exit__(None, None, None)
 
     def testUpdateWithSubmoduleCheckout(self, develop, mkgitrepo, src):
         """
@@ -278,7 +278,7 @@ class TestGitSubmodules:
                 ('info', ("Cloned 'egg' with git from '%s'." % egg.url,), {}),
                 ('info', ("Initialized 'egg' submodule at '%s' with git." % submodule_name,), {})]
         finally:
-            _log.__exit__()
+            _log.__exit__(None, None, None)
 
         submodule_b_name = 'submodule_b'
         submodule_b = mkgitrepo(submodule_b_name)
@@ -294,7 +294,7 @@ class TestGitSubmodules:
                 ('info', ("Updated 'egg' with git.",), {}),
                 ('info', ("Switching to branch 'master'.",), {})]
         finally:
-            _log.__exit__()
+            _log.__exit__(None, None, None)
 
     def testUpdateWithSubmoduleDontUpdatePreviousSubmodules(self, develop, mkgitrepo, src):
         """
@@ -326,7 +326,7 @@ class TestGitSubmodules:
                 ('info', ("Cloned 'egg' with git from '%s'." % egg.url,), {}),
                 ('info', ("Initialized 'egg' submodule at '%s' with git." % submodule_name,), {})]
         finally:
-            _log.__exit__()
+            _log.__exit__(None, None, None)
 
         repo = GitRepo(src['egg/%s' % submodule_name])
         repo.setup_user()
@@ -341,4 +341,4 @@ class TestGitSubmodules:
                 ('info', ("Updated 'egg' with git.",), {}),
                 ('info', ("Switching to branch 'master'.",), {})]
         finally:
-            _log.__exit__()
+            _log.__exit__(None, None, None)

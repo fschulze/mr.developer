@@ -101,7 +101,7 @@ def popen(cmd, echo=True, echo2=True, env=None, cwd=None):
     try:
         lines = tee(process, echo)
     finally:
-        bt.__exit__()
+        bt.__exit__(None, None, None)
     return process.returncode, lines
 
 

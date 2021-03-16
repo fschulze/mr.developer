@@ -92,7 +92,7 @@ class TestDeactivateCommand:
         try:
             cmd(args)
         finally:
-            _logger.__exit__()
+            _logger.__exit__(None, None, None)
         assert develop.config.develop == dict(
             bar=False,
             foo='auto',
@@ -107,7 +107,7 @@ class TestDeactivateCommand:
         try:
             cmd(args)
         finally:
-            _logger.__exit__()
+            _logger.__exit__(None, None, None)
         assert develop.config.develop == dict(
             bar=False,
             foo='auto',
@@ -123,7 +123,7 @@ class TestDeactivateCommand:
         try:
             cmd(args)
         finally:
-            _logger.__exit__()
+            _logger.__exit__(None, None, None)
         assert develop.config.develop == dict(
             foo=False,
             ham='auto')

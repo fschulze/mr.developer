@@ -43,7 +43,7 @@ class TestMercurial:
                 ('info', ("Updated 'egg' with mercurial.",), {}),
                 ('info', ("Switched 'egg' to default.",), {})]
         finally:
-            _log.__exit__()
+            _log.__exit__(None, None, None)
 
     def testUpdateWithRevisionPin(self, develop, src, tempdir):
         from mr.developer.commands import CmdCheckout

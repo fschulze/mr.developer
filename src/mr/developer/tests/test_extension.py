@@ -271,7 +271,7 @@ class TestExtensionClass:
 
             (develop, develeggs, versions) = extension.get_develop_info()
         finally:
-            _exists.__exit__()
+            _exists.__exit__(None, None, None)
         assert buildout['versions'] == {
             'pkg.foo-bar': '',
             'pkg.bar-foo': '1.0'}
@@ -296,7 +296,7 @@ class TestExtensionClass:
             exists().return_value = True
             (develop, develeggs, versions) = extension.get_develop_info()
         finally:
-            _exists.__exit__()
+            _exists.__exit__(None, None, None)
         assert develop == ['/normal/develop', '/develop/with/slash/', 'src/pkg.bar']
 
     def testMissingSourceSection(self, buildout, extension):

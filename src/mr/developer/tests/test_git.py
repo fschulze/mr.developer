@@ -139,7 +139,7 @@ class TestGit:
             assert captured.out == "~   A egg\n      ## master...origin/master\n\n"
 
         finally:
-            _log.__exit__()
+            _log.__exit__(None, None, None)
 
     def testUpdateVerbose(self, develop, mkgitrepo, src, capsys):
         from mr.developer.commands import CmdCheckout
@@ -178,7 +178,7 @@ class TestGit:
             assert captured.out == "~   A egg\n      ## master...origin/master\n\n"
 
         finally:
-            _log.__exit__()
+            _log.__exit__(None, None, None)
 
     def testDepthOption(self, mkgitrepo, src, tempdir):
         from mr.developer.develop import develop
