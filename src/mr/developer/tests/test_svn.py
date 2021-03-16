@@ -46,7 +46,7 @@ class TestSVN:
                 ('info', ("Checked out 'egg' with subversion.",), {}),
                 ('info', ("Updated 'egg' with subversion.",), {})]
         finally:
-            _log.__exit__()
+            _log.__exit__(None, None, None)
 
     def testUpdateWithRevisionPin(self, develop, src, tempdir):
         from mr.developer.commands import CmdCheckout
