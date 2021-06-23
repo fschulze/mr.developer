@@ -3,7 +3,7 @@
 Introduction
 ============
 
-.. figure:: http://fschulze.github.com/mr.developer/xkcd-buildout.png
+.. figure:: http://fschulze.github.io/mr.developer/xkcd-buildout.png
     :figwidth: image
 
     Let Mr. Developer help you win the everlasting buildout battle!
