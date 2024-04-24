@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-2.0.2 (unreleased)
+2.0.2 (2024-04-24)
 ------------------
 
 * Fix ValueError: too many values to unpack (expected 2).  [flipmcf]
