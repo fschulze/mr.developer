@@ -5,7 +5,7 @@ Changelog
 2.0.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+* Fix ValueError: too many values to unpack (expected 2).  [flipmcf]
 
 
 2.0.1 (2020-08-19)
