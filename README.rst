@@ -3,21 +3,19 @@
 Introduction
 ============
 
-.. figure:: http://fschulze.github.io/mr.developer/xkcd-buildout.png
+.. figure:: https://fschulze.github.io/mr.developer/xkcd-buildout.png
     :figwidth: image
 
     Let Mr. Developer help you win the everlasting buildout battle!
 
-    (Remixed by Matt Hamilton, original from http://xkcd.com/303)
+    (Remixed by Matt Hamilton, original from https://xkcd.com/303)
 
 **mr.developer** is a `zc.buildout`_ extension that makes it easy to work with
 buildouts containing lots of packages, of which you only want to develop some.
-The basic idea comes from Wichert Akkerman's plonenext_ effort.
+The basic idea comes from Wichert Akkerman's plonenext effort.
 
-.. image:: https://secure.travis-ci.org/fschulze/mr.developer.png
+.. _`zc.buildout`: https://pypi.org/project/zc.buildout/
 
-.. _`zc.buildout`: http://pypi.python.org/pypi/zc.buildout
-.. _plonenext: http://svn.plone.org/svn/plone/plonenext/3.3/README.txt
 
 Usage
 =====
@@ -107,9 +105,9 @@ Common options
   the base path. If ``path`` is not set, ``sources-dir`` is used.
 
   With ``full-path`` you can set the directory where the package will be
-  checked out. This is the actual destination, nothing will be added. As 
+  checked out. This is the actual destination, nothing will be added. As
   an example::
-  
+
     [sources]
     pkg = fs pkg full-path=/path/to/pkg
 
@@ -133,7 +131,7 @@ Common options
   The ``url`` is one of the urls supported by subversion.
 
   You can specify a url with a revision pin, like
-  ``http://example.com/trunk@123``.
+  ``https://example.com/trunk@123``.
 
   You can also set the ``rev`` or ``revision`` option, which is either a pin
   like with ``rev=123`` or a minimum revision like ``rev=>123`` or
@@ -199,7 +197,7 @@ Here's an example of how your ``buildout.cfg`` may look like::
   auto-checkout = my.package
 
   [sources]
-  my.package = svn http://example.com/svn/my.package/trunk update=true
+  my.package = svn https://example.com/svn/my.package/trunk update=true
   some.other.package = git git://example.com/git/some.other.package.git
 
 When you run buildout, the script ``bin/develop`` is created in your
@@ -252,7 +250,7 @@ The rewrite rules can have multiple operators:
   next line. You can use groups in the expression and the backslash syntax in
   the substitute. See `re.sub`_ documentation.
 
-.. _`re.sub`: http://docs.python.org/2/library/re.html#re.sub
+.. _`re.sub`: https://docs.python.org/3/library/re.html#re.sub
 
 The following are useful examples::
 
