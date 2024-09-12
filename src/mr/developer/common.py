@@ -168,7 +168,8 @@ def worker(working_copies, the_queue):
             return
         try:
             output = action(**kwargs)
-        except WCError:
+        except WCError as e:
+            threading.current_thread().exc = e
             output_lock.acquire()
             for lvl, msg in wc._output:
                 lvl(msg)
@@ -271,6 +272,12 @@ class WorkingCopies(object):
                 thread.start()
                 threads.append(thread)
             for thread in threads:
+                exc = None
+                if hasattr(thread, "exc"):
+                    exc = thread.exc
+                    delattr(thread, "exc")
+                if exc:
+                    raise thread.exc
                 thread.join()
             if sys.version_info < (2, 6):
                 subprocess._cleanup = _old_subprocess_cleanup
