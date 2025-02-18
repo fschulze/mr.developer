@@ -191,6 +191,10 @@ class GitRepo(object):
             msg = fname
         self("git commit %s -m %s" % (repo_file, msg), echo=False)
 
+    def add_dir(self, dirname):
+        repo_dir = self.base[dirname]
+        repo_dir.create_dir()
+
     def add_submodule(self, submodule, submodule_name):
         assert isinstance(submodule, GitRepo)
         self("git submodule add %s %s" % (submodule.url, submodule_name))
