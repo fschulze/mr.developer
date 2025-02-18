@@ -182,16 +182,16 @@ def worker(working_copies, the_queue):
             # See GitHub issue # 210
             # wc._output is a list containing n-length tuples which are messages from the thread.
             # each tuple (item) first position is a logger function
-            # the rest of the tuple is the message. 
-            
-            # In cases where the message tuple has more than 2 elements in it 
-            #  (logger, message, message, ... ) 
+            # the rest of the tuple is the message.
+
+            # In cases where the message tuple has more than 2 elements in it
+            #  (logger, message, message, ... )
             # then all messages are joined.
             for item in wc._output:
                 lvl = item[0]
                 msg = ','.join(item[1:])
                 lvl(msg)
-                
+
             if kwargs.get('verbose', False) and output is not None and output.strip():
                 if six.PY3 and isinstance(output, six.binary_type):
                     output = output.decode('utf8')
