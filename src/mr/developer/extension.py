@@ -195,6 +195,8 @@ class Extension(object):
             source = sources[name]
             if source.get('egg', True) and name not in develeggs:
                 path = sources[name]['path']
+                if sources[name].get("subpath"):
+                    path = os.path.join(path, sources[name]["subpath"])
                 status = config_develop.get(name, name in auto_checkout)
                 if os.path.exists(path) and status:
                     if name in auto_checkout:
