@@ -24,7 +24,7 @@ jobs:
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update
-        sudo apt-get install -y mercurial
+        sudo apt-get install -y mercurial subversion
 
     - name: Install dependencies
       run: |
