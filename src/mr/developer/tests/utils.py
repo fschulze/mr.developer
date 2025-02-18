@@ -175,10 +175,13 @@ class GitRepo(object):
     def init(self):
         os.mkdir(self.base)
         self("git init")
+        self('git config --global init.defaultBranch master')
+        self('git config --global protocol.file.allow always')
 
     def setup_user(self):
         self('git config user.email "florian.schulze@gmx.net"')
         self('git config user.name "Florian Schulze"')
+        self('git config commit.gpgsign false')
 
     def add_file(self, fname, msg=None):
         repo_file = self.base[fname]

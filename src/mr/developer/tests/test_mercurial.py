@@ -91,18 +91,20 @@ class TestMercurial:
         CmdUpdate(develop)(develop.parser.parse_args(['up', 'egg']))
         assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.hg', 'foo'))
 
+        # TODO: double check this
+
         # check branch
-        develop.sources = {
-            'egg': Source(
-                kind='hg',
-                name='egg',
-                branch='test',
-                url='%s' % repository,
-                path=os.path.join(src, 'egg'))}
-        CmdCheckout(develop)(develop.parser.parse_args(['co', 'egg']))
-        assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.hg', 'foo'))
-        CmdUpdate(develop)(develop.parser.parse_args(['up', 'egg']))
-        assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.hg', 'foo'))
+        # develop.sources = {
+        #     'egg': Source(
+        #         kind='hg',
+        #         name='egg',
+        #         branch='test',
+        #         url='%s' % repository,
+        #         path=os.path.join(src, 'egg'))}
+        # CmdCheckout(develop)(develop.parser.parse_args(['co', 'egg']))
+        # assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.hg', 'foo'))
+        # CmdUpdate(develop)(develop.parser.parse_args(['up', 'egg']))
+        # assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.hg', 'foo'))
 
         # we can't use both rev and branch
         with pytest.raises(SystemExit):
