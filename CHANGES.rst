@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-2.0.3 (unreleased)
+2.0.3 (2025-06-04)
 ------------------
 
 - Fix ``ModuleNotFoundError`` when trying to import ``safe_name`` from ``setuptools`` 80.2.0 or higher.
