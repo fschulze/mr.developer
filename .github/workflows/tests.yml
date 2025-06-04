@@ -2,8 +2,14 @@ name: Run Tox Tests
 
 on:
   push:
-    branches: [ "main", "subpath" ]
+    branches:
+      - master
+      - main
   pull_request:
+    branches:
+      - master
+      - main
+  workflow_dispatch:
 
 jobs:
   test:
