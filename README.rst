@@ -127,6 +127,9 @@ Common options
   those which start with the prefix.
   These two options currently only work for ``cvs`` and ``hg``.
 
+  The ``subpath`` option allows you to specify a subdirectory of a repository
+  as the source for the Python package, ideal for monorepos.
+
 ``svn``
   The ``url`` is one of the urls supported by subversion.
 

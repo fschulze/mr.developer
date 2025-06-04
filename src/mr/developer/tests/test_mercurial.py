@@ -91,6 +91,19 @@ class TestMercurial:
         CmdUpdate(develop)(develop.parser.parse_args(['up', 'egg']))
         assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.hg', 'foo'))
 
+    def testUpdateWithBranch(self, develop, src, tempdir):
+        from mr.developer.commands import CmdCheckout
+        from mr.developer.commands import CmdUpdate
+        repository = tempdir['repository']
+        os.mkdir(repository)
+        process = Process(cwd=repository)
+        process.check_call("hg init %s" % repository)
+        foo = repository['foo']
+        foo.create_file('foo')
+        process.check_call("hg add %s" % foo, echo=False)
+        process.check_call("hg branch test", echo=False)
+        process.check_call("hg commit %s -m foo -u test" % foo, echo=False)
+
         # check branch
         develop.sources = {
             'egg': Source(
@@ -103,6 +116,26 @@ class TestMercurial:
         assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.hg', 'foo'))
         CmdUpdate(develop)(develop.parser.parse_args(['up', 'egg']))
         assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.hg', 'foo'))
+
+    def testUpdateRaiseWithRevAndBranch(self, develop, src, tempdir):
+        from mr.developer.commands import CmdCheckout
+        repository = tempdir['repository']
+        os.mkdir(repository)
+        process = Process(cwd=repository)
+        process.check_call("hg init %s" % repository)
+        foo = repository['foo']
+        foo.create_file('foo')
+        process.check_call("hg add %s" % foo, echo=False)
+        process.check_call("hg branch test", echo=False)
+        process.check_call("hg commit %s -m foo -u test" % foo, echo=False)
+
+        # get comitted rev
+        lines = process.check_call("hg log %s" % foo, echo=False)
+        try:
+            # XXX older version
+            rev = lines[0].split()[1].split(b(':'))[1]
+        except Exception:
+            rev = lines[0].split()[1]
 
         # we can't use both rev and branch
         with pytest.raises(SystemExit):

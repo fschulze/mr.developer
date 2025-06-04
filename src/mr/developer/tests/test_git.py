@@ -29,7 +29,6 @@ class TestGit:
     def testUpdateWithRevisionPin(self, develop, mkgitrepo, src):
         from mr.developer.commands import CmdCheckout
         from mr.developer.commands import CmdUpdate
-        from mr.developer.commands import CmdStatus
         repository = mkgitrepo('repository')
         rev = self.createDefaultContent(repository)
 
@@ -48,6 +47,13 @@ class TestGit:
 
         shutil.rmtree(src['egg'])
 
+    def testUpdateWithBranch(self, develop, mkgitrepo, src):
+        from mr.developer.commands import CmdCheckout
+        from mr.developer.commands import CmdUpdate
+        from mr.developer.commands import CmdStatus
+        repository = mkgitrepo('repository')
+        self.createDefaultContent(repository)
+
         # check branch
         develop.sources = {
             'egg': Source(
@@ -62,37 +68,26 @@ class TestGit:
         assert set(os.listdir(src['egg'])) == set(('.git', 'foo', 'foo2'))
         CmdStatus(develop)(develop.parser.parse_args(['status']))
 
-        # switch implicitly to master branch
+    def testUpdateWithMain(self, develop, mkgitrepo, src):
+        from mr.developer.commands import CmdCheckout
+        from mr.developer.commands import CmdUpdate
+        repository = mkgitrepo('repository')
+        self.createDefaultContent(repository)
         develop.sources = {
             'egg': Source(
                 kind='git',
                 name='egg',
                 url='%s' % repository.base,
                 path=src['egg'])}
+        CmdCheckout(develop)(develop.parser.parse_args(['co', 'egg']))
+        assert set(os.listdir(src['egg'])) == set(('.git', 'bar', 'foo'))
         CmdUpdate(develop)(develop.parser.parse_args(['up', 'egg']))
         assert set(os.listdir(src['egg'])) == set(('.git', 'bar', 'foo'))
 
-        # Switch to specific revision, then switch back to master branch.
-        develop.sources = {
-            'egg': Source(
-                kind='git',
-                name='egg',
-                rev=rev,
-                url='%s' % repository.base,
-                path=src['egg'])}
-        CmdUpdate(develop)(develop.parser.parse_args(['up', 'egg']))
-        assert set(os.listdir(src['egg'])) == set(('.git', 'foo', 'foo2'))
-        develop.sources = {
-            'egg': Source(
-                kind='git',
-                name='egg',
-                url='%s' % repository.base,
-                path=src['egg'])}
-        CmdUpdate(develop)(develop.parser.parse_args(['up', 'egg']))
-        assert set(os.listdir(src['egg'])) == set(('.git', 'bar', 'foo'))
-
-        CmdStatus(develop)(develop.parser.parse_args(['status']))
-
+    def testRaiseExceptionUpdateWithRevisionAndBranch(self, develop, mkgitrepo, src):
+        from mr.developer.commands import CmdCheckout
+        repository = mkgitrepo('repository')
+        rev = self.createDefaultContent(repository)
         # we can't use both rev and branch
         with pytest.raises(SystemExit):
             develop.sources = {
@@ -169,10 +164,13 @@ class TestGit:
                 ('info', ("Updated 'egg' with git.",), {}),
                 ('info', ("Switching to remote branch 'remotes/origin/master'.",), {})]
             captured = capsys.readouterr()
-            older = "* develop\n  remotes/origin/HEAD -> origin/develop\n  remotes/origin/develop\n  remotes/origin/master\nBranch master set up to track remote branch master from origin.\n  develop\n* master\n  remotes/origin/HEAD -> origin/develop\n  remotes/origin/develop\n  remotes/origin/master\nAlready up-to-date.\n\n"
-            newer = "* develop\n  remotes/origin/HEAD -> origin/develop\n  remotes/origin/develop\n  remotes/origin/master\nBranch 'master' set up to track remote branch 'master' from 'origin'.\n  develop\n* master\n  remotes/origin/HEAD -> origin/develop\n  remotes/origin/develop\n  remotes/origin/master\nAlready up to date.\n\n"
             # git output varies between versions...
-            assert captured.out in [older, newer]
+            git_outputs = [
+                "* develop\n  remotes/origin/HEAD -> origin/develop\n  remotes/origin/develop\n  remotes/origin/master\nBranch master set up to track remote branch master from origin.\n  develop\n* master\n  remotes/origin/HEAD -> origin/develop\n  remotes/origin/develop\n  remotes/origin/master\nAlready up-to-date.\n\n",
+                "* develop\n  remotes/origin/HEAD -> origin/develop\n  remotes/origin/develop\n  remotes/origin/master\nBranch 'master' set up to track remote branch 'master' from 'origin'.\n  develop\n* master\n  remotes/origin/HEAD -> origin/develop\n  remotes/origin/develop\n  remotes/origin/master\nAlready up to date.\n\n",
+                "* develop\n  remotes/origin/HEAD -> origin/develop\n  remotes/origin/develop\n  remotes/origin/master\nbranch 'master' set up to track 'origin/master'.\n  develop\n* master\n  remotes/origin/HEAD -> origin/develop\n  remotes/origin/develop\n  remotes/origin/master\nAlready up to date.\n\n",
+            ]
+            assert captured.out in git_outputs
             CmdStatus(develop)(develop.parser.parse_args(['status', '-v']))
             captured = capsys.readouterr()
             assert captured.out == "~   A egg\n      ## master...origin/master\n\n"
