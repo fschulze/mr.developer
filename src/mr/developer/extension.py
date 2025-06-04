@@ -1,5 +1,4 @@
 from mr.developer.common import memoize, WorkingCopies, Config, get_workingcopytypes
-from setuptools.package_index import safe_name
 import logging
 import os
 import re
@@ -9,6 +8,17 @@ import sys
 FAKE_PART_ID = '_mr.developer'
 
 logger = logging.getLogger("mr.developer")
+
+
+def safe_name(name: str) -> str:
+    """Convert an arbitrary string to a standard distribution name
+
+    Any runs of non-alphanumeric/. characters are replaced with a single '-'.
+
+    This is copied from pkg_resources.safe_name.
+    (formerly setuptools.package_index.safe_name)
+    """
+    return re.sub('[^A-Za-z0-9.]+', '-', name)
 
 
 class Source(dict):

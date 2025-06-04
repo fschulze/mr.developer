@@ -5,7 +5,8 @@ Changelog
 2.0.3 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fix ``ModuleNotFoundError`` when trying to import ``safe_name`` from ``setuptools`` 80.2.0 or higher.
+  [maurits]
 
 
 2.0.2 (2024-04-24)
