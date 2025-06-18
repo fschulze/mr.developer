@@ -10,7 +10,7 @@ FAKE_PART_ID = '_mr.developer'
 logger = logging.getLogger("mr.developer")
 
 
-def safe_name(name: str) -> str:
+def safe_name(name):
     """Convert an arbitrary string to a standard distribution name
 
     Any runs of non-alphanumeric/. characters are replaced with a single '-'.
