@@ -30,7 +30,7 @@ install_requires = [
     'setuptools',
     'zc.buildout',
     'six',
-    ]
+]
 
 tests_require = [
     'mock']
