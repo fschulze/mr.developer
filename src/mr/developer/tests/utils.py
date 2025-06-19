@@ -190,7 +190,7 @@ class GitRepo(object):
 
     def add_submodule(self, submodule, submodule_name):
         assert isinstance(submodule, GitRepo)
-        self("git submodule add %s %s" % (submodule.url, submodule_name))
+        self("git -c protocol.file.allow=always submodule add %s %s" % (submodule.url, submodule_name))
         self("git add .gitmodules")
         self("git add %s" % submodule_name)
         self("git commit -m 'Add submodule %s'" % submodule_name)

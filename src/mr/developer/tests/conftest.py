@@ -54,3 +54,9 @@ def develop(src):
     develop = MockDevelop()
     develop.sources_dir = src
     return develop
+
+
+@pytest.fixture(autouse=True)
+def _patch_git_working_copy_for_tests(monkeypatch):
+    from mr.developer.git import GitWorkingCopy
+    monkeypatch.setattr(GitWorkingCopy, "_always_allow_file_protocol", True)
