@@ -5,7 +5,8 @@ Changelog
 2.0.4 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Restore compatibility with Python 2.7, accidentally broken in last release.
+  [maurits]
 
 
 2.0.3 (2025-06-04)
