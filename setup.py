@@ -1,29 +1,7 @@
-from pkg_resources import parse_version
 from setuptools import setup
-import sys
 
 
 version = '2.0.4.dev0'
-
-
-def has_environment_marker_support():
-    """
-    Tests that setuptools has support for PEP-426 environment marker support.
-
-    The first known release to support it is 0.7 (and the earliest on PyPI seems to be 0.7.2
-    so we're using that), see: http://pythonhosted.org/setuptools/history.html#id142
-
-    References:
-
-    * https://wheel.readthedocs.org/en/latest/index.html#defining-conditional-dependencies
-    * https://www.python.org/dev/peps/pep-0426/#environment-markers
-    """
-    try:
-        from setuptools import __version__ as setuptools_version
-        return parse_version(setuptools_version) >= parse_version('0.7.2')
-    except Exception as exc:
-        sys.stderr.write("Could not test setuptools' version: %s\n" % exc)
-        return False
 
 
 install_requires = [
@@ -37,11 +15,6 @@ tests_require = [
 
 extras_require = {
     'test': tests_require}
-
-if has_environment_marker_support():
-    extras_require[':python_version=="2.6"'] = ['argparse']
-else:
-    install_requires.append('argparse')
 
 
 def get_text_from_file(fn):
