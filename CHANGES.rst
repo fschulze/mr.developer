@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-2.0.4 (unreleased)
+2.0.4 (2025-07-17)
 ------------------
 
 - Restore compatibility with Python 2.7, accidentally broken in last release.

@@ -1,7 +1,7 @@
 from setuptools import setup
 
 
-version = '2.0.4.dev0'
+version = '2.0.4'
 
 
 install_requires = [
