@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - main
+      - subpath
   pull_request:
     branches:
       - master
