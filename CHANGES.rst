@@ -2,10 +2,24 @@ Changelog
 =========
 
 
-2.0.3 (unreleased)
+2.0.5 (unreleased)
 ------------------
 
 * Add ``subpath`` option to specify a subdirectory of a repository. [mamico]
+
+
+2.0.4 (2025-07-17)
+------------------
+
+- Restore compatibility with Python 2.7, accidentally broken in last release.
+  [maurits]
+
+
+2.0.3 (2025-06-04)
+------------------
+
+- Fix ``ModuleNotFoundError`` when trying to import ``safe_name`` from ``setuptools`` 80.2.0 or higher.
+  [maurits]
 
 
 2.0.2 (2024-04-24)

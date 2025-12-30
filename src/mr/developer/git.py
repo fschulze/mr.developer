@@ -20,6 +20,10 @@ class GitWorkingCopy(common.BaseWorkingCopy):
     Now supports git 1.5 and 1.6+ in a single codebase.
     """
 
+    # the file protocol setting is only for testing, as it circumvents security
+    # measures of default git settings
+    _always_allow_file_protocol = False
+
     # TODO: make this configurable? It might not make sense however, as we
     # should make master and a lot of other conventional stuff configurable
     _upstream_name = "origin"
@@ -326,6 +330,8 @@ class GitWorkingCopy(common.BaseWorkingCopy):
     def git_update_submodules(self, stdout_in, stderr_in, submodule='all'):
         params = ['submodule',
                   'update']
+        if self._always_allow_file_protocol:
+            params[0:0] = ["-c", "protocol.file.allow=always"]
         if submodule != 'all':
             params.append(submodule)
         cmd = self.run_git(
