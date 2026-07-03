@@ -115,7 +115,11 @@ class Extension(object):
                 if not key:
                     raise ValueError("Option with no name '%s'." % option)
                 if key in source:
-                    raise ValueError("Key '%s' already in source info." % key)
+                    # A later option overrides an earlier one, e.g.
+                    # ``foo += branch=my-feature`` refining the ``branch`` set
+                    # in a shared/extended source definition.
+                    logger.info(
+                        "Overriding '%s' for source '%s'." % (key, name))
                 if key == 'path':
                     value = os.path.join(value, name)
                     if not os.path.isabs(value):

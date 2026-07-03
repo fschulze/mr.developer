@@ -5,7 +5,12 @@ Changelog
 2.0.5 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Allow a later source option to override an earlier one instead of raising
+  ``ValueError: Key '...' already in source info.``.  This lets a ``[sources]``
+  entry refine a shared/extended definition, e.g. ``foo += branch=my-feature``
+  overriding the ``branch`` set upstream.  Fixes `#125
+  <https://github.com/fschulze/mr.developer/issues/125>`_.
+  [janjaapdriessen]
 
 
 2.0.4 (2025-07-17)

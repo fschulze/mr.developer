@@ -218,15 +218,16 @@ class TestExtensionClass:
         assert sources['pkg.foo']['rev'] == '>=456ad138'
 
     def testDuplicateOptionParsing(self, buildout, extension):
+        # A duplicate option is not an error: the later value wins, so a
+        # ``+=`` addition can override a value from a shared source definition
+        # (e.g. ``pkg.foo += branch=feature``).
         buildout['sources'].update({
             'pkg.foo': 'git dummy://foo/trunk rev=456ad138 rev=blubber',
+            'pkg.bar': 'git dummy://bar branch=main branch=feature',
         })
-        pytest.raises(ValueError, extension.get_sources)
-
-        buildout['sources'].update({
-            'pkg.foo': 'git dummy://foo/trunk kind=svn',
-        })
-        pytest.raises(ValueError, extension.get_sources)
+        sources = extension.get_sources()
+        assert sources['pkg.foo']['rev'] == 'blubber'
+        assert sources['pkg.bar']['branch'] == 'feature'
 
     def testInvalidOptionParsing(self, buildout, extension):
         buildout['sources'].update({
