@@ -7,9 +7,9 @@ from zc.buildout.buildout import Buildout
 
 import argparse
 import atexit
+import importlib.metadata
 import logging
 import os
-import pkg_resources
 import sys
 import textwrap
 
@@ -60,7 +60,7 @@ class Develop:
         ch.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
         logger.addHandler(ch)
         self.parser = ArgumentParser()
-        version = pkg_resources.get_distribution("mr.developer").version
+        version = importlib.metadata.version("mr.developer")
         self.parser.add_argument(
             "-v", "--version", action="version", version="mr.developer %s" % version
         )
