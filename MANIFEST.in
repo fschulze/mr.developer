@@ -1,3 +1,2 @@
 include *.rst
 include *.ini
-prune mr.developer.addon
