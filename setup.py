@@ -7,7 +7,6 @@ version = '2.1.1.dev0'
 install_requires = [
     'setuptools',
     'zc.buildout',
-    'six',
 ]
 
 tests_require = [

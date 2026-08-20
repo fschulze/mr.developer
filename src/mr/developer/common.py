@@ -8,7 +8,6 @@ except ImportError:
     import Queue as queue
 import re
 import subprocess
-import six
 import sys
 import threading
 from configparser import RawConfigParser
@@ -190,7 +189,7 @@ def worker(working_copies, the_queue):
                 lvl(msg)
 
             if kwargs.get('verbose', False) and output is not None and output.strip():
-                if six.PY3 and isinstance(output, bytes):
+                if isinstance(output, bytes):
                     output = output.decode('utf8')
                 print(output)
             output_lock.release()
