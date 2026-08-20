@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-2.0.5 (unreleased)
+2.1.0 (unreleased)
 ------------------
 
 - Allow a later source option to override an earlier one instead of raising
