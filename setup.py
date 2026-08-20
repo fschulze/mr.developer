@@ -4,7 +4,6 @@ version = "3.0.0.dev0"
 
 
 install_requires = [
-    "setuptools",
     "zc.buildout>=3.0.0",
 ]
 
@@ -48,9 +47,6 @@ setup(
     author_email="florian.schulze@gmx.net",
     url="https://github.com/fschulze/mr.developer",
     license="BSD",
-    packages=["mr", "mr.developer", "mr.developer.tests"],
-    package_dir={"": "src"},
-    namespace_packages=["mr", "mr.developer"],
     include_package_data=True,
     zip_safe=False,
     install_requires=install_requires,

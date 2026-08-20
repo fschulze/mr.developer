@@ -5,6 +5,8 @@ Changelog
 3.0.0 (unreleased)
 ------------------
 
+- Move to PEP-420 native namespaces.  [maurits]
+
 - Replace our use of ``pkg_resources`` with ``importlib.metadata``.  [maurits]
 
 - Require ``zc.buildout`` 3.0.0 or higher.  [maurits]
