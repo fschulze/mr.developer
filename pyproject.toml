@@ -1,4 +1,8 @@
 [build-system]
 # We still support older Pythons, and that means it is better to use an
 # older setuptools to create the distributions.
-requires = ["setuptools<69"]
+# requires = ["setuptools<69"]
+# But with such an old version, I get a BadRequest error when uploading to PyPI:
+# Filename 'mr.developer-2.1.0.tar.gz' is invalid, should be 'mr_developer-2.1.0.tar.gz'.
+# So require a newer one.
+requires = ["setuptools>=75.3.2"]
