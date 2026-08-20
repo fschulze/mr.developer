@@ -299,6 +299,38 @@ class TestExtensionClass:
             _exists.__exit__(None, None, None)
         assert develop == ['/normal/develop', '/develop/with/slash/', 'src/pkg.bar']
 
+    def testDevelopMonorepo(self, buildout, extension):
+        buildout['sources'].update({
+            'pkg.bar': 'git dummy://foo subpath=bar'})
+        buildout['buildout']['auto-checkout'] = 'pkg.bar'
+        _exists = patch('os.path.exists')
+        exists = _exists.__enter__()
+        try:
+            exists().return_value = True
+            (develop, develeggs, versions) = extension.get_develop_info()
+        finally:
+            _exists.__exit__(None, None, None)
+        assert develop == ['src/pkg.bar/bar']
+        assert develeggs == {'pkg.bar': '/buildout/src/pkg.bar/bar'}
+        assert versions == {'pkg.bar': ''}
+
+    def testDevelopMonorepoTwoRepos(self, buildout, extension):
+        buildout['sources'].update({
+            'pkg.bar': 'git dummy://monorepo subpath=bar',
+            'pkg.foo': 'git dummy://monorepo subpath=foo',
+        })
+        buildout['buildout']['auto-checkout'] = 'pkg.bar\npkg.foo'
+        _exists = patch('os.path.exists')
+        exists = _exists.__enter__()
+        try:
+            exists().return_value = True
+            (develop, develeggs, versions) = extension.get_develop_info()
+        finally:
+            _exists.__exit__(None, None, None)
+        assert develop == ['src/pkg.bar/bar', 'src/pkg.foo/foo']
+        assert develeggs == {'pkg.bar': '/buildout/src/pkg.bar/bar', 'pkg.foo': '/buildout/src/pkg.foo/foo'}
+        assert versions == {'pkg.bar': '', 'pkg.foo': ''}
+
     def testMissingSourceSection(self, buildout, extension):
         del buildout['sources']
         assert extension.get_sources() == {}

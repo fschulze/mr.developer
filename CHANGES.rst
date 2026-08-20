@@ -5,7 +5,7 @@ Changelog
 2.0.5 (unreleased)
 ------------------
 
-- Nothing changed yet.
+* Add ``subpath`` option to specify a subdirectory of a repository. [mamico]
 
 
 2.0.4 (2025-07-17)
