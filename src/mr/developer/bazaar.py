@@ -12,7 +12,7 @@ class BazaarError(common.WCError):
 class BazaarWorkingCopy(common.BaseWorkingCopy):
 
     def __init__(self, source):
-        super(BazaarWorkingCopy, self).__init__(source)
+        super().__init__(source)
         self.bzr_executable = common.which('bzr')
 
     def bzr_branch(self, **kwargs):
@@ -32,7 +32,7 @@ class BazaarWorkingCopy(common.BaseWorkingCopy):
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise BazaarError(
-                'bzr branch for %r failed.\n%s' % (name, stderr))
+                'bzr branch for {!r} failed.\n{}'.format(name, stderr))
         if kwargs.get('verbose', False):
             return stdout
 
@@ -49,7 +49,7 @@ class BazaarWorkingCopy(common.BaseWorkingCopy):
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise BazaarError(
-                'bzr pull for %r failed.\n%s' % (name, stderr))
+                'bzr pull for {!r} failed.\n{}'.format(name, stderr))
         if kwargs.get('verbose', False):
             return stdout
 
@@ -81,7 +81,7 @@ class BazaarWorkingCopy(common.BaseWorkingCopy):
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise BazaarError(
-                'bzr info for %r failed.\n%s' % (name, stderr))
+                'bzr info for {!r} failed.\n{}'.format(name, stderr))
         return (self.source['url'] in stdout.split())
 
     def status(self, **kwargs):

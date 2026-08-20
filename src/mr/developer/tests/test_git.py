@@ -2,7 +2,7 @@ import os
 import shutil
 
 import pytest
-from mock import patch
+from unittest.mock import patch
 
 from mr.developer.extension import Source
 from mr.developer.tests.utils import Process
@@ -41,9 +41,9 @@ class TestGit:
                 url='%s' % repository.base,
                 path=src['egg'])}
         CmdCheckout(develop)(develop.parser.parse_args(['co', 'egg']))
-        assert set(os.listdir(src['egg'])) == set(('.git', 'foo', 'foo2'))
+        assert set(os.listdir(src['egg'])) == {'.git', 'foo', 'foo2'}
         CmdUpdate(develop)(develop.parser.parse_args(['up', 'egg']))
-        assert set(os.listdir(src['egg'])) == set(('.git', 'foo', 'foo2'))
+        assert set(os.listdir(src['egg'])) == {'.git', 'foo', 'foo2'}
 
         shutil.rmtree(src['egg'])
 
@@ -63,9 +63,9 @@ class TestGit:
                 url='%s' % repository.base,
                 path=src['egg'])}
         CmdCheckout(develop)(develop.parser.parse_args(['co', 'egg']))
-        assert set(os.listdir(src['egg'])) == set(('.git', 'foo', 'foo2'))
+        assert set(os.listdir(src['egg'])) == {'.git', 'foo', 'foo2'}
         CmdUpdate(develop)(develop.parser.parse_args(['up', 'egg']))
-        assert set(os.listdir(src['egg'])) == set(('.git', 'foo', 'foo2'))
+        assert set(os.listdir(src['egg'])) == {'.git', 'foo', 'foo2'}
         CmdStatus(develop)(develop.parser.parse_args(['status']))
 
     def testUpdateWithMain(self, develop, mkgitrepo, src):
@@ -80,9 +80,9 @@ class TestGit:
                 url='%s' % repository.base,
                 path=src['egg'])}
         CmdCheckout(develop)(develop.parser.parse_args(['co', 'egg']))
-        assert set(os.listdir(src['egg'])) == set(('.git', 'bar', 'foo'))
+        assert set(os.listdir(src['egg'])) == {'.git', 'bar', 'foo'}
         CmdUpdate(develop)(develop.parser.parse_args(['up', 'egg']))
-        assert set(os.listdir(src['egg'])) == set(('.git', 'bar', 'foo'))
+        assert set(os.listdir(src['egg'])) == {'.git', 'bar', 'foo'}
 
     def testRaiseExceptionUpdateWithRevisionAndBranch(self, develop, mkgitrepo, src):
         from mr.developer.commands import CmdCheckout
@@ -118,11 +118,11 @@ class TestGit:
         log = _log.__enter__()
         try:
             CmdCheckout(develop)(develop.parser.parse_args(['co', 'egg']))
-            assert set(os.listdir(src['egg'])) == set(('.git', 'bar', 'foo'))
+            assert set(os.listdir(src['egg'])) == {'.git', 'bar', 'foo'}
             captured = capsys.readouterr()
             assert captured.out.startswith("Initialized empty Git repository in")
             CmdUpdate(develop)(develop.parser.parse_args(['up', 'egg']))
-            assert set(os.listdir(src['egg'])) == set(('.git', 'bar', 'foo'))
+            assert set(os.listdir(src['egg'])) == {'.git', 'bar', 'foo'}
             assert log.method_calls == [
                 ('info', ("Cloned 'egg' with git from '%s'." % repository.url,), {}),
                 ('info', ("Updated 'egg' with git.",), {}),
@@ -154,11 +154,11 @@ class TestGit:
         log = _log.__enter__()
         try:
             CmdCheckout(develop)(develop.parser.parse_args(['co', 'egg', '-v']))
-            assert set(os.listdir(src['egg'])) == set(('.git', 'bar', 'foo'))
+            assert set(os.listdir(src['egg'])) == {'.git', 'bar', 'foo'}
             captured = capsys.readouterr()
             assert captured.out.startswith("Initialized empty Git repository in")
             CmdUpdate(develop)(develop.parser.parse_args(['up', 'egg', '-v']))
-            assert set(os.listdir(src['egg'])) == set(('.git', 'bar', 'foo'))
+            assert set(os.listdir(src['egg'])) == {'.git', 'bar', 'foo'}
             assert log.method_calls == [
                 ('info', ("Cloned 'egg' with git from '%s'." % repository.url,), {}),
                 ('info', ("Updated 'egg' with git.",), {}),
@@ -254,4 +254,4 @@ class TestGit:
         assert len(commits) == 1
 
         # Check that the expected files from the branch are there
-        assert set(os.listdir(src['egg'])) == set(('.git', 'foo', 'foo2'))
+        assert set(os.listdir(src['egg'])) == {'.git', 'foo', 'foo2'}

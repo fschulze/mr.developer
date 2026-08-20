@@ -1,4 +1,3 @@
-from __future__ import print_function
 from mr.developer.common import logger, memoize, WorkingCopies, yesno
 import argparse
 import errno
@@ -15,7 +14,7 @@ import textwrap
 class ChoicesPseudoAction(argparse.Action):
 
     def __init__(self, *args, **kwargs):
-        sup = super(ChoicesPseudoAction, self)
+        sup = super()
         sup.__init__(dest=args[0], option_strings=list(args), help=kwargs.get('help'), nargs=0)
 
 
@@ -36,11 +35,11 @@ class HelpFormatter(argparse.HelpFormatter):
         result = []
         for line in text.split("\n"):
             for line2 in textwrap.fill(line, width).split("\n"):
-                result.append("%s%s" % (indent, line2))
+                result.append("{}{}".format(indent, line2))
         return "\n".join(result)
 
 
-class Command(object):
+class Command:
     def __init__(self, develop):
         self.develop = develop
 
@@ -71,7 +70,7 @@ class Command(object):
 
         if len(result) == 0:
             if len(args) > 1:
-                regexps = "%s or '%s'" % (", ".join("'%s'" % x for x in args[:-1]), args[-1])
+                regexps = "{} or '{}'".format(", ".join("'%s'" % x for x in args[:-1]), args[-1])
             else:
                 regexps = "'%s'" % args[0]
             logger.error("No package matched %s." % regexps)
@@ -302,7 +301,7 @@ class CmdHelp(Command):
             for name in sorted(cmds):
                 cmd = cmds[name]
                 if len(cmd['aliases']):
-                    header = "%s (%s)" % (name, ", ".join(cmd['aliases']))
+                    header = "{} ({})".format(name, ", ".join(cmd['aliases']))
                 else:
                     header = name
                 print(header)
@@ -319,7 +318,7 @@ class CmdHelp(Command):
             for name in sorted(cmds):
                 cmd = cmds[name]
                 if len(cmd['aliases']):
-                    print("    %s (%s)" % (name, ", ".join(cmd['aliases'])))
+                    print("    {} ({})".format(name, ", ".join(cmd['aliases'])))
                 else:
                     print("    %s" % name)
 
@@ -464,7 +463,7 @@ class CmdList(Command):
                     else:
                         info.append("#")
             if args.long:
-                info.append("(%s) %s %s" % (source['kind'], name, source['url']))
+                info.append("({}) {} {}".format(source['kind'], name, source['url']))
             else:
                 info.append(name)
             print(" ".join(info))
@@ -560,7 +559,7 @@ class CmdPurge(Command):
             need_force = False
             if source['kind'] != 'svn':
                 need_force = True
-                logger.warn("The directory of package '%s' at '%s' might contain unrecoverable files and will not be removed without --force." % (name, path))
+                logger.warn("The directory of package '{}' at '{}' might contain unrecoverable files and will not be removed without --force.".format(name, path))
             if workingcopies.status(source) != 'clean':
                 need_force = True
                 logger.warn("The package '%s' is dirty and will not be removed without --force." % name)
@@ -578,7 +577,7 @@ class CmdPurge(Command):
                     if answer == 'all':
                         force_all = True
 
-            logger.info("Removing package '%s' at '%s'." % (name, path))
+            logger.info("Removing package '{}' at '{}'.".format(name, path))
             if not args.dry_run:
                 shutil.rmtree(source['path'],
                               ignore_errors=False,
@@ -756,7 +755,7 @@ class CmdStatus(Command):
             info.append(name)
             print(" ".join(info))
             if args.verbose:
-                if six.PY3 and isinstance(output, six.binary_type):
+                if six.PY3 and isinstance(output, bytes):
                     output = output.decode('utf8')
                 output = output.strip()
                 if output:

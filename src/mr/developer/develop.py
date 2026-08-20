@@ -22,7 +22,7 @@ def find_base():
             path = None
             break
     if path is None:
-        raise IOError(".mr.developer.cfg not found")
+        raise OSError(".mr.developer.cfg not found")
 
     return path
 
@@ -44,11 +44,11 @@ class HelpFormatter(argparse.HelpFormatter):
         result = []
         for line in text.split("\n"):
             for line2 in textwrap.fill(line, width).split("\n"):
-                result.append("%s%s" % (indent, line2))
+                result.append("{}{}".format(indent, line2))
         return "\n".join(result)
 
 
-class Develop(object):
+class Develop:
     def __call__(self, *args, **kwargs):
         logger.setLevel(logging.INFO)
         ch = logging.StreamHandler()
@@ -70,7 +70,7 @@ class Develop(object):
 
         try:
             self.buildout_dir = find_base()
-        except IOError:
+        except OSError:
             if isinstance(args.func, CmdHelp):
                 args.func(args)
                 return

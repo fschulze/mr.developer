@@ -1,7 +1,7 @@
 import os
 
 import pytest
-from mock import patch
+from unittest.mock import patch
 
 from mr.developer.extension import Source
 from mr.developer.tests.utils import Process
@@ -35,9 +35,9 @@ class TestMercurial:
         log = _log.__enter__()
         try:
             CmdCheckout(develop)(develop.parser.parse_args(['co', 'egg']))
-            assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.hg', 'bar', 'foo'))
+            assert set(os.listdir(os.path.join(src, 'egg'))) == {'.hg', 'bar', 'foo'}
             CmdUpdate(develop)(develop.parser.parse_args(['up', 'egg']))
-            assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.hg', 'bar', 'foo'))
+            assert set(os.listdir(os.path.join(src, 'egg'))) == {'.hg', 'bar', 'foo'}
             assert log.method_calls == [
                 ('info', ("Cloned 'egg' with mercurial.",), {}),
                 ('info', ("Updated 'egg' with mercurial.",), {}),
@@ -87,9 +87,9 @@ class TestMercurial:
                 url='%s' % repository,
                 path=os.path.join(src, 'egg'))}
         CmdCheckout(develop)(develop.parser.parse_args(['co', 'egg']))
-        assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.hg', 'foo'))
+        assert set(os.listdir(os.path.join(src, 'egg'))) == {'.hg', 'foo'}
         CmdUpdate(develop)(develop.parser.parse_args(['up', 'egg']))
-        assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.hg', 'foo'))
+        assert set(os.listdir(os.path.join(src, 'egg'))) == {'.hg', 'foo'}
 
     def testUpdateWithBranch(self, develop, src, tempdir):
         from mr.developer.commands import CmdCheckout
@@ -113,9 +113,9 @@ class TestMercurial:
                 url='%s' % repository,
                 path=os.path.join(src, 'egg'))}
         CmdCheckout(develop)(develop.parser.parse_args(['co', 'egg']))
-        assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.hg', 'foo'))
+        assert set(os.listdir(os.path.join(src, 'egg'))) == {'.hg', 'foo'}
         CmdUpdate(develop)(develop.parser.parse_args(['up', 'egg']))
-        assert set(os.listdir(os.path.join(src, 'egg'))) == set(('.hg', 'foo'))
+        assert set(os.listdir(os.path.join(src, 'egg'))) == {'.hg', 'foo'}
 
     def testUpdateRaiseWithRevAndBranch(self, develop, src, tempdir):
         from mr.developer.commands import CmdCheckout

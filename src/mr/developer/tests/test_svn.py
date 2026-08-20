@@ -1,4 +1,4 @@
-from mock import patch
+from unittest.mock import patch
 from mr.developer.extension import Source
 from mr.developer.tests.utils import Process
 import os
@@ -19,7 +19,7 @@ class TestSVN:
         process.check_call("svnadmin create %s" % repository)
         checkout = tempdir['checkout']
         process.check_call(
-            "svn checkout file://%s %s" % (repository, checkout),
+            "svn checkout file://{} {}".format(repository, checkout),
             echo=False)
         foo = checkout['foo']
         foo.create_file('foo')
@@ -39,9 +39,9 @@ class TestSVN:
         log = _log.__enter__()
         try:
             CmdCheckout(develop)(develop.parser.parse_args(['co', 'egg']))
-            assert set(os.listdir(src['egg'])) == set(('.svn', 'bar', 'foo'))
+            assert set(os.listdir(src['egg'])) == {'.svn', 'bar', 'foo'}
             CmdUpdate(develop)(develop.parser.parse_args(['up', 'egg']))
-            assert set(os.listdir(src['egg'])) == set(('.svn', 'bar', 'foo'))
+            assert set(os.listdir(src['egg'])) == {'.svn', 'bar', 'foo'}
             assert log.method_calls == [
                 ('info', ("Checked out 'egg' with subversion.",), {}),
                 ('info', ("Updated 'egg' with subversion.",), {})]
@@ -56,7 +56,7 @@ class TestSVN:
         process.check_call("svnadmin create %s" % repository)
         checkout = tempdir['checkout']
         process.check_call(
-            "svn checkout file://%s %s" % (repository, checkout),
+            "svn checkout file://{} {}".format(repository, checkout),
             echo=False)
         foo = checkout['foo']
         foo.create_file('foo')
@@ -73,6 +73,6 @@ class TestSVN:
                 url='file://%s@1' % repository,
                 path=src['egg'])}
         CmdCheckout(develop)(develop.parser.parse_args(['co', 'egg']))
-        assert set(os.listdir(src['egg'])) == set(('.svn', 'foo'))
+        assert set(os.listdir(src['egg'])) == {'.svn', 'foo'}
         CmdUpdate(develop)(develop.parser.parse_args(['up', 'egg']))
-        assert set(os.listdir(src['egg'])) == set(('.svn', 'foo'))
+        assert set(os.listdir(src['egg'])) == {'.svn', 'foo'}

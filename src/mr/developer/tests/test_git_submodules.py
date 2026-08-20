@@ -1,4 +1,4 @@
-from mock import patch
+from unittest.mock import patch
 from mr.developer.extension import Source
 from mr.developer.tests.utils import GitRepo
 import os
@@ -27,8 +27,8 @@ class TestGitSubmodules:
         log = _log.__enter__()
         try:
             CmdCheckout(develop)(develop.parser.parse_args(['co', 'egg']))
-            assert set(os.listdir(src['egg'])) == set(('submodule_a', '.git', 'bar', '.gitmodules'))
-            assert set(os.listdir(src['egg/%s' % submodule_name])) == set(('.git', 'foo'))
+            assert set(os.listdir(src['egg'])) == {'submodule_a', '.git', 'bar', '.gitmodules'}
+            assert set(os.listdir(src['egg/%s' % submodule_name])) == {'.git', 'foo'}
             assert log.method_calls == [
                 ('info', ("Cloned 'egg' with git from '%s'." % egg.url,), {}),
                 ('info', ("Initialized 'egg' submodule at '%s' with git." % submodule_name,), {})]
@@ -63,9 +63,9 @@ class TestGitSubmodules:
         log = _log.__enter__()
         try:
             CmdCheckout(develop)(develop.parser.parse_args(['co', 'egg']))
-            assert set(os.listdir(src['egg'])) == set(('submodule_a', 'submodule_b', '.git', 'bar', '.gitmodules'))
-            assert set(os.listdir(src['egg/%s' % submodule_name])) == set(('.git', 'foo'))
-            assert set(os.listdir(src['egg/%s' % submodule_b_name])) == set(('.git', 'foo_b'))
+            assert set(os.listdir(src['egg'])) == {'submodule_a', 'submodule_b', '.git', 'bar', '.gitmodules'}
+            assert set(os.listdir(src['egg/%s' % submodule_name])) == {'.git', 'foo'}
+            assert set(os.listdir(src['egg/%s' % submodule_b_name])) == {'.git', 'foo_b'}
             assert log.method_calls == [
                 ('info', ("Cloned 'egg' with git from '%s'." % egg.url,), {}),
                 ('info', ("Initialized 'egg' submodule at '%s' with git." % submodule_name,), {}),
@@ -96,8 +96,8 @@ class TestGitSubmodules:
         log = _log.__enter__()
         try:
             CmdCheckout(develop)(develop.parser.parse_args(['co', 'egg']))
-            assert set(os.listdir(src['egg'])) == set(('submodule_a', '.git', 'bar', '.gitmodules'))
-            assert set(os.listdir(src['egg/%s' % submodule_name])) == set(('.git', 'foo'))
+            assert set(os.listdir(src['egg'])) == {'submodule_a', '.git', 'bar', '.gitmodules'}
+            assert set(os.listdir(src['egg/%s' % submodule_name])) == {'.git', 'foo'}
             assert log.method_calls == [
                 ('info', ("Cloned 'egg' with git from '%s'." % egg.url,), {}),
                 ('info', ("Initialized 'egg' submodule at '%s' with git." % submodule_name,), {})]
@@ -112,8 +112,8 @@ class TestGitSubmodules:
         log = _log.__enter__()
         try:
             CmdUpdate(develop)(develop.parser.parse_args(['up', 'egg']))
-            assert set(os.listdir(src['egg'])) == set(('submodule_a', 'submodule_b', '.git', 'bar', '.gitmodules'))
-            assert set(os.listdir(src['egg/%s' % submodule_b_name])) == set(('.git', 'foo_b'))
+            assert set(os.listdir(src['egg'])) == {'submodule_a', 'submodule_b', '.git', 'bar', '.gitmodules'}
+            assert set(os.listdir(src['egg/%s' % submodule_b_name])) == {'.git', 'foo_b'}
             assert log.method_calls == [
                 ('info', ("Updated 'egg' with git.",), {}),
                 ('info', ("Switching to branch 'master'.",), {}),
@@ -146,7 +146,7 @@ class TestGitSubmodules:
         log = _log.__enter__()
         try:
             CmdCheckout(develop)(develop.parser.parse_args(['co', 'egg']))
-            assert set(os.listdir(src['egg'])) == set(('submodule_a', '.git', 'bar', '.gitmodules'))
+            assert set(os.listdir(src['egg'])) == {'submodule_a', '.git', 'bar', '.gitmodules'}
             assert set(os.listdir(src['egg/%s' % submodule_name])) == set()
             assert log.method_calls == [
                 ('info', ("Cloned 'egg' with git from '%s'." % egg.url,), {})]
@@ -189,9 +189,9 @@ class TestGitSubmodules:
         log = _log.__enter__()
         try:
             CmdCheckout(develop)(develop.parser.parse_args(['co', 'egg']))
-            assert set(os.listdir(src['egg'])) == set(('submodule_a', '.git', 'bar', '.gitmodules'))
-            assert set(os.listdir(src['egg/%s' % submodule_name])) == set(('foo', '.git'))
-            assert set(os.listdir(src['egg2'])) == set(('submodule_a', '.git', 'bar', '.gitmodules'))
+            assert set(os.listdir(src['egg'])) == {'submodule_a', '.git', 'bar', '.gitmodules'}
+            assert set(os.listdir(src['egg/%s' % submodule_name])) == {'foo', '.git'}
+            assert set(os.listdir(src['egg2'])) == {'submodule_a', '.git', 'bar', '.gitmodules'}
             assert set(os.listdir(src['egg2/%s' % submodule_name])) == set()
 
             assert log.method_calls == [
@@ -236,9 +236,9 @@ class TestGitSubmodules:
         log = _log.__enter__()
         try:
             CmdCheckout(develop)(develop.parser.parse_args(['co', 'egg']))
-            assert set(os.listdir(src['egg'])) == set(('submodule_a', '.git', 'bar', '.gitmodules'))
-            assert set(os.listdir(src['egg/%s' % submodule_name])) == set(('foo', '.git'))
-            assert set(os.listdir(src['egg2'])) == set(('submodule_a', '.git', 'bar', '.gitmodules'))
+            assert set(os.listdir(src['egg'])) == {'submodule_a', '.git', 'bar', '.gitmodules'}
+            assert set(os.listdir(src['egg/%s' % submodule_name])) == {'foo', '.git'}
+            assert set(os.listdir(src['egg2'])) == {'submodule_a', '.git', 'bar', '.gitmodules'}
             assert set(os.listdir(src['egg2/%s' % submodule_name])) == set()
 
             assert log.method_calls == [
@@ -272,8 +272,8 @@ class TestGitSubmodules:
         log = _log.__enter__()
         try:
             CmdCheckout(develop)(develop.parser.parse_args(['co', 'egg']))
-            assert set(os.listdir(src['egg'])) == set(('submodule_a', '.git', 'bar', '.gitmodules'))
-            assert set(os.listdir(src['egg/%s' % submodule_name])) == set(('.git', 'foo'))
+            assert set(os.listdir(src['egg'])) == {'submodule_a', '.git', 'bar', '.gitmodules'}
+            assert set(os.listdir(src['egg/%s' % submodule_name])) == {'.git', 'foo'}
             assert log.method_calls == [
                 ('info', ("Cloned 'egg' with git from '%s'." % egg.url,), {}),
                 ('info', ("Initialized 'egg' submodule at '%s' with git." % submodule_name,), {})]
@@ -288,7 +288,7 @@ class TestGitSubmodules:
         log = _log.__enter__()
         try:
             CmdUpdate(develop)(develop.parser.parse_args(['up', 'egg']))
-            assert set(os.listdir(src['egg'])) == set(('submodule_a', 'submodule_b', '.git', 'bar', '.gitmodules'))
+            assert set(os.listdir(src['egg'])) == {'submodule_a', 'submodule_b', '.git', 'bar', '.gitmodules'}
             assert set(os.listdir(src['egg/%s' % submodule_b_name])) == set()
             assert log.method_calls == [
                 ('info', ("Updated 'egg' with git.",), {}),
@@ -320,8 +320,8 @@ class TestGitSubmodules:
         log = _log.__enter__()
         try:
             CmdCheckout(develop)(develop.parser.parse_args(['co', 'egg']))
-            assert set(os.listdir(src['egg'])) == set(('submodule_a', '.git', 'bar', '.gitmodules'))
-            assert set(os.listdir(src['egg/%s' % submodule_name])) == set(('.git', 'foo'))
+            assert set(os.listdir(src['egg'])) == {'submodule_a', '.git', 'bar', '.gitmodules'}
+            assert set(os.listdir(src['egg/%s' % submodule_name])) == {'.git', 'foo'}
             assert log.method_calls == [
                 ('info', ("Cloned 'egg' with git from '%s'." % egg.url,), {}),
                 ('info', ("Initialized 'egg' submodule at '%s' with git." % submodule_name,), {})]
@@ -335,8 +335,8 @@ class TestGitSubmodules:
         log = _log.__enter__()
         try:
             CmdUpdate(develop)(develop.parser.parse_args(['up', '-f', 'egg']))
-            assert set(os.listdir(src['egg'])) == set(('submodule_a', '.git', 'bar', '.gitmodules'))
-            assert set(os.listdir(src['egg/%s' % submodule_name])) == set(('.git', 'foo', 'newfile'))
+            assert set(os.listdir(src['egg'])) == {'submodule_a', '.git', 'bar', '.gitmodules'}
+            assert set(os.listdir(src['egg/%s' % submodule_name])) == {'.git', 'foo', 'newfile'}
             assert log.method_calls == [
                 ('info', ("Updated 'egg' with git.",), {}),
                 ('info', ("Switching to branch 'master'.",), {})]

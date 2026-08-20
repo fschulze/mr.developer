@@ -26,7 +26,7 @@ class Source(dict):
         return os.path.exists(self['path'])
 
 
-class Extension(object):
+class Extension:
     def __init__(self, buildout):
         self.buildout = buildout
         self.buildout_dir = buildout['buildout']['directory']
@@ -90,7 +90,7 @@ class Extension(object):
                 sys.exit(1)
             kind = info[0]
             if kind not in workingcopytypes:
-                logger.error("Unknown repository type '%s' for source '%s'." % (kind, name))
+                logger.error("Unknown repository type '{}' for source '{}'.".format(kind, name))
                 sys.exit(1)
             url = info[1]
 
@@ -119,7 +119,7 @@ class Extension(object):
                     # ``foo += branch=my-feature`` refining the ``branch`` set
                     # in a shared/extended source definition.
                     logger.info(
-                        "Overriding '%s' for source '%s'." % (key, name))
+                        "Overriding '{}' for source '{}'.".format(key, name))
                 if key == 'path':
                     value = os.path.join(value, name)
                     if not os.path.isabs(value):
@@ -168,7 +168,7 @@ class Extension(object):
         if not auto_checkout.issubset(packages):
             diff = list(sorted(auto_checkout.difference(packages)))
             if len(diff) > 1:
-                pkgs = "%s and '%s'" % (", ".join("'%s'" % x for x in diff[:-1]), diff[-1])
+                pkgs = "{} and '{}'".format(", ".join("'%s'" % x for x in diff[:-1]), diff[-1])
                 logger.error("The packages %s from auto-checkout have no source information." % pkgs)
             else:
                 logger.error("The package '%s' from auto-checkout has no source information." % diff[0])

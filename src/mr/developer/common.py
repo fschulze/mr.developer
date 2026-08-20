@@ -11,10 +11,7 @@ import subprocess
 import six
 import sys
 import threading
-if sys.version_info < (3, ):
-    from ConfigParser import RawConfigParser
-else:
-    from configparser import RawConfigParser
+from configparser import RawConfigParser
 
 
 logger = logging.getLogger("mr.developer")
@@ -105,7 +102,7 @@ class WCError(Exception):
     """ A working copy error. """
 
 
-class BaseWorkingCopy(object):
+class BaseWorkingCopy:
     def __init__(self, source):
         self._output = []
         self.output = self._output.append
@@ -193,7 +190,7 @@ def worker(working_copies, the_queue):
                 lvl(msg)
 
             if kwargs.get('verbose', False) and output is not None and output.strip():
-                if six.PY3 and isinstance(output, six.binary_type):
+                if six.PY3 and isinstance(output, bytes):
                     output = output.decode('utf8')
                 print(output)
             output_lock.release()
@@ -244,7 +241,7 @@ def get_commands():
     return commands.values()
 
 
-class WorkingCopies(object):
+class WorkingCopies:
     def __init__(self, sources, threads=5):
         self.sources = sources
         self.threads = threads
@@ -479,7 +476,7 @@ def parse_buildout_args(args):
     return options, settings, args
 
 
-class Rewrite(object):
+class Rewrite:
     _matcher = re.compile(r"(?P<option>^\w+) (?P<operator>[~=]{1,2}) (?P<value>.+)$")
 
     def _iter_prog_lines(self, prog):
@@ -496,14 +493,14 @@ class Rewrite(object):
             matchdict = match.groupdict()
             option = matchdict['option']
             if option in ('name', 'path'):
-                raise ValueError("Option '%s' not allowed in rewrite:\n%s" % (option, prog))
+                raise ValueError("Option '{}' not allowed in rewrite:\n{}".format(option, prog))
             operator = matchdict['operator']
             rewrites = self.rewrites.setdefault(option, [])
             if operator == '~':
                 try:
                     substitute = advance_iterator(lines)
                 except StopIteration:
-                    raise ValueError("Missing substitution for option '%s' in rewrite:\n%s" % (option, prog))
+                    raise ValueError("Missing substitution for option '{}' in rewrite:\n{}".format(option, prog))
                 rewrites.append(
                     (operator, re.compile(matchdict['value']), substitute))
             elif operator == '=':
@@ -533,15 +530,15 @@ class Rewrite(object):
                     orig = source.get(option, '')
                     source[option] = operation[1].sub(operation[2], orig)
                     if source[option] != orig:
-                        logger.debug("Rewrote option '%s' from '%s' to '%s'." % (option, orig, source[option]))
+                        logger.debug("Rewrote option '{}' from '{}' to '{}'.".format(option, orig, source[option]))
 
 
 class LegacyRewrite(Rewrite):
     def __init__(self, prefix, substitution):
-        Rewrite.__init__(self, "url ~ ^%s\n%s" % (prefix, substitution))
+        Rewrite.__init__(self, "url ~ ^{}\n{}".format(prefix, substitution))
 
 
-class Config(object):
+class Config:
     def read_config(self, path):
         config = RawConfigParser()
         config.optionxform = lambda s: s

@@ -13,7 +13,7 @@ class DarcsError(common.WCError):
 class DarcsWorkingCopy(common.BaseWorkingCopy):
 
     def __init__(self, source):
-        super(DarcsWorkingCopy, self).__init__(source)
+        super().__init__(source)
         self.darcs_executable = common.which('darcs')
 
     def darcs_checkout(self, **kwargs):
@@ -28,7 +28,7 @@ class DarcsWorkingCopy(common.BaseWorkingCopy):
         cmd = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            raise DarcsError("darcs get for '%s' failed.\n%s" % (name, stderr))
+            raise DarcsError("darcs get for '{}' failed.\n{}".format(name, stderr))
         if kwargs.get('verbose', False):
             return stdout
 
@@ -42,7 +42,7 @@ class DarcsWorkingCopy(common.BaseWorkingCopy):
                                stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            raise DarcsError("darcs pull for '%s' failed.\n%s" % (name, stderr))
+            raise DarcsError("darcs pull for '{}' failed.\n{}".format(name, stderr))
         if kwargs.get('verbose', False):
             return stdout
 
@@ -56,7 +56,7 @@ class DarcsWorkingCopy(common.BaseWorkingCopy):
             elif self.matches():
                 self.output((logger.info, "Skipped checkout of existing package '%s'." % name))
             else:
-                raise DarcsError("Checkout URL for existing package '%s' differs. Expected '%s'." % (name, self.source['url']))
+                raise DarcsError("Checkout URL for existing package '{}' differs. Expected '{}'.".format(name, self.source['url']))
         else:
             return self.darcs_checkout(**kwargs)
 
@@ -74,7 +74,7 @@ class DarcsWorkingCopy(common.BaseWorkingCopy):
                                    stderr=subprocess.PIPE)
             stdout, stderr = cmd.communicate()
             if cmd.returncode != 0:
-                self.output((logger.error, "darcs info for '%s' failed.\n%s" % (name, stderr)))
+                self.output((logger.error, "darcs info for '{}' failed.\n{}".format(name, stderr)))
                 return
 
             lines = stdout.splitlines()

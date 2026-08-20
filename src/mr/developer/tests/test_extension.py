@@ -1,5 +1,5 @@
 from copy import deepcopy
-from mock import patch
+from unittest.mock import patch
 from mr.developer.extension import Extension
 from mr.developer.tests.utils import MockConfig
 from zc.buildout.buildout import MissingSection
@@ -7,7 +7,7 @@ import os
 import pytest
 
 
-class MockBuildout(object):
+class MockBuildout:
     def __init__(self, config=None):
         if config is None:
             config = dict()
@@ -32,7 +32,7 @@ class MockBuildout(object):
         return repr(self._raw)
 
 
-class MockWorkingCopies(object):
+class MockWorkingCopies:
     def __init__(self, sources):
         self.sources = sources
         self._events = []

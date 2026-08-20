@@ -1,4 +1,4 @@
-from mock import patch
+from unittest.mock import patch
 import pytest
 
 
@@ -12,40 +12,40 @@ class TestCommand:
     def command(self, develop):
         from mr.developer.commands import Command
         develop.sources = ['foo', 'bar', 'baz', 'ham']
-        develop.auto_checkout = set(['foo', 'ham'])
+        develop.auto_checkout = {'foo', 'ham'}
         return Command(develop)
 
     def testEmptyMatchList(self, command):
         pkgs = command.get_packages([])
-        assert pkgs == set(['foo', 'bar', 'baz', 'ham'])
+        assert pkgs == {'foo', 'bar', 'baz', 'ham'}
 
     def testEmptyMatchListAuto(self, command):
         pkgs = command.get_packages([], auto_checkout=True)
-        assert pkgs == set(['foo', 'ham'])
+        assert pkgs == {'foo', 'ham'}
 
     def testSingleArgMatchingOne(self, command):
         pkgs = command.get_packages(['ha'])
-        assert pkgs == set(['ham'])
+        assert pkgs == {'ham'}
 
     def testSingleArgMatchingMultiple(self, command):
         pkgs = command.get_packages(['ba'])
-        assert pkgs == set(['bar', 'baz'])
+        assert pkgs == {'bar', 'baz'}
 
     def testArgsMatchingOne(self, command):
         pkgs = command.get_packages(['ha', 'zap'])
-        assert pkgs == set(['ham'])
+        assert pkgs == {'ham'}
 
     def testArgsMatchingMultiple(self, command):
         pkgs = command.get_packages(['ba', 'zap'])
-        assert pkgs == set(['bar', 'baz'])
+        assert pkgs == {'bar', 'baz'}
 
     def testArgsMatchingMultiple2(self, command):
         pkgs = command.get_packages(['ha', 'ba'])
-        assert pkgs == set(['bar', 'baz', 'ham'])
+        assert pkgs == {'bar', 'baz', 'ham'}
 
     def testSingleArgMatchingOneAuto(self, command):
         pkgs = command.get_packages(['ha'], auto_checkout=True)
-        assert pkgs == set(['ham'])
+        assert pkgs == {'ham'}
 
     def testSingleArgMatchingMultipleAuto(self, command):
         pytest.raises(
@@ -54,7 +54,7 @@ class TestCommand:
 
     def testArgsMatchingOneAuto(self, command):
         pkgs = command.get_packages(['ha', 'zap'], auto_checkout=True)
-        assert pkgs == set(['ham'])
+        assert pkgs == {'ham'}
 
     def testArgsMatchingMultipleAuto(self, command):
         pytest.raises(
@@ -63,7 +63,7 @@ class TestCommand:
 
     def testArgsMatchingMultiple2Auto(self, command):
         pkgs = command.get_packages(['ha', 'ba'], auto_checkout=True)
-        assert pkgs == set(['ham'])
+        assert pkgs == {'ham'}
 
 
 class TestDeactivateCommand:
@@ -74,7 +74,7 @@ class TestDeactivateCommand:
             bar=MockSource(),
             baz=MockSource(),
             ham=MockSource())
-        develop.auto_checkout = set(['foo', 'ham'])
+        develop.auto_checkout = {'foo', 'ham'}
         develop.config.develop['foo'] = 'auto'
         develop.config.develop['ham'] = 'auto'
         return develop
