@@ -90,7 +90,7 @@ class Extension:
                 sys.exit(1)
             kind = info[0]
             if kind not in workingcopytypes:
-                logger.error("Unknown repository type '{}' for source '{}'.".format(kind, name))
+                logger.error(f"Unknown repository type '{kind}' for source '{name}'.")
                 sys.exit(1)
             url = info[1]
 
@@ -119,7 +119,7 @@ class Extension:
                     # ``foo += branch=my-feature`` refining the ``branch`` set
                     # in a shared/extended source definition.
                     logger.info(
-                        "Overriding '{}' for source '{}'.".format(key, name))
+                        f"Overriding '{key}' for source '{name}'.")
                 if key == 'path':
                     value = os.path.join(value, name)
                     if not os.path.isabs(value):

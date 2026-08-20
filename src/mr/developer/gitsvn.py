@@ -27,7 +27,7 @@ class GitSVNWorkingCopy(SVNWorkingCopy):
             stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            raise GitSVNError("gitify init for '{}' failed.\n{}".format(name, stdout))
+            raise GitSVNError(f"gitify init for '{name}' failed.\n{stdout}")
         if kwargs.get('verbose', False):
             return stdout
 
@@ -50,7 +50,7 @@ class GitSVNWorkingCopy(SVNWorkingCopy):
             stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            raise GitSVNError("gitify update for '{}' failed.\n{}".format(name, stdout))
+            raise GitSVNError(f"gitify update for '{name}' failed.\n{stdout}")
         if kwargs.get('verbose', False):
             return stdout
 

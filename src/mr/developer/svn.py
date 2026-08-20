@@ -86,7 +86,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
                     version = (int(version[0]), int(version[1]))
         if (cmd.returncode != 0) or (version is None):
             logger.error("Couldn't determine the version of 'svn' command.")
-            logger.error("Subversion output:\n{}\n{}".format(s(stdout), s(stderr)))
+            logger.error(f"Subversion output:\n{s(stdout)}\n{s(stderr)}")
             sys.exit(1)
         if (version < (1, 5)) and not _svn_version_warning:
             logger.warning("The installed 'svn' command is too old. Expected 1.5 or newer, got %s." % ".".join([str(x) for x in version]))
@@ -163,7 +163,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
         args = [self.svn_executable, "checkout", url, path]
         stdout, stderr, returncode = self._svn_communicate(args, url, **kwargs)
         if returncode != 0:
-            raise SVNError("Subversion checkout for '{}' failed.\n{}".format(name, s(stderr)))
+            raise SVNError(f"Subversion checkout for '{name}' failed.\n{s(stderr)}")
         if kwargs.get('verbose', False):
             return s(stdout)
 
@@ -213,7 +213,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
                                stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            raise SVNError("Subversion info for '{}' failed.\n{}".format(name, s(stderr)))
+            raise SVNError(f"Subversion info for '{name}' failed.\n{s(stderr)}")
         info = etree.fromstring(stdout)
         result = {}
         entry = info.find('entry')
@@ -241,7 +241,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
             args.insert(2, '-r%s' % rev)
         stdout, stderr, returncode = self._svn_communicate(args, url, **kwargs)
         if returncode != 0:
-            raise SVNError("Subversion switch of '{}' failed.\n{}".format(name, s(stderr)))
+            raise SVNError(f"Subversion switch of '{name}' failed.\n{s(stderr)}")
         if kwargs.get('verbose', False):
             return s(stdout)
 
@@ -254,7 +254,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
             args.insert(2, '-r%s' % rev)
         stdout, stderr, returncode = self._svn_communicate(args, url, **kwargs)
         if returncode != 0:
-            raise SVNError("Subversion update of '{}' failed.\n{}".format(name, s(stderr)))
+            raise SVNError(f"Subversion update of '{name}' failed.\n{s(stderr)}")
         if kwargs.get('verbose', False):
             return s(stdout)
 
@@ -294,7 +294,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
                 else:
                     url = self._svn_info().get('url', '')
                     if url:
-                        msg = "The current checkout of '{}' is from '{}'.".format(name, url)
+                        msg = f"The current checkout of '{name}' is from '{url}'."
                         msg += "\nCan't switch package to '%s' because it's dirty." % (self.source['url'])
                     else:
                         msg = "Can't switch package '{}' to '{}' because it's dirty.".format(name, self.source['url'])
@@ -324,7 +324,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
                                stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            raise SVNError("Subversion status for '{}' failed.\n{}".format(name, s(stderr)))
+            raise SVNError(f"Subversion status for '{name}' failed.\n{s(stderr)}")
         info = etree.fromstring(stdout)
         clean = True
         for target in info.findall('target'):
@@ -343,7 +343,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
                                    stderr=subprocess.PIPE)
             stdout, stderr = cmd.communicate()
             if cmd.returncode != 0:
-                raise SVNError("Subversion status for '{}' failed.\n{}".format(name, s(stderr)))
+                raise SVNError(f"Subversion status for '{name}' failed.\n{s(stderr)}")
             return status, s(stdout)
         else:
             return status

@@ -189,7 +189,7 @@ class GitRepo:
         self("git add %s" % repo_file, echo=False)
         if msg is None:
             msg = fname
-        self("git commit {} -m {}".format(repo_file, msg), echo=False)
+        self(f"git commit {repo_file} -m {msg}", echo=False)
 
     def add_dir(self, dirname):
         repo_dir = self.base[dirname]
@@ -197,7 +197,7 @@ class GitRepo:
 
     def add_submodule(self, submodule, submodule_name):
         assert isinstance(submodule, GitRepo)
-        self("git -c protocol.file.allow=always submodule add {} {}".format(submodule.url, submodule_name))
+        self(f"git -c protocol.file.allow=always submodule add {submodule.url} {submodule_name}")
         self("git add .gitmodules")
         self("git add %s" % submodule_name)
         self("git commit -m 'Add submodule %s'" % submodule_name)

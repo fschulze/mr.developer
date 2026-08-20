@@ -32,7 +32,7 @@ class BazaarWorkingCopy(common.BaseWorkingCopy):
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise BazaarError(
-                'bzr branch for {!r} failed.\n{}'.format(name, stderr))
+                f'bzr branch for {name!r} failed.\n{stderr}')
         if kwargs.get('verbose', False):
             return stdout
 
@@ -49,7 +49,7 @@ class BazaarWorkingCopy(common.BaseWorkingCopy):
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise BazaarError(
-                'bzr pull for {!r} failed.\n{}'.format(name, stderr))
+                f'bzr pull for {name!r} failed.\n{stderr}')
         if kwargs.get('verbose', False):
             return stdout
 
@@ -81,7 +81,7 @@ class BazaarWorkingCopy(common.BaseWorkingCopy):
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise BazaarError(
-                'bzr info for {!r} failed.\n{}'.format(name, stderr))
+                f'bzr info for {name!r} failed.\n{stderr}')
         return (self.source['url'] in stdout.split())
 
     def status(self, **kwargs):

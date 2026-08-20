@@ -34,7 +34,7 @@ class HelpFormatter(argparse.HelpFormatter):
         result = []
         for line in text.split("\n"):
             for line2 in textwrap.fill(line, width).split("\n"):
-                result.append("{}{}".format(indent, line2))
+                result.append(f"{indent}{line2}")
         return "\n".join(result)
 
 
@@ -558,7 +558,7 @@ class CmdPurge(Command):
             need_force = False
             if source['kind'] != 'svn':
                 need_force = True
-                logger.warn("The directory of package '{}' at '{}' might contain unrecoverable files and will not be removed without --force.".format(name, path))
+                logger.warn(f"The directory of package '{name}' at '{path}' might contain unrecoverable files and will not be removed without --force.")
             if workingcopies.status(source) != 'clean':
                 need_force = True
                 logger.warn("The package '%s' is dirty and will not be removed without --force." % name)
@@ -576,7 +576,7 @@ class CmdPurge(Command):
                     if answer == 'all':
                         force_all = True
 
-            logger.info("Removing package '{}' at '{}'.".format(name, path))
+            logger.info(f"Removing package '{name}' at '{path}'.")
             if not args.dry_run:
                 shutil.rmtree(source['path'],
                               ignore_errors=False,

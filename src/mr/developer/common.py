@@ -464,14 +464,14 @@ class Rewrite:
             matchdict = match.groupdict()
             option = matchdict['option']
             if option in ('name', 'path'):
-                raise ValueError("Option '{}' not allowed in rewrite:\n{}".format(option, prog))
+                raise ValueError(f"Option '{option}' not allowed in rewrite:\n{prog}")
             operator = matchdict['operator']
             rewrites = self.rewrites.setdefault(option, [])
             if operator == '~':
                 try:
                     substitute = next(lines)
                 except StopIteration:
-                    raise ValueError("Missing substitution for option '{}' in rewrite:\n{}".format(option, prog))
+                    raise ValueError(f"Missing substitution for option '{option}' in rewrite:\n{prog}")
                 rewrites.append(
                     (operator, re.compile(matchdict['value']), substitute))
             elif operator == '=':
@@ -501,12 +501,12 @@ class Rewrite:
                     orig = source.get(option, '')
                     source[option] = operation[1].sub(operation[2], orig)
                     if source[option] != orig:
-                        logger.debug("Rewrote option '{}' from '{}' to '{}'.".format(option, orig, source[option]))
+                        logger.debug(f"Rewrote option '{option}' from '{orig}' to '{source[option]}'.")
 
 
 class LegacyRewrite(Rewrite):
     def __init__(self, prefix, substitution):
-        Rewrite.__init__(self, "url ~ ^{}\n{}".format(prefix, substitution))
+        Rewrite.__init__(self, f"url ~ ^{prefix}\n{substitution}")
 
 
 class Config:

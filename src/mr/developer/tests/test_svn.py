@@ -19,7 +19,7 @@ class TestSVN:
         process.check_call("svnadmin create %s" % repository)
         checkout = tempdir['checkout']
         process.check_call(
-            "svn checkout file://{} {}".format(repository, checkout),
+            f"svn checkout file://{repository} {checkout}",
             echo=False)
         foo = checkout['foo']
         foo.create_file('foo')
@@ -56,7 +56,7 @@ class TestSVN:
         process.check_call("svnadmin create %s" % repository)
         checkout = tempdir['checkout']
         process.check_call(
-            "svn checkout file://{} {}".format(repository, checkout),
+            f"svn checkout file://{repository} {checkout}",
             echo=False)
         foo = checkout['foo']
         foo.create_file('foo')

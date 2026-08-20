@@ -44,7 +44,7 @@ class HelpFormatter(argparse.HelpFormatter):
         result = []
         for line in text.split("\n"):
             for line2 in textwrap.fill(line, width).split("\n"):
-                result.append("{}{}".format(indent, line2))
+                result.append(f"{indent}{line2}")
         return "\n".join(result)
 
 

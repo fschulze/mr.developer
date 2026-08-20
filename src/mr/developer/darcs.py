@@ -28,7 +28,7 @@ class DarcsWorkingCopy(common.BaseWorkingCopy):
         cmd = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            raise DarcsError("darcs get for '{}' failed.\n{}".format(name, stderr))
+            raise DarcsError(f"darcs get for '{name}' failed.\n{stderr}")
         if kwargs.get('verbose', False):
             return stdout
 
@@ -42,7 +42,7 @@ class DarcsWorkingCopy(common.BaseWorkingCopy):
                                stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            raise DarcsError("darcs pull for '{}' failed.\n{}".format(name, stderr))
+            raise DarcsError(f"darcs pull for '{name}' failed.\n{stderr}")
         if kwargs.get('verbose', False):
             return stdout
 
@@ -74,7 +74,7 @@ class DarcsWorkingCopy(common.BaseWorkingCopy):
                                    stderr=subprocess.PIPE)
             stdout, stderr = cmd.communicate()
             if cmd.returncode != 0:
-                self.output((logger.error, "darcs info for '{}' failed.\n{}".format(name, stderr)))
+                self.output((logger.error, f"darcs info for '{name}' failed.\n{stderr}"))
                 return
 
             lines = stdout.splitlines()
