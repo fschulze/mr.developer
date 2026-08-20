@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-3.0.0 (unreleased)
+3.0.0 (2026-08-20)
 ------------------
 
 - When ``bin/develop`` is called without arguments, show the help text instead of an ugly error.
