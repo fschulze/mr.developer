@@ -1,4 +1,8 @@
-from mr.developer.common import logger, memoize, WorkingCopies, yesno
+from mr.developer.common import logger
+from mr.developer.common import memoize
+from mr.developer.common import WorkingCopies
+from mr.developer.common import yesno
+
 import argparse
 import errno
 import os

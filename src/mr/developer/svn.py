@@ -1,12 +1,13 @@
 from mr.developer import common
-from urllib.parse import urlparse, urlunparse
-import xml.etree.ElementTree as etree
+from urllib.parse import urlparse
+from urllib.parse import urlunparse
+
 import getpass
 import os
 import re
 import subprocess
 import sys
-
+import xml.etree.ElementTree as etree
 
 logger = common.logger
 

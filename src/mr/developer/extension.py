@@ -1,9 +1,12 @@
-from mr.developer.common import memoize, WorkingCopies, Config, get_workingcopytypes
+from mr.developer.common import Config
+from mr.developer.common import get_workingcopytypes
+from mr.developer.common import memoize
+from mr.developer.common import WorkingCopies
+
 import logging
 import os
 import re
 import sys
-
 
 FAKE_PART_ID = '_mr.developer'
 

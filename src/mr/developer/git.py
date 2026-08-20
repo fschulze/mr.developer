@@ -1,9 +1,9 @@
 from mr.developer import common
-import os
-import subprocess
-import re
-import sys
 
+import os
+import re
+import subprocess
+import sys
 
 logger = common.logger
 

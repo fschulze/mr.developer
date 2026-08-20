@@ -1,6 +1,7 @@
-from unittest.mock import patch
 from mr.developer.extension import Source
 from mr.developer.tests.utils import GitRepo
+from unittest.mock import patch
+
 import os
 
 
@@ -78,7 +79,8 @@ class TestGitSubmodules:
             Tests the checkout of a module 'egg' with a submodule 'submodule_a' in it.
             Add a new 'submodule_b' to 'egg' and check it succesfully initializes.
         """
-        from mr.developer.commands import CmdCheckout, CmdUpdate
+        from mr.developer.commands import CmdCheckout
+        from mr.developer.commands import CmdUpdate
         submodule_name = 'submodule_a'
         submodule = mkgitrepo(submodule_name)
         submodule.add_file('foo')
@@ -253,7 +255,8 @@ class TestGitSubmodules:
             Tests the checkout of a module 'egg' with a submodule 'submodule_a' in it.
             Add a new 'submodule_b' to 'egg' and check it doesn't get initialized.
         """
-        from mr.developer.commands import CmdCheckout, CmdUpdate
+        from mr.developer.commands import CmdCheckout
+        from mr.developer.commands import CmdUpdate
         submodule_name = 'submodule_a'
         submodule = mkgitrepo(submodule_name)
         submodule.add_file('foo')
@@ -302,7 +305,8 @@ class TestGitSubmodules:
             Commits changes in the detached submodule, and checks update didn't break
             the changes.
         """
-        from mr.developer.commands import CmdCheckout, CmdUpdate
+        from mr.developer.commands import CmdCheckout
+        from mr.developer.commands import CmdUpdate
         submodule_name = 'submodule_a'
         submodule = mkgitrepo(submodule_name)
         submodule.add_file('foo')

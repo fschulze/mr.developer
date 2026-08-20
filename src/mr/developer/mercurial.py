@@ -1,6 +1,7 @@
 from mr.developer import common
-import re
+
 import os
+import re
 import subprocess
 
 logger = common.logger

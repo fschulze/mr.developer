@@ -1,8 +1,9 @@
 from copy import deepcopy
-from unittest.mock import patch
 from mr.developer.extension import Extension
 from mr.developer.tests.utils import MockConfig
+from unittest.mock import patch
 from zc.buildout.buildout import MissingSection
+
 import os
 import pytest
 

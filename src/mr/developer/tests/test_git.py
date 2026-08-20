@@ -1,11 +1,10 @@
-import os
-import shutil
-
-import pytest
-from unittest.mock import patch
-
 from mr.developer.extension import Source
 from mr.developer.tests.utils import Process
+from unittest.mock import patch
+
+import os
+import pytest
+import shutil
 
 
 class TestGit:
@@ -49,8 +48,8 @@ class TestGit:
 
     def testUpdateWithBranch(self, develop, mkgitrepo, src):
         from mr.developer.commands import CmdCheckout
-        from mr.developer.commands import CmdUpdate
         from mr.developer.commands import CmdStatus
+        from mr.developer.commands import CmdUpdate
         repository = mkgitrepo('repository')
         self.createDefaultContent(repository)
 
@@ -102,8 +101,8 @@ class TestGit:
 
     def testUpdateWithoutRevisionPin(self, develop, mkgitrepo, src, capsys):
         from mr.developer.commands import CmdCheckout
-        from mr.developer.commands import CmdUpdate
         from mr.developer.commands import CmdStatus
+        from mr.developer.commands import CmdUpdate
         repository = mkgitrepo('repository')
         repository.add_file('foo')
         repository.add_file('bar')
@@ -138,8 +137,8 @@ class TestGit:
 
     def testUpdateVerbose(self, develop, mkgitrepo, src, capsys):
         from mr.developer.commands import CmdCheckout
-        from mr.developer.commands import CmdUpdate
         from mr.developer.commands import CmdStatus
+        from mr.developer.commands import CmdUpdate
         repository = mkgitrepo('repository')
         repository.add_file('foo')
         repository.add_file('bar')

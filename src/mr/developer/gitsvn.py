@@ -1,7 +1,7 @@
 from mr.developer import common
 from mr.developer.svn import SVNWorkingCopy
-import subprocess
 
+import subprocess
 
 logger = common.logger
 

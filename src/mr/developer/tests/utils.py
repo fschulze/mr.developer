@@ -1,4 +1,6 @@
-from subprocess import Popen, PIPE
+from subprocess import PIPE
+from subprocess import Popen
+
 import os
 import sys
 import threading

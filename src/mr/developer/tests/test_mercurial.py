@@ -1,10 +1,9 @@
-import os
-
-import pytest
-from unittest.mock import patch
-
 from mr.developer.extension import Source
 from mr.developer.tests.utils import Process
+from unittest.mock import patch
+
+import os
+import pytest
 
 
 class TestMercurial:

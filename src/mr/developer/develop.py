@@ -1,12 +1,15 @@
-from mr.developer.common import logger, Config, get_commands
 from mr.developer.commands import CmdHelp
+from mr.developer.common import Config
+from mr.developer.common import get_commands
+from mr.developer.common import logger
 from mr.developer.extension import Extension
 from zc.buildout.buildout import Buildout
+
 import argparse
 import atexit
-import pkg_resources
 import logging
 import os
+import pkg_resources
 import sys
 import textwrap
 

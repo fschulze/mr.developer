@@ -1,3 +1,5 @@
+from configparser import RawConfigParser
+
 import logging
 import os
 import pkg_resources
@@ -6,8 +8,6 @@ import queue
 import re
 import sys
 import threading
-from configparser import RawConfigParser
-
 
 logger = logging.getLogger("mr.developer")
 

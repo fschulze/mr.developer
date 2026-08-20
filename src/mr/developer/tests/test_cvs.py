@@ -1,6 +1,6 @@
-import unittest
 import doctest
 import mr.developer.cvs
+import unittest
 
 
 def test_suite():

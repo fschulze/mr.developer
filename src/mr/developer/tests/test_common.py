@@ -1,5 +1,9 @@
-from mr.developer.common import Config, Rewrite
-from mr.developer.common import get_commands, parse_buildout_args, version_sorted
+from mr.developer.common import Config
+from mr.developer.common import get_commands
+from mr.developer.common import parse_buildout_args
+from mr.developer.common import Rewrite
+from mr.developer.common import version_sorted
+
 import pytest
 
 
