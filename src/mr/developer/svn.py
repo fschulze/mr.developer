@@ -1,14 +1,7 @@
 from mr.developer import common
 from mr.developer.compat import b, s
-try:
-    from urllib.parse import urlparse, urlunparse
-except ImportError:
-    from urlparse import urlparse, urlunparse
-try:
-    import xml.etree.ElementTree as etree
-    etree  # shutup pyflakes
-except ImportError:
-    import elementtree.ElementTree as etree
+from urllib.parse import urlparse, urlunparse
+import xml.etree.ElementTree as etree
 import getpass
 import os
 import re

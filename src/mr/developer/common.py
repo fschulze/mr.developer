@@ -2,10 +2,7 @@ import logging
 import os
 import pkg_resources
 import platform
-try:
-    import queue
-except ImportError:
-    import Queue as queue
+import queue
 import re
 import sys
 import threading
