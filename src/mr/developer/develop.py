@@ -73,6 +73,15 @@ class Develop:
             args = None
         args = self.parser.parse_args(args)
 
+        # When you call `bin/develop` without any arguments, you will get an
+        # error later on because we call `args.func` and there is no `func`:
+        # AttributeError: 'Namespace' object has no attribute 'func'
+        if not hasattr(args, "func"):
+            # So pretend the user has asked for the help function.
+            args = self.parser.parse_args(["help"])
+            args.func(args)
+            return
+
         try:
             self.buildout_dir = find_base()
         except OSError:

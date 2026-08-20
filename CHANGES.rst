@@ -5,6 +5,9 @@ Changelog
 3.0.0 (unreleased)
 ------------------
 
+- When ``bin/develop`` is called without arguments, show the help text instead of an ugly error.
+  [maurits]
+
 - Move to PEP-420 native namespaces.  [maurits]
 
 - Replace our use of ``pkg_resources`` with ``importlib.metadata``.  [maurits]
