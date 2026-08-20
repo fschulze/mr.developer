@@ -547,9 +547,7 @@ class Config:
         config = self.read_config(path)
         for section in ("buildout", "develop"):
             if config.has_section(section):
-                raise ValueError(
-                    "The '%s' section is not allowed in '%s'" % (section, name)
-                )
+                raise ValueError(f"The '{section}' section is not allowed in '{name}'")
 
     def __init__(self, buildout_dir):
         global_cfg_name = os.path.join("~", ".buildout", "mr.developer.cfg")
