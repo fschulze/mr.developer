@@ -1,5 +1,4 @@
 from mr.developer import common
-from mr.developer.compat import b
 import re
 import os
 import subprocess
@@ -166,7 +165,7 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
             raise MercurialError(
                 f'hg showconfig for {name!r} failed.\n{stderr}')
         # now check that the working branch is the same
-        return b(self.source['url'] + '\n') == stdout
+        return self.source['url'].encode('utf-8') + b'\n' == stdout
 
     def status(self, **kwargs):
         path = self.source['path']
@@ -182,7 +181,7 @@ class MercurialWorkingCopy(common.BaseWorkingCopy):
                 [self.hg_executable, 'outgoing'], cwd=path,
                 env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             outgoing_stdout, stderr = cmd.communicate()
-            stdout += b('\n') + outgoing_stdout
+            stdout += b'\n' + outgoing_stdout
             if cmd.returncode == 0:
                 status = 'ahead'
         if kwargs.get('verbose', False):

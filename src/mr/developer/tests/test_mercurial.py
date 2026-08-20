@@ -5,7 +5,6 @@ from unittest.mock import patch
 
 from mr.developer.extension import Source
 from mr.developer.tests.utils import Process
-from mr.developer.compat import b
 
 
 class TestMercurial:
@@ -66,7 +65,7 @@ class TestMercurial:
 
         try:
             # XXX older version
-            rev = lines[0].split()[1].split(b(':'))[1]
+            rev = lines[0].split()[1].split(b':')[1]
         except Exception:
             rev = lines[0].split()[1]
 
@@ -133,7 +132,7 @@ class TestMercurial:
         lines = process.check_call("hg log %s" % foo, echo=False)
         try:
             # XXX older version
-            rev = lines[0].split()[1].split(b(':'))[1]
+            rev = lines[0].split()[1].split(b':')[1]
         except Exception:
             rev = lines[0].split()[1]
 

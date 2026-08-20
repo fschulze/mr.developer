@@ -1,5 +1,5 @@
 from mr.developer import common
-from mr.developer.compat import b, s
+from mr.developer.compat import s
 from urllib.parse import urlparse, urlunparse
 import xml.etree.ElementTree as etree
 import getpass
@@ -74,10 +74,10 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
                 sys.exit(1)
             raise
         stdout, stderr = cmd.communicate()
-        lines = stdout.split(b('\n'))
+        lines = stdout.split(b'\n')
         version = None
         if len(lines):
-            version = re.search(b(r'(\d+)\.(\d+)(\.\d+)?'), lines[0])
+            version = re.search(br'(\d+)\.(\d+)(\.\d+)?', lines[0])
             if version is not None:
                 version = version.groups()
                 if len(version) == 3:
@@ -190,7 +190,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
                                stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            lines = stderr.strip().split(b('\n'))
+            lines = stderr.strip().split(b'\n')
             if 'authorization failed' in lines[-1] or 'Could not authenticate to server' in lines[-1]:
                 raise SVNAuthorizationError(stderr.strip())
             if 'Server certificate verification failed: issuer is not trusted' in lines[-1]:
