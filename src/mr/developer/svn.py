@@ -43,18 +43,24 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
         klass._svn_cert_cache.clear()
 
     def _normalized_url_rev(self):
-        url = urlparse(self.source['url'])
+        url = urlparse(self.source["url"])
         rev = None
-        if '@' in url[2]:
-            path, rev = url[2].split('@', 1)
+        if "@" in url[2]:
+            path, rev = url[2].split("@", 1)
             url = list(url)
             url[2] = path
-        if 'rev' in self.source and 'revision' in self.source:
-            raise ValueError("The source definition of '%s' contains duplicate revision options." % self.source['name'])
-        if rev is not None and ('rev' in self.source or 'revision' in self.source):
-            raise ValueError("The url of '%s' contains a revision and there is an additional revision option." % self.source['name'])
+        if "rev" in self.source and "revision" in self.source:
+            raise ValueError(
+                "The source definition of '%s' contains duplicate revision options."
+                % self.source["name"]
+            )
+        if rev is not None and ("rev" in self.source or "revision" in self.source):
+            raise ValueError(
+                "The url of '%s' contains a revision and there is an additional revision option."
+                % self.source["name"]
+            )
         elif rev is None:
-            rev = self.source.get('revision', self.source.get('rev'))
+            rev = self.source.get("revision", self.source.get("rev"))
         return urlunparse(url), rev
 
     def __init__(self, *args, **kwargs):
@@ -65,19 +71,21 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
     def _svn_check_version(self):
         global _svn_version_warning
         try:
-            cmd = subprocess.Popen([self.svn_executable, "--version"],
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
+            cmd = subprocess.Popen(
+                [self.svn_executable, "--version"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
         except OSError:
-            if getattr(sys.exc_info()[1], 'errno', None) == 2:
+            if getattr(sys.exc_info()[1], "errno", None) == 2:
                 logger.error("Couldn't find 'svn' executable on your PATH.")
                 sys.exit(1)
             raise
         stdout, stderr = cmd.communicate()
-        lines = stdout.split(b'\n')
+        lines = stdout.split(b"\n")
         version = None
         if len(lines):
-            version = re.search(br'(\d+)\.(\d+)(\.\d+)?', lines[0])
+            version = re.search(rb"(\d+)\.(\d+)(\.\d+)?", lines[0])
             if version is not None:
                 version = version.groups()
                 if len(version) == 3:
@@ -86,10 +94,15 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
                     version = (int(version[0]), int(version[1]))
         if (cmd.returncode != 0) or (version is None):
             logger.error("Couldn't determine the version of 'svn' command.")
-            logger.error(f"Subversion output:\n{stdout.decode('utf-8')}\n{stderr.decode('utf-8')}")
+            logger.error(
+                f"Subversion output:\n{stdout.decode('utf-8')}\n{stderr.decode('utf-8')}"
+            )
             sys.exit(1)
         if (version < (1, 5)) and not _svn_version_warning:
-            logger.warning("The installed 'svn' command is too old. Expected 1.5 or newer, got %s." % ".".join([str(x) for x in version]))
+            logger.warning(
+                "The installed 'svn' command is too old. Expected 1.5 or newer, got %s."
+                % ".".join([str(x) for x in version])
+            )
             _svn_version_warning = True
 
     def _svn_auth_get(self, url):
@@ -109,8 +122,8 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
             try:
                 return f(**kwargs)
             except SVNAuthorizationError:
-                lines = sys.exc_info()[1].args[0].split('\n')
-                root = lines[-1].split('(')[-1].strip(')')
+                lines = sys.exc_info()[1].args[0].split("\n")
+                root = lines[-1].split("(")[-1].strip(")")
                 before = self._svn_auth_cache.get(root)
                 common.output_lock.acquire()
                 common.input_lock.acquire()
@@ -120,7 +133,11 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
                     common.input_lock.release()
                     common.output_lock.release()
                     continue
-                print("Authorization needed for '{}' at '{}'".format(self.source['name'], self.source['url']))
+                print(
+                    "Authorization needed for '{}' at '{}'".format(
+                        self.source["name"], self.source["url"]
+                    )
+                )
                 user = input("Username: ")
                 passwd = getpass.getpass("Password: ")
                 self._svn_auth_cache[root] = dict(
@@ -130,8 +147,8 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
                 common.input_lock.release()
                 common.output_lock.release()
             except SVNCertificateError:
-                lines = sys.exc_info()[1].args[0].split('\n')
-                root = lines[-1].split('(')[-1].strip(')')
+                lines = sys.exc_info()[1].args[0].split("\n")
+                root = lines[-1].split("(")[-1].strip(")")
                 before = self._svn_cert_cache.get(root)
                 common.output_lock.acquire()
                 common.input_lock.acquire()
@@ -144,11 +161,13 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
                 print("\n".join(lines[:-1]))
                 while 1:
                     answer = input("(R)eject or accept (t)emporarily? ")
-                    if answer.lower() in ['r', 't']:
+                    if answer.lower() in ["r", "t"]:
                         break
                     else:
-                        print("Invalid answer, type 'r' for reject or 't' for temporarily.")
-                if answer == 'r':
+                        print(
+                            "Invalid answer, type 'r' for reject or 't' for temporarily."
+                        )
+                if answer == "r":
                     self._svn_cert_cache[root] = False
                 else:
                     self._svn_cert_cache[root] = True
@@ -157,26 +176,27 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
                 common.output_lock.release()
 
     def _svn_checkout(self, **kwargs):
-        name = self.source['name']
-        path = self.source['path']
-        url = self.source['url']
+        name = self.source["name"]
+        path = self.source["path"]
+        url = self.source["url"]
         args = [self.svn_executable, "checkout", url, path]
         stdout, stderr, returncode = self._svn_communicate(args, url, **kwargs)
         if returncode != 0:
-            raise SVNError(f"Subversion checkout for '{name}' failed.\n{stderr.decode('utf-8')}")
-        if kwargs.get('verbose', False):
+            raise SVNError(
+                f"Subversion checkout for '{name}' failed.\n{stderr.decode('utf-8')}"
+            )
+        if kwargs.get("verbose", False):
             return stdout.decode("utf-8")
 
     def _svn_communicate(self, args, url, **kwargs):
         auth = self._svn_auth_get(url)
         if auth is not None:
-            args[2:2] = ["--username", auth['user'],
-                         "--password", auth['passwd']]
-        if not kwargs.get('verbose', False):
+            args[2:2] = ["--username", auth["user"], "--password", auth["passwd"]]
+        if not kwargs.get("verbose", False):
             args[2:2] = ["--quiet"]
         accept_invalid_cert = self._svn_accept_invalid_cert_get(url)
-        if 'always_accept_server_certificate' in kwargs:
-            if kwargs['always_accept_server_certificate']:
+        if "always_accept_server_certificate" in kwargs:
+            if kwargs["always_accept_server_certificate"]:
                 accept_invalid_cert = True
         if accept_invalid_cert is True:
             args[2:2] = ["--trust-server-cert"]
@@ -185,101 +205,116 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
         args[2:2] = ["--no-auth-cache"]
         interactive_args = args[:]
         args[2:2] = ["--non-interactive"]
-        cmd = subprocess.Popen(args,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
+        cmd = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            lines = stderr.strip().split(b'\n')
-            if 'authorization failed' in lines[-1] or 'Could not authenticate to server' in lines[-1]:
+            lines = stderr.strip().split(b"\n")
+            if (
+                "authorization failed" in lines[-1]
+                or "Could not authenticate to server" in lines[-1]
+            ):
                 raise SVNAuthorizationError(stderr.strip())
-            if 'Server certificate verification failed: issuer is not trusted' in lines[-1]:
-                cmd = subprocess.Popen(interactive_args,
-                                       stdin=subprocess.PIPE,
-                                       stdout=subprocess.PIPE,
-                                       stderr=subprocess.PIPE)
-                stdout, stderr = cmd.communicate('t')
+            if (
+                "Server certificate verification failed: issuer is not trusted"
+                in lines[-1]
+            ):
+                cmd = subprocess.Popen(
+                    interactive_args,
+                    stdin=subprocess.PIPE,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                )
+                stdout, stderr = cmd.communicate("t")
                 raise SVNCertificateError(stderr.strip())
         return stdout, stderr, cmd.returncode
 
     def _svn_info(self):
-        name = self.source['name']
+        name = self.source["name"]
         if name in self._svn_info_cache:
             return self._svn_info_cache[name]
-        path = self.source['path']
-        cmd = subprocess.Popen([self.svn_executable, "info", "--non-interactive", "--xml",
-                                path],
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
+        path = self.source["path"]
+        cmd = subprocess.Popen(
+            [self.svn_executable, "info", "--non-interactive", "--xml", path],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            raise SVNError(f"Subversion info for '{name}' failed.\n{stderr.decode('utf-8')}")
+            raise SVNError(
+                f"Subversion info for '{name}' failed.\n{stderr.decode('utf-8')}"
+            )
         info = etree.fromstring(stdout)
         result = {}
-        entry = info.find('entry')
+        entry = info.find("entry")
         if entry is not None:
-            rev = entry.attrib.get('revision')
+            rev = entry.attrib.get("revision")
             if rev is not None:
-                result['revision'] = rev
-            info_url = entry.find('url')
+                result["revision"] = rev
+            info_url = entry.find("url")
             if info_url is not None:
-                result['url'] = info_url.text
-        entry = info.find('entry')
+                result["url"] = info_url.text
+        entry = info.find("entry")
         if entry is not None:
-            root = entry.find('root')
+            root = entry.find("root")
             if root is not None:
-                result['root'] = root.text
+                result["root"] = root.text
         self._svn_info_cache[name] = result
         return result
 
     def _svn_switch(self, **kwargs):
-        name = self.source['name']
-        path = self.source['path']
+        name = self.source["name"]
+        path = self.source["path"]
         url, rev = self._normalized_url_rev()
         args = [self.svn_executable, "switch", url, path]
-        if rev is not None and not rev.startswith('>'):
-            args.insert(2, '-r%s' % rev)
+        if rev is not None and not rev.startswith(">"):
+            args.insert(2, "-r%s" % rev)
         stdout, stderr, returncode = self._svn_communicate(args, url, **kwargs)
         if returncode != 0:
-            raise SVNError(f"Subversion switch of '{name}' failed.\n{stderr.decode('utf-8')}")
-        if kwargs.get('verbose', False):
+            raise SVNError(
+                f"Subversion switch of '{name}' failed.\n{stderr.decode('utf-8')}"
+            )
+        if kwargs.get("verbose", False):
             return stdout.decode("utf-8")
 
     def _svn_update(self, **kwargs):
-        name = self.source['name']
-        path = self.source['path']
+        name = self.source["name"]
+        path = self.source["path"]
         url, rev = self._normalized_url_rev()
         args = [self.svn_executable, "update", path]
-        if rev is not None and not rev.startswith('>'):
-            args.insert(2, '-r%s' % rev)
+        if rev is not None and not rev.startswith(">"):
+            args.insert(2, "-r%s" % rev)
         stdout, stderr, returncode = self._svn_communicate(args, url, **kwargs)
         if returncode != 0:
-            raise SVNError(f"Subversion update of '{name}' failed.\n{stderr.decode('utf-8')}")
-        if kwargs.get('verbose', False):
+            raise SVNError(
+                f"Subversion update of '{name}' failed.\n{stderr.decode('utf-8')}"
+            )
+        if kwargs.get("verbose", False):
             return stdout.decode("utf-8")
 
     def svn_checkout(self, **kwargs):
-        name = self.source['name']
-        path = self.source['path']
+        name = self.source["name"]
+        path = self.source["path"]
         if os.path.exists(path):
-            self.output((logger.info, "Skipped checkout of existing package '%s'." % name))
+            self.output(
+                (logger.info, "Skipped checkout of existing package '%s'." % name)
+            )
             return
         self.output((logger.info, "Checked out '%s' with subversion." % name))
         return self._svn_error_wrapper(self._svn_checkout, **kwargs)
 
     def svn_switch(self, **kwargs):
-        name = self.source['name']
+        name = self.source["name"]
         self.output((logger.info, "Switched '%s' with subversion." % name))
         return self._svn_error_wrapper(self._svn_switch, **kwargs)
 
     def svn_update(self, **kwargs):
-        name = self.source['name']
+        name = self.source["name"]
         self.output((logger.info, "Updated '%s' with subversion." % name))
         return self._svn_error_wrapper(self._svn_update, **kwargs)
 
     def checkout(self, **kwargs):
-        name = self.source['name']
-        path = self.source['path']
+        name = self.source["name"]
+        path = self.source["path"]
         update = self.should_update(**kwargs)
         if os.path.exists(path):
             matches = self.matches()
@@ -287,17 +322,26 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
                 if update:
                     self.update(**kwargs)
                 else:
-                    self.output((logger.info, "Skipped checkout of existing package '%s'." % name))
+                    self.output(
+                        (
+                            logger.info,
+                            "Skipped checkout of existing package '%s'." % name,
+                        )
+                    )
             else:
-                if self.status() == 'clean':
+                if self.status() == "clean":
                     return self.svn_switch(**kwargs)
                 else:
-                    url = self._svn_info().get('url', '')
+                    url = self._svn_info().get("url", "")
                     if url:
                         msg = f"The current checkout of '{name}' is from '{url}'."
-                        msg += "\nCan't switch package to '%s' because it's dirty." % (self.source['url'])
+                        msg += "\nCan't switch package to '%s' because it's dirty." % (
+                            self.source["url"]
+                        )
                     else:
-                        msg = "Can't switch package '{}' to '{}' because it's dirty.".format(name, self.source['url'])
+                        msg = "Can't switch package '{}' to '{}' because it's dirty.".format(
+                            name, self.source["url"]
+                        )
                     raise SVNError(msg)
         else:
             return self.svn_checkout(**kwargs)
@@ -305,58 +349,70 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
     def matches(self):
         info = self._svn_info()
         url, rev = self._normalized_url_rev()
-        if url.endswith('/'):
+        if url.endswith("/"):
             url = url[:-1]
         if rev is None:
-            rev = info.get('revision')
-        if rev.startswith('>='):
-            return (info.get('url') == url) and (int(info.get('revision')) >= int(rev[2:]))
-        elif rev.startswith('>'):
-            return (info.get('url') == url) and (int(info.get('revision')) > int(rev[1:]))
+            rev = info.get("revision")
+        if rev.startswith(">="):
+            return (info.get("url") == url) and (
+                int(info.get("revision")) >= int(rev[2:])
+            )
+        elif rev.startswith(">"):
+            return (info.get("url") == url) and (
+                int(info.get("revision")) > int(rev[1:])
+            )
         else:
-            return (info.get('url') == url) and (info.get('revision') == rev)
+            return (info.get("url") == url) and (info.get("revision") == rev)
 
     def status(self, **kwargs):
-        name = self.source['name']
-        path = self.source['path']
-        cmd = subprocess.Popen([self.svn_executable, "status", "--xml", path],
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
+        name = self.source["name"]
+        path = self.source["path"]
+        cmd = subprocess.Popen(
+            [self.svn_executable, "status", "--xml", path],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            raise SVNError(f"Subversion status for '{name}' failed.\n{stderr.decode('utf-8')}")
+            raise SVNError(
+                f"Subversion status for '{name}' failed.\n{stderr.decode('utf-8')}"
+            )
         info = etree.fromstring(stdout)
         clean = True
-        for target in info.findall('target'):
-            for entry in target.findall('entry'):
-                status = entry.find('wc-status')
-                if status is not None and status.get('item') != 'external':
+        for target in info.findall("target"):
+            for entry in target.findall("entry"):
+                status = entry.find("wc-status")
+                if status is not None and status.get("item") != "external":
                     clean = False
                     break
         if clean:
-            status = 'clean'
+            status = "clean"
         else:
-            status = 'dirty'
-        if kwargs.get('verbose', False):
-            cmd = subprocess.Popen([self.svn_executable, "status", path],
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
+            status = "dirty"
+        if kwargs.get("verbose", False):
+            cmd = subprocess.Popen(
+                [self.svn_executable, "status", path],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
             stdout, stderr = cmd.communicate()
             if cmd.returncode != 0:
-                raise SVNError(f"Subversion status for '{name}' failed.\n{stderr.decode('utf-8')}")
+                raise SVNError(
+                    f"Subversion status for '{name}' failed.\n{stderr.decode('utf-8')}"
+                )
             return status, stdout.decode("utf-8")
         else:
             return status
 
     def update(self, **kwargs):
-        name = self.source['name']
-        force = kwargs.get('force', False)
+        name = self.source["name"]
+        force = kwargs.get("force", False)
         status = self.status()
         if not self.matches():
-            if force or status == 'clean':
+            if force or status == "clean":
                 return self.svn_switch(**kwargs)
             else:
                 raise SVNError("Can't switch package '%s' because it's dirty." % name)
-        if status != 'clean' and not force:
+        if status != "clean" and not force:
             raise SVNError("Can't update package '%s' because it's dirty." % name)
         return self.svn_update(**kwargs)

@@ -14,7 +14,7 @@ logger = logging.getLogger("mr.developer")
 
 def print_stderr(s):
     sys.stderr.write(s)
-    sys.stderr.write('\n')
+    sys.stderr.write("\n")
     sys.stderr.flush()
 
 
@@ -24,11 +24,11 @@ def which(name_root, default=None):
     def is_exe(fpath):
         return os.path.exists(fpath) and os.access(fpath, os.X_OK)
 
-    if platform.system() == 'Windows':
+    if platform.system() == "Windows":
         # http://www.voidspace.org.uk/python/articles/command_line.shtml#pathext
-        pathext = os.environ['PATHEXT']
+        pathext = os.environ["PATHEXT"]
         # example: ['.py', '.pyc', '.pyo', '.pyw', '.COM', '.EXE', '.BAT', '.CMD']
-        names = [name_root + ext for ext in pathext.split(';')]
+        names = [name_root + ext for ext in pathext.split(";")]
     else:
         names = [name_root]
 
@@ -52,7 +52,7 @@ def version_sorted(inp, *args, **kwargs):
 
     Eg.: version-1-0-1 < version-1-0-2 < version-1-0-10
     """
-    num_reg = re.compile(r'([0-9]+)')
+    num_reg = re.compile(r"([0-9]+)")
 
     def int_str(val):
         try:
@@ -64,7 +64,7 @@ def version_sorted(inp, *args, **kwargs):
         return tuple([int_str(j) for j in num_reg.split(item)])
 
     def join_item(item):
-        return ''.join([str(j) for j in item])
+        return "".join([str(j) for j in item])
 
     output = [split_item(i) for i in inp]
     return [join_item(i) for i in sorted(output, *args, **kwargs)]
@@ -72,17 +72,18 @@ def version_sorted(inp, *args, **kwargs):
 
 def memoize(f, _marker=[]):
     def g(*args, **kwargs):
-        name = '_memoize_%s' % f.__name__
+        name = "_memoize_%s" % f.__name__
         value = getattr(args[0], name, _marker)
         if value is _marker:
             value = f(*args, **kwargs)
             setattr(args[0], name, value)
         return value
+
     return g
 
 
 class WCError(Exception):
-    """ A working copy error. """
+    """A working copy error."""
 
 
 class BaseWorkingCopy:
@@ -92,14 +93,14 @@ class BaseWorkingCopy:
         self.source = source
 
     def should_update(self, **kwargs):
-        offline = kwargs.get('offline', False)
+        offline = kwargs.get("offline", False)
         if offline:
             return False
-        update = self.source.get('update', kwargs.get('update', False))
+        update = self.source.get("update", kwargs.get("update", False))
         if not isinstance(update, bool):
-            if update.lower() in ('true', 'yes'):
+            if update.lower() in ("true", "yes"):
                 update = True
-            elif update.lower() in ('false', 'no'):
+            elif update.lower() in ("false", "no"):
                 update = False
             else:
                 raise ValueError("Unknown value for 'update': %s" % update)
@@ -110,17 +111,17 @@ def yesno(question, default=True, all=True):
     if default:
         question = "%s [Yes/no" % question
         answers = {
-            False: ('n', 'no'),
-            True: ('', 'y', 'yes'),
+            False: ("n", "no"),
+            True: ("", "y", "yes"),
         }
     else:
         question = "%s [yes/No" % question
         answers = {
-            False: ('', 'n', 'no'),
-            True: ('y', 'yes'),
+            False: ("", "n", "no"),
+            True: ("y", "yes"),
         }
     if all:
-        answers['all'] = ('a', 'all')
+        answers["all"] = ("a", "all")
         question = "%s/all] " % question
     else:
         question = "%s] " % question
@@ -152,7 +153,7 @@ def worker(working_copies, the_queue):
             output_lock.acquire()
             for lvl, msg in wc._output:
                 lvl(msg)
-            for line in sys.exc_info()[1].args[0].split('\n'):
+            for line in sys.exc_info()[1].args[0].split("\n"):
                 logger.error(line)
             working_copies.errors = True
             output_lock.release()
@@ -169,12 +170,12 @@ def worker(working_copies, the_queue):
             # then all messages are joined.
             for item in wc._output:
                 lvl = item[0]
-                msg = ','.join(item[1:])
+                msg = ",".join(item[1:])
                 lvl(msg)
 
-            if kwargs.get('verbose', False) and output is not None and output.strip():
+            if kwargs.get("verbose", False) and output is not None and output.strip():
                 if isinstance(output, bytes):
-                    output = output.decode('utf8')
+                    output = output.decode("utf8")
                 print(output)
             output_lock.release()
 
@@ -186,19 +187,26 @@ def get_workingcopytypes():
     global _workingcopytypes
     if _workingcopytypes is not None:
         return _workingcopytypes
-    group = 'mr.developer.workingcopytypes'
+    group = "mr.developer.workingcopytypes"
     _workingcopytypes = {}
     addons = {}
     for entrypoint in pkg_resources.iter_entry_points(group=group):
         key = entrypoint.name
         workingcopytype = entrypoint.load()
-        if entrypoint.dist.project_name == 'mr.developer':
+        if entrypoint.dist.project_name == "mr.developer":
             _workingcopytypes[key] = workingcopytype
         else:
             if key in addons:
-                logger.error("There already is a working copy type addon registered for '%s'.", key)
+                logger.error(
+                    "There already is a working copy type addon registered for '%s'.",
+                    key,
+                )
                 sys.exit(1)
-            logger.info("Overwriting '%s' with addon from '%s'.", key, entrypoint.dist.project_name)
+            logger.info(
+                "Overwriting '%s' with addon from '%s'.",
+                key,
+                entrypoint.dist.project_name,
+            )
             addons[key] = workingcopytype
     _workingcopytypes.update(addons)
     return _workingcopytypes
@@ -206,19 +214,24 @@ def get_workingcopytypes():
 
 def get_commands():
     commands = {}
-    group = 'mr.developer.commands'
+    group = "mr.developer.commands"
     addons = {}
     for entrypoint in pkg_resources.iter_entry_points(group=group):
         key = entrypoint.name
         command = entrypoint.load()
-        if entrypoint.dist.project_name == 'mr.developer':
+        if entrypoint.dist.project_name == "mr.developer":
             commands[key] = command
         else:
             if key in addons:
-                logger.error('There already is a command addon registered for "%s".', key)
+                logger.error(
+                    'There already is a command addon registered for "%s".', key
+                )
                 sys.exit(1)
-            logger.info('Overwriting "%s" with addon from "%s".',
-                        key, entrypoint.dist.project_name)
+            logger.info(
+                'Overwriting "%s" with addon from "%s".',
+                key,
+                entrypoint.dist.project_name,
+            )
             addons[key] = command
     commands.update(addons)
     return commands.values()
@@ -250,23 +263,28 @@ class WorkingCopies:
 
     def checkout(self, packages, **kwargs):
         the_queue = queue.Queue()
-        if 'update' in kwargs:
-            if isinstance(kwargs['update'], bool):
+        if "update" in kwargs:
+            if isinstance(kwargs["update"], bool):
                 pass
-            elif kwargs['update'].lower() in ('true', 'yes', 'on', 'force'):
-                if kwargs['update'].lower() == 'force':
-                    kwargs['force'] = True
-                kwargs['update'] = True
-            elif kwargs['update'].lower() in ('false', 'no', 'off'):
-                kwargs['update'] = False
+            elif kwargs["update"].lower() in ("true", "yes", "on", "force"):
+                if kwargs["update"].lower() == "force":
+                    kwargs["force"] = True
+                kwargs["update"] = True
+            elif kwargs["update"].lower() in ("false", "no", "off"):
+                kwargs["update"] = False
             else:
-                logger.error("Unknown value '%s' for always-checkout option." % kwargs['update'])
+                logger.error(
+                    "Unknown value '%s' for always-checkout option." % kwargs["update"]
+                )
                 sys.exit(1)
-        kwargs.setdefault('submodules', 'always')
-        if kwargs['submodules'] in ['always', 'never', 'checkout']:
+        kwargs.setdefault("submodules", "always")
+        if kwargs["submodules"] in ["always", "never", "checkout"]:
             pass
         else:
-            logger.error("Unknown value '%s' for update-git-submodules option." % kwargs['submodules'])
+            logger.error(
+                "Unknown value '%s' for update-git-submodules option."
+                % kwargs["submodules"]
+            )
             sys.exit(1)
         for name in packages:
             kw = kwargs.copy()
@@ -274,7 +292,7 @@ class WorkingCopies:
                 logger.error("Checkout failed. No source defined for '%s'." % name)
                 sys.exit(1)
             source = self.sources[name]
-            kind = source['kind']
+            kind = source["kind"]
             wc = self.workingcopytypes.get(kind)(source)
             if wc is None:
                 logger.error("Unknown repository type '%s'." % kind)
@@ -282,16 +300,18 @@ class WorkingCopies:
             update = wc.should_update(**kwargs)
             if not source.exists():
                 pass
-            elif os.path.islink(source['path']):
+            elif os.path.islink(source["path"]):
                 logger.info("Skipped update of linked '%s'." % name)
                 continue
-            elif update and wc.status() != 'clean' and not kw.get('force', False):
+            elif update and wc.status() != "clean" and not kw.get("force", False):
                 print_stderr("The package '%s' is dirty." % name)
-                answer = yesno("Do you want to update it anyway?", default=False, all=True)
+                answer = yesno(
+                    "Do you want to update it anyway?", default=False, all=True
+                )
                 if answer:
-                    kw['force'] = True
-                    if answer == 'all':
-                        kwargs['force'] = True
+                    kw["force"] = True
+                    if answer == "all":
+                        kwargs["force"] = True
                 else:
                     logger.info("Skipped update of '%s'." % name)
                     continue
@@ -300,38 +320,38 @@ class WorkingCopies:
         self.process(the_queue)
 
     def matches(self, source):
-        name = source['name']
+        name = source["name"]
         if name not in self.sources:
             logger.error("Checkout failed. No source defined for '%s'." % name)
             sys.exit(1)
         source = self.sources[name]
         try:
-            kind = source['kind']
+            kind = source["kind"]
             wc = self.workingcopytypes.get(kind)(source)
             if wc is None:
                 logger.error("Unknown repository type '%s'." % kind)
                 sys.exit(1)
             return wc.matches()
         except WCError:
-            for line in sys.exc_info()[1].args[0].split('\n'):
+            for line in sys.exc_info()[1].args[0].split("\n"):
                 logger.error(line)
             sys.exit(1)
 
     def status(self, source, **kwargs):
-        name = source['name']
+        name = source["name"]
         if name not in self.sources:
             logger.error("Status failed. No source defined for '%s'." % name)
             sys.exit(1)
         source = self.sources[name]
         try:
-            kind = source['kind']
+            kind = source["kind"]
             wc = self.workingcopytypes.get(kind)(source)
             if wc is None:
                 logger.error("Unknown repository type '%s'." % kind)
                 sys.exit(1)
             return wc.status(**kwargs)
         except WCError:
-            for line in sys.exc_info()[1].args[0].split('\n'):
+            for line in sys.exc_info()[1].args[0].split("\n"):
                 logger.error(line)
             sys.exit(1)
 
@@ -342,18 +362,20 @@ class WorkingCopies:
             if name not in self.sources:
                 continue
             source = self.sources[name]
-            kind = source['kind']
+            kind = source["kind"]
             wc = self.workingcopytypes.get(kind)(source)
             if wc is None:
                 logger.error("Unknown repository type '%s'." % kind)
                 sys.exit(1)
-            if wc.status() != 'clean' and not kw.get('force', False):
+            if wc.status() != "clean" and not kw.get("force", False):
                 print_stderr("The package '%s' is dirty." % name)
-                answer = yesno("Do you want to update it anyway?", default=False, all=True)
+                answer = yesno(
+                    "Do you want to update it anyway?", default=False, all=True
+                )
                 if answer:
-                    kw['force'] = True
-                    if answer == 'all':
-                        kwargs['force'] = True
+                    kw["force"] = True
+                    if answer == "all":
+                        kwargs["force"] = True
                 else:
                     logger.info("Skipped update of '%s'." % name)
                     continue
@@ -364,7 +386,7 @@ class WorkingCopies:
 
 def parse_buildout_args(args):
     settings = dict(
-        config_file='buildout.cfg',
+        config_file="buildout.cfg",
         verbosity=0,
         options=[],
         windows_restart=False,
@@ -373,72 +395,76 @@ def parse_buildout_args(args):
     )
     options = []
     version = pkg_resources.get_distribution("zc.buildout").version
-    if tuple(version.split('.')[:2]) <= ('1', '4'):
-        option_str = 'vqhWUoOnNDA'
+    if tuple(version.split(".")[:2]) <= ("1", "4"):
+        option_str = "vqhWUoOnNDA"
     else:
-        option_str = 'vqhWUoOnNDAs'
+        option_str = "vqhWUoOnNDAs"
     while args:
-        if args[0][0] == '-':
+        if args[0][0] == "-":
             op = orig_op = args.pop(0)
             op = op[1:]
             while op and op[0] in option_str:
-                if op[0] == 'v':
-                    settings['verbosity'] = settings['verbosity'] + 10
-                elif op[0] == 'q':
-                    settings['verbosity'] = settings['verbosity'] - 10
-                elif op[0] == 'W':
-                    settings['windows_restart'] = True
-                elif op[0] == 'U':
-                    settings['user_defaults'] = False
-                elif op[0] == 'o':
-                    options.append(('buildout', 'offline', 'true'))
-                elif op[0] == 'O':
-                    options.append(('buildout', 'offline', 'false'))
-                elif op[0] == 'n':
-                    options.append(('buildout', 'newest', 'true'))
-                elif op[0] == 'N':
-                    options.append(('buildout', 'newest', 'false'))
-                elif op[0] == 'D':
-                    settings['debug'] = True
-                elif op[0] == 's':
-                    settings['ignore_broken_dash_s'] = True
+                if op[0] == "v":
+                    settings["verbosity"] = settings["verbosity"] + 10
+                elif op[0] == "q":
+                    settings["verbosity"] = settings["verbosity"] - 10
+                elif op[0] == "W":
+                    settings["windows_restart"] = True
+                elif op[0] == "U":
+                    settings["user_defaults"] = False
+                elif op[0] == "o":
+                    options.append(("buildout", "offline", "true"))
+                elif op[0] == "O":
+                    options.append(("buildout", "offline", "false"))
+                elif op[0] == "n":
+                    options.append(("buildout", "newest", "true"))
+                elif op[0] == "N":
+                    options.append(("buildout", "newest", "false"))
+                elif op[0] == "D":
+                    settings["debug"] = True
+                elif op[0] == "s":
+                    settings["ignore_broken_dash_s"] = True
                 else:
                     raise ValueError("Unkown option '%s'." % op[0])
                 op = op[1:]
 
-            if op[:1] in ('c', 't'):
+            if op[:1] in ("c", "t"):
                 op_ = op[:1]
                 op = op[1:]
 
-                if op_ == 'c':
+                if op_ == "c":
                     if op:
-                        settings['config_file'] = op
+                        settings["config_file"] = op
                     else:
                         if args:
-                            settings['config_file'] = args.pop(0)
+                            settings["config_file"] = args.pop(0)
                         else:
-                            raise ValueError("No file name specified for option", orig_op)
-                elif op_ == 't':
+                            raise ValueError(
+                                "No file name specified for option", orig_op
+                            )
+                elif op_ == "t":
                     try:
                         int(args.pop(0))
                     except IndexError:
-                        raise ValueError("No timeout value specified for option", orig_op)
+                        raise ValueError(
+                            "No timeout value specified for option", orig_op
+                        )
                     except ValueError:
                         raise ValueError("No timeout value must be numeric", orig_op)
-                    settings['socket_timeout'] = op
+                    settings["socket_timeout"] = op
             elif op:
-                if orig_op == '--help':
-                    return 'help'
-                raise ValueError("Invalid option", '-' + op[0])
-        elif '=' in args[0]:
-            option, value = args.pop(0).split('=', 1)
-            parts = option.split(':')
+                if orig_op == "--help":
+                    return "help"
+                raise ValueError("Invalid option", "-" + op[0])
+        elif "=" in args[0]:
+            option, value = args.pop(0).split("=", 1)
+            parts = option.split(":")
             if len(parts) == 2:
                 section, option = parts
             elif len(parts) == 1:
-                section = 'buildout'
+                section = "buildout"
             else:
-                raise ValueError('Invalid option:', option)
+                raise ValueError("Invalid option:", option)
             options.append((section.strip(), option.strip(), value.strip()))
         else:
             # We've run out of command-line options and option assignnemnts
@@ -451,7 +477,7 @@ class Rewrite:
     _matcher = re.compile(r"(?P<option>^\w+) (?P<operator>[~=]{1,2}) (?P<value>.+)$")
 
     def _iter_prog_lines(self, prog):
-        for line in prog.split('\n'):
+        for line in prog.split("\n"):
             line = line.strip()
             if line:
                 yield line
@@ -462,46 +488,47 @@ class Rewrite:
         for line in lines:
             match = self._matcher.match(line)
             matchdict = match.groupdict()
-            option = matchdict['option']
-            if option in ('name', 'path'):
+            option = matchdict["option"]
+            if option in ("name", "path"):
                 raise ValueError(f"Option '{option}' not allowed in rewrite:\n{prog}")
-            operator = matchdict['operator']
+            operator = matchdict["operator"]
             rewrites = self.rewrites.setdefault(option, [])
-            if operator == '~':
+            if operator == "~":
                 try:
                     substitute = next(lines)
                 except StopIteration:
-                    raise ValueError(f"Missing substitution for option '{option}' in rewrite:\n{prog}")
-                rewrites.append(
-                    (operator, re.compile(matchdict['value']), substitute))
-            elif operator == '=':
-                rewrites.append(
-                    (operator, matchdict['value']))
-            elif operator == '~=':
-                rewrites.append(
-                    (operator, re.compile(matchdict['value'])))
+                    raise ValueError(
+                        f"Missing substitution for option '{option}' in rewrite:\n{prog}"
+                    )
+                rewrites.append((operator, re.compile(matchdict["value"]), substitute))
+            elif operator == "=":
+                rewrites.append((operator, matchdict["value"]))
+            elif operator == "~=":
+                rewrites.append((operator, re.compile(matchdict["value"])))
 
     def __call__(self, source):
         for option, operations in self.rewrites.items():
             for operation in operations:
                 operator = operation[0]
-                if operator == '~':
-                    if operation[1].search(source.get(option, '')) is None:
+                if operator == "~":
+                    if operation[1].search(source.get(option, "")) is None:
                         return
-                elif operator == '=':
-                    if operation[1] != source.get(option, ''):
+                elif operator == "=":
+                    if operation[1] != source.get(option, ""):
                         return
-                elif operator == '~=':
-                    if operation[1].search(source.get(option, '')) is None:
+                elif operator == "~=":
+                    if operation[1].search(source.get(option, "")) is None:
                         return
         for option, operations in self.rewrites.items():
             for operation in operations:
                 operator = operation[0]
-                if operator == '~':
-                    orig = source.get(option, '')
+                if operator == "~":
+                    orig = source.get(option, "")
                     source[option] = operation[1].sub(operation[2], orig)
                     if source[option] != orig:
-                        logger.debug(f"Rewrote option '{option}' from '{orig}' to '{source[option]}'.")
+                        logger.debug(
+                            f"Rewrote option '{option}' from '{orig}' to '{source[option]}'."
+                        )
 
 
 class LegacyRewrite(Rewrite):
@@ -518,40 +545,43 @@ class Config:
 
     def check_invalid_sections(self, path, name):
         config = self.read_config(path)
-        for section in ('buildout', 'develop'):
+        for section in ("buildout", "develop"):
             if config.has_section(section):
                 raise ValueError(
-                    "The '%s' section is not allowed in '%s'" %
-                    (section, name))
+                    "The '%s' section is not allowed in '%s'" % (section, name)
+                )
 
     def __init__(self, buildout_dir):
-        global_cfg_name = os.path.join('~', '.buildout', 'mr.developer.cfg')
-        options_cfg_name = '.mr.developer-options.cfg'
+        global_cfg_name = os.path.join("~", ".buildout", "mr.developer.cfg")
+        options_cfg_name = ".mr.developer-options.cfg"
         self.global_cfg_path = os.path.expanduser(global_cfg_name)
         self.options_cfg_path = os.path.join(buildout_dir, options_cfg_name)
-        self.cfg_path = os.path.join(buildout_dir, '.mr.developer.cfg')
+        self.cfg_path = os.path.join(buildout_dir, ".mr.developer.cfg")
         self.check_invalid_sections(self.global_cfg_path, global_cfg_name)
         self.check_invalid_sections(self.options_cfg_path, options_cfg_name)
-        self._config = self.read_config((
-            self.global_cfg_path, self.options_cfg_path, self.cfg_path))
+        self._config = self.read_config(
+            (self.global_cfg_path, self.options_cfg_path, self.cfg_path)
+        )
         self.develop = {}
         self.buildout_args = []
         self._legacy_rewrites = []
         self.rewrites = []
         self.threads = 5
-        if self._config.has_section('develop'):
-            for package, value in self._config.items('develop'):
+        if self._config.has_section("develop"):
+            for package, value in self._config.items("develop"):
                 value = value.lower()
-                if value == 'true':
+                if value == "true":
                     self.develop[package] = True
-                elif value == 'false':
+                elif value == "false":
                     self.develop[package] = False
-                elif value == 'auto':
-                    self.develop[package] = 'auto'
+                elif value == "auto":
+                    self.develop[package] = "auto"
                 else:
-                    raise ValueError("Invalid value in 'develop' section of '%s'" % self.cfg_path)
-        if self._config.has_option('buildout', 'args'):
-            args = self._config.get('buildout', 'args').split("\n")
+                    raise ValueError(
+                        "Invalid value in 'develop' section of '%s'" % self.cfg_path
+                    )
+        if self._config.has_option("buildout", "args"):
+            args = self._config.get("buildout", "args").split("\n")
             for arg in args:
                 arg = arg.strip()
                 if arg.startswith("'") and arg.endswith("'"):
@@ -559,53 +589,64 @@ class Config:
                 elif arg.startswith('"') and arg.endswith('"'):
                     arg = arg[1:-1].replace('\\"', '"')
                 self.buildout_args.append(arg)
-        (self.buildout_options, self.buildout_settings, _) = \
-            parse_buildout_args(self.buildout_args[1:])
-        if self._config.has_option('mr.developer', 'rewrites'):
-            for rewrite in self._config.get('mr.developer', 'rewrites').split('\n'):
+        self.buildout_options, self.buildout_settings, _ = parse_buildout_args(
+            self.buildout_args[1:]
+        )
+        if self._config.has_option("mr.developer", "rewrites"):
+            for rewrite in self._config.get("mr.developer", "rewrites").split("\n"):
                 if not rewrite.strip():
                     continue
                 rewrite_parts = rewrite.split()
                 if len(rewrite_parts) != 2:
-                    raise ValueError("Invalid legacy rewrite '%s'. Each rewrite must have two parts separated by a space." % rewrite)
+                    raise ValueError(
+                        "Invalid legacy rewrite '%s'. Each rewrite must have two parts separated by a space."
+                        % rewrite
+                    )
                 self._legacy_rewrites.append(rewrite_parts)
                 self.rewrites.append(LegacyRewrite(*rewrite_parts))
-        if self._config.has_option('mr.developer', 'threads'):
+        if self._config.has_option("mr.developer", "threads"):
             try:
-                threads = int(self._config.get('mr.developer', 'threads'))
+                threads = int(self._config.get("mr.developer", "threads"))
                 if threads < 1:
                     raise ValueError
                 self.threads = threads
             except ValueError:
                 logger.warning(
                     "Invalid value '%s' for 'threads' option, must be a positive number. Using default value of %s.",
-                    self._config.get('mr.developer', 'threads'),
-                    self.threads)
-        if self._config.has_section('rewrites'):
-            for name, rewrite in self._config.items('rewrites'):
+                    self._config.get("mr.developer", "threads"),
+                    self.threads,
+                )
+        if self._config.has_section("rewrites"):
+            for name, rewrite in self._config.items("rewrites"):
                 self.rewrites.append(Rewrite(rewrite))
 
     def save(self):
-        self._config.remove_section('develop')
-        self._config.add_section('develop')
+        self._config.remove_section("develop")
+        self._config.add_section("develop")
         for package in sorted(self.develop):
             state = self.develop[package]
-            if state == 'auto':
-                self._config.set('develop', package, 'auto')
+            if state == "auto":
+                self._config.set("develop", package, "auto")
             elif state is True:
-                self._config.set('develop', package, 'true')
+                self._config.set("develop", package, "true")
             elif state is False:
-                self._config.set('develop', package, 'false')
+                self._config.set("develop", package, "false")
 
-        if not self._config.has_section('buildout'):
-            self._config.add_section('buildout')
+        if not self._config.has_section("buildout"):
+            self._config.add_section("buildout")
         options, settings, args = parse_buildout_args(self.buildout_args[1:])
         # don't store the options when a command was in there
         if not len(args):
-            self._config.set('buildout', 'args', "\n".join(repr(x) for x in self.buildout_args))
+            self._config.set(
+                "buildout", "args", "\n".join(repr(x) for x in self.buildout_args)
+            )
 
-        if not self._config.has_section('mr.developer'):
-            self._config.add_section('mr.developer')
-        self._config.set('mr.developer', 'rewrites', "\n".join(" ".join(x) for x in self._legacy_rewrites))
+        if not self._config.has_section("mr.developer"):
+            self._config.add_section("mr.developer")
+        self._config.set(
+            "mr.developer",
+            "rewrites",
+            "\n".join(" ".join(x) for x in self._legacy_rewrites),
+        )
 
         self._config.write(open(self.cfg_path, "w"))

@@ -23,7 +23,7 @@ def tee(process, filter_func):
         if line:
             stripped_line = line.rstrip()
             if filter_func(stripped_line):
-                sys.stdout.write(line.decode('utf-8'))
+                sys.stdout.write(line.decode("utf-8"))
             lines.append(stripped_line)
         elif process.poll() is not None:
             break
@@ -42,7 +42,7 @@ def tee2(process, filter_func):
         if line:
             stripped_line = line.rstrip()
             if filter_func(stripped_line):
-                sys.stderr.write(line.decode('utf-8'))
+                sys.stderr.write(line.decode("utf-8"))
         elif process.poll() is not None:
             break
 
@@ -88,14 +88,7 @@ def popen(cmd, echo=True, echo2=True, env=None, cwd=None):
         else:
             echo2 = Off()
 
-    process = Popen(
-        cmd,
-        shell=True,
-        stdout=PIPE,
-        stderr=PIPE,
-        env=env,
-        cwd=cwd
-    )
+    process = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE, env=env, cwd=cwd)
 
     bt = background_thread(tee2, (process, echo2))
     bt.__enter__()
@@ -153,11 +146,12 @@ class MockConfig:
 class MockDevelop:
     def __init__(self):
         from mr.developer.develop import ArgumentParser
+
         self.always_accept_server_certificate = True
         self.always_checkout = False
-        self.auto_checkout = ''
-        self.update_git_submodules = 'always'
-        self.develeggs = ''
+        self.auto_checkout = ""
+        self.update_git_submodules = "always"
+        self.develeggs = ""
         self.config = MockConfig()
         self.parser = ArgumentParser()
         self.parsers = self.parser.add_subparsers(title="commands", metavar="")
@@ -167,7 +161,7 @@ class MockDevelop:
 class GitRepo:
     def __init__(self, base):
         self.base = base
-        self.url = 'file:///%s' % self.base
+        self.url = "file:///%s" % self.base
         self.process = Process(cwd=self.base)
 
     def __call__(self, cmd, **kw):
@@ -176,13 +170,13 @@ class GitRepo:
     def init(self):
         os.mkdir(self.base)
         self("git init")
-        self('git config --global init.defaultBranch master')
-        self('git config --global protocol.file.allow always')
+        self("git config --global init.defaultBranch master")
+        self("git config --global protocol.file.allow always")
 
     def setup_user(self):
         self('git config user.email "florian.schulze@gmx.net"')
         self('git config user.name "Florian Schulze"')
-        self('git config commit.gpgsign false')
+        self("git config commit.gpgsign false")
 
     def add_file(self, fname, msg=None):
         repo_file = self.base[fname]
@@ -198,7 +192,9 @@ class GitRepo:
 
     def add_submodule(self, submodule, submodule_name):
         assert isinstance(submodule, GitRepo)
-        self(f"git -c protocol.file.allow=always submodule add {submodule.url} {submodule_name}")
+        self(
+            f"git -c protocol.file.allow=always submodule add {submodule.url} {submodule_name}"
+        )
         self("git add .gitmodules")
         self("git add %s" % submodule_name)
         self("git commit -m 'Add submodule %s'" % submodule_name)

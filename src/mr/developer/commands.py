@@ -18,15 +18,19 @@ class ChoicesPseudoAction(argparse.Action):
 
     def __init__(self, *args, **kwargs):
         sup = super()
-        sup.__init__(dest=args[0], option_strings=list(args), help=kwargs.get('help'), nargs=0)
+        sup.__init__(
+            dest=args[0], option_strings=list(args), help=kwargs.get("help"), nargs=0
+        )
 
 
 class ArgumentParser(argparse.ArgumentParser):
     def _check_value(self, action, value):
         # converted value must be one of the choices (if specified)
         if action.choices is not None and value not in action.choices:
-            tup = value, ', '.join([repr(x) for x in sorted(action.choices) if x != 'pony'])
-            msg = argparse._('invalid choice: %r (choose from %s)') % tup
+            tup = value, ", ".join(
+                [repr(x) for x in sorted(action.choices) if x != "pony"]
+            )
+            msg = argparse._("invalid choice: %r (choose from %s)") % tup
             raise argparse.ArgumentError(action, msg)
 
 
@@ -50,8 +54,7 @@ class Command:
         return WorkingCopies(sources, threads=self.develop.threads)
 
     @memoize
-    def get_packages(self, args, auto_checkout=False,
-                     develop=False, checked_out=False):
+    def get_packages(self, args, auto_checkout=False, develop=False, checked_out=False):
         if auto_checkout:
             packages = set(self.develop.auto_checkout)
         else:
@@ -73,7 +76,9 @@ class Command:
 
         if len(result) == 0:
             if len(args) > 1:
-                regexps = "{} or '{}'".format(", ".join("'%s'" % x for x in args[:-1]), args[-1])
+                regexps = "{} or '{}'".format(
+                    ", ".join("'%s'" % x for x in args[:-1]), args[-1]
+                )
             else:
                 regexps = "'%s'" % args[0]
             logger.error("No package matched %s." % regexps)
@@ -87,48 +92,71 @@ class CmdActivate(Command):
         Command.__init__(self, develop)
         description = "Add packages to the list of development packages."
         self.parser = self.develop.parsers.add_parser(
-            "activate",
-            description=description)
-        self.develop.parsers._name_parser_map["a"] = self.develop.parsers._name_parser_map["activate"]
-        self.develop.parsers._choices_actions.append(ChoicesPseudoAction(
-            "activate", "a", help=description))
+            "activate", description=description
+        )
+        self.develop.parsers._name_parser_map["a"] = (
+            self.develop.parsers._name_parser_map["activate"]
+        )
+        self.develop.parsers._choices_actions.append(
+            ChoicesPseudoAction("activate", "a", help=description)
+        )
         self.parser.add_argument(
-            "-a", "--auto-checkout", dest="auto_checkout",
-            action="store_true", default=False,
-            help="""Only considers packages declared by auto-checkout. If you don't specify a <package-regexps> then all declared packages are processed.""")
+            "-a",
+            "--auto-checkout",
+            dest="auto_checkout",
+            action="store_true",
+            default=False,
+            help="""Only considers packages declared by auto-checkout. If you don't specify a <package-regexps> then all declared packages are processed.""",
+        )
         self.parser.add_argument(
-            "-c", "--checked-out", dest="checked_out",
-            action="store_true", default=False,
-            help="""Only considers packages currently checked out. If you don't specify a <package-regexps> then all checked out packages are processed.""")
+            "-c",
+            "--checked-out",
+            dest="checked_out",
+            action="store_true",
+            default=False,
+            help="""Only considers packages currently checked out. If you don't specify a <package-regexps> then all checked out packages are processed.""",
+        )
         self.parser.add_argument(
-            "-d", "--develop", dest="develop",
-            action="store_true", default=False,
-            help="""Only considers packages currently in development mode. If you don't specify a <package-regexps> then all develop packages are processed.""")
+            "-d",
+            "--develop",
+            dest="develop",
+            action="store_true",
+            default=False,
+            help="""Only considers packages currently in development mode. If you don't specify a <package-regexps> then all develop packages are processed.""",
+        )
         self.parser.add_argument(
-            "package-regexp", nargs="+",
-            help="A regular expression to match package names.")
+            "package-regexp",
+            nargs="+",
+            help="A regular expression to match package names.",
+        )
         self.parser.set_defaults(func=self)
 
     def __call__(self, args):
         config = self.develop.config
-        packages = self.get_packages(getattr(args, 'package-regexp'),
-                                     auto_checkout=args.auto_checkout,
-                                     checked_out=args.checked_out,
-                                     develop=args.develop)
+        packages = self.get_packages(
+            getattr(args, "package-regexp"),
+            auto_checkout=args.auto_checkout,
+            checked_out=args.checked_out,
+            develop=args.develop,
+        )
         changed = False
         for name in sorted(packages):
             source = self.develop.sources[name]
             if not source.exists():
-                logger.warning("The package '%s' matched, but isn't checked out." % name)
+                logger.warning(
+                    "The package '%s' matched, but isn't checked out." % name
+                )
                 continue
-            if not source.get('egg', True):
+            if not source.get("egg", True):
                 logger.warning("The package '%s' isn't an egg." % name)
                 continue
             config.develop[name] = True
             logger.info("Activated '%s'." % name)
             changed = True
         if changed:
-            logger.warn("Don't forget to run buildout again, so the actived packages are actually used.")
+            logger.warn(
+                "Don't forget to run buildout again, so the actived packages are actually used."
+            )
         config.save()
 
 
@@ -137,11 +165,14 @@ class CmdArguments(Command):
         Command.__init__(self, develop)
         description = "Print arguments used by last buildout which will be used with the 'rebuild' command."
         self.parser = self.develop.parsers.add_parser(
-            "arguments",
-            description=description)
-        self.develop.parsers._name_parser_map["args"] = self.develop.parsers._name_parser_map["arguments"]
-        self.develop.parsers._choices_actions.append(ChoicesPseudoAction(
-            "arguments", "args", help=description))
+            "arguments", description=description
+        )
+        self.develop.parsers._name_parser_map["args"] = (
+            self.develop.parsers._name_parser_map["arguments"]
+        )
+        self.develop.parsers._choices_actions.append(
+            ChoicesPseudoAction("arguments", "args", help=description)
+        )
         self.parser.set_defaults(func=self)
 
     def __call__(self, args):
@@ -154,40 +185,59 @@ class CmdCheckout(Command):
         Command.__init__(self, develop)
         self.parser = self.develop.parsers.add_parser(
             "checkout",
-            description="Make a checkout of the packages matching the regular expressions and add them to the list of development packages.")
-        self.develop.parsers._name_parser_map["co"] = self.develop.parsers._name_parser_map["checkout"]
-        self.develop.parsers._choices_actions.append(ChoicesPseudoAction(
-            "checkout", "co", help="Checkout packages"))
+            description="Make a checkout of the packages matching the regular expressions and add them to the list of development packages.",
+        )
+        self.develop.parsers._name_parser_map["co"] = (
+            self.develop.parsers._name_parser_map["checkout"]
+        )
+        self.develop.parsers._choices_actions.append(
+            ChoicesPseudoAction("checkout", "co", help="Checkout packages")
+        )
         self.parser.add_argument(
-            "-a", "--auto-checkout", dest="auto_checkout",
-            action="store_true", default=False,
-            help="""Only considers packages declared by auto-checkout. If you don't specify a <package-regexps> then all declared packages are processed.""")
+            "-a",
+            "--auto-checkout",
+            dest="auto_checkout",
+            action="store_true",
+            default=False,
+            help="""Only considers packages declared by auto-checkout. If you don't specify a <package-regexps> then all declared packages are processed.""",
+        )
         self.parser.add_argument(
-            "-v", "--verbose", dest="verbose",
-            action="store_true", default=False,
-            help="""Show output of VCS command.""")
+            "-v",
+            "--verbose",
+            dest="verbose",
+            action="store_true",
+            default=False,
+            help="""Show output of VCS command.""",
+        )
         self.parser.add_argument(
-            "package-regexp", nargs="+",
-            help="A regular expression to match package names.")
+            "package-regexp",
+            nargs="+",
+            help="A regular expression to match package names.",
+        )
         self.parser.set_defaults(func=self)
 
     def __call__(self, args):
         config = self.develop.config
-        packages = self.get_packages(getattr(args, 'package-regexp'),
-                                     auto_checkout=args.auto_checkout)
+        packages = self.get_packages(
+            getattr(args, "package-regexp"), auto_checkout=args.auto_checkout
+        )
         try:
             workingcopies = self.get_workingcopies(self.develop.sources)
-            workingcopies.checkout(sorted(packages),
-                                   verbose=args.verbose,
-                                   submodules=self.develop.update_git_submodules,
-                                   always_accept_server_certificate=self.develop.always_accept_server_certificate)
+            workingcopies.checkout(
+                sorted(packages),
+                verbose=args.verbose,
+                submodules=self.develop.update_git_submodules,
+                always_accept_server_certificate=self.develop.always_accept_server_certificate,
+            )
             for name in sorted(packages):
                 source = self.develop.sources[name]
-                if not source.get('egg', True):
+                if not source.get("egg", True):
                     continue
                 config.develop[name] = True
                 logger.info("Activated '%s'." % name)
-            logger.warning("Don't forget to run buildout again, so the checked out packages are used as develop eggs.")
+            logger.warning(
+                "Don't forget to run buildout again, so the checked out packages are used as develop eggs."
+            )
             config.save()
         except (ValueError, KeyError):
             logger.error(sys.exc_info()[1])
@@ -199,41 +249,62 @@ class CmdDeactivate(Command):
         Command.__init__(self, develop)
         description = "Remove packages from the list of development packages."
         self.parser = self.develop.parsers.add_parser(
-            "deactivate",
-            description=description)
-        self.develop.parsers._name_parser_map["d"] = self.develop.parsers._name_parser_map["deactivate"]
-        self.develop.parsers._choices_actions.append(ChoicesPseudoAction(
-            "deactivate", "d", help=description))
+            "deactivate", description=description
+        )
+        self.develop.parsers._name_parser_map["d"] = (
+            self.develop.parsers._name_parser_map["deactivate"]
+        )
+        self.develop.parsers._choices_actions.append(
+            ChoicesPseudoAction("deactivate", "d", help=description)
+        )
         self.parser.add_argument(
-            "-a", "--auto-checkout", dest="auto_checkout",
-            action="store_true", default=False,
-            help="""Only considers packages declared by auto-checkout. If you don't specify a <package-regexps> then all declared packages are processed.""")
+            "-a",
+            "--auto-checkout",
+            dest="auto_checkout",
+            action="store_true",
+            default=False,
+            help="""Only considers packages declared by auto-checkout. If you don't specify a <package-regexps> then all declared packages are processed.""",
+        )
         self.parser.add_argument(
-            "-c", "--checked-out", dest="checked_out",
-            action="store_true", default=False,
-            help="""Only considers packages currently checked out. If you don't specify a <package-regexps> then all checked out packages are processed.""")
+            "-c",
+            "--checked-out",
+            dest="checked_out",
+            action="store_true",
+            default=False,
+            help="""Only considers packages currently checked out. If you don't specify a <package-regexps> then all checked out packages are processed.""",
+        )
         self.parser.add_argument(
-            "-d", "--develop", dest="develop",
-            action="store_true", default=False,
-            help="""Only considers packages currently in development mode. If you don't specify a <package-regexps> then all develop packages are processed.""")
+            "-d",
+            "--develop",
+            dest="develop",
+            action="store_true",
+            default=False,
+            help="""Only considers packages currently in development mode. If you don't specify a <package-regexps> then all develop packages are processed.""",
+        )
         self.parser.add_argument(
-            "package-regexp", nargs="+",
-            help="A regular expression to match package names.")
+            "package-regexp",
+            nargs="+",
+            help="A regular expression to match package names.",
+        )
         self.parser.set_defaults(func=self)
 
     def __call__(self, args):
         config = self.develop.config
-        packages = self.get_packages(getattr(args, 'package-regexp'),
-                                     auto_checkout=args.auto_checkout,
-                                     checked_out=args.checked_out,
-                                     develop=args.develop)
+        packages = self.get_packages(
+            getattr(args, "package-regexp"),
+            auto_checkout=args.auto_checkout,
+            checked_out=args.checked_out,
+            develop=args.develop,
+        )
         changed = False
         for name in sorted(packages):
             source = self.develop.sources[name]
             if not source.exists():
-                logger.warning("The package '%s' matched, but isn't checked out." % name)
+                logger.warning(
+                    "The package '%s' matched, but isn't checked out." % name
+                )
                 continue
-            if not source.get('egg', True):
+            if not source.get("egg", True):
                 logger.warning("The package '%s' isn't an egg." % name)
                 continue
             if config.develop.get(name) is not False:
@@ -241,7 +312,9 @@ class CmdDeactivate(Command):
                 logger.info("Deactivated '%s'." % name)
                 changed = True
         if changed:
-            logger.warn("Don't forget to run buildout again, so the deactived packages are actually not used anymore.")
+            logger.warn(
+                "Don't forget to run buildout again, so the deactived packages are actually not used anymore."
+            )
         config.save()
 
 
@@ -250,34 +323,42 @@ class CmdHelp(Command):
         Command.__init__(self, develop)
         self.parser = self.develop.parsers.add_parser(
             "help",
-            description="Show help on the given command or about the whole script if none given.")
-        self.develop.parsers._name_parser_map["h"] = self.develop.parsers._name_parser_map["help"]
-        self.develop.parsers._choices_actions.append(ChoicesPseudoAction(
-            "help", "h", help="Show help"))
+            description="Show help on the given command or about the whole script if none given.",
+        )
+        self.develop.parsers._name_parser_map["h"] = (
+            self.develop.parsers._name_parser_map["help"]
+        )
+        self.develop.parsers._choices_actions.append(
+            ChoicesPseudoAction("help", "h", help="Show help")
+        )
         self.parser.add_argument(
-            "--rst", dest="rst",
-            action="store_true", default=False,
-            help="""Print help for all commands in reStructuredText format.""")
+            "--rst",
+            dest="rst",
+            action="store_true",
+            default=False,
+            help="""Print help for all commands in reStructuredText format.""",
+        )
         self.parser.add_argument(
-            '-z', '--zsh',
-            action='store_true',
-            help="Print info for zsh autocompletion")
-        self.parser.add_argument("command", nargs="?", help="The command you want to see the help of.")
+            "-z", "--zsh", action="store_true", help="Print info for zsh autocompletion"
+        )
+        self.parser.add_argument(
+            "command", nargs="?", help="The command you want to see the help of."
+        )
         self.parser.set_defaults(func=self)
 
     def __call__(self, args):
         develop = self.develop
         choices = develop.parsers.choices
         if args.zsh:
-            choices = [x for x in choices if x != 'pony']
+            choices = [x for x in choices if x != "pony"]
             if args.command is None:
                 print("\n".join(choices))
             else:
-                if args.command == 'help':
+                if args.command == "help":
                     print("\n".join(choices))
-                elif args.command in ('purge', 'up', 'update'):
+                elif args.command in ("purge", "up", "update"):
                     print("\n".join(self.get_packages(None, checked_out=True)))
-                elif args.command not in ('pony', 'rebuild'):
+                elif args.command not in ("pony", "rebuild"):
                     print("\n".join(self.get_packages(None)))
             return
         if args.command in choices:
@@ -285,7 +366,7 @@ class CmdHelp(Command):
             return
         cmds = {}
         for name in choices:
-            if name == 'pony':
+            if name == "pony":
                 continue
             cmds.setdefault(choices[name], set()).add(name)
         for cmd, names in list(cmds.items()):
@@ -303,8 +384,8 @@ class CmdHelp(Command):
             print()
             for name in sorted(cmds):
                 cmd = cmds[name]
-                if len(cmd['aliases']):
-                    header = "{} ({})".format(name, ", ".join(cmd['aliases']))
+                if len(cmd["aliases"]):
+                    header = "{} ({})".format(name, ", ".join(cmd["aliases"]))
                 else:
                     header = name
                 print(header)
@@ -312,7 +393,7 @@ class CmdHelp(Command):
                 print()
                 print("::")
                 print()
-                for line in cmd['cmd'].format_help().split('\n'):
+                for line in cmd["cmd"].format_help().split("\n"):
                     print("    %s" % line)
                 print()
         else:
@@ -320,8 +401,8 @@ class CmdHelp(Command):
             print("Available commands:")
             for name in sorted(cmds):
                 cmd = cmds[name]
-                if len(cmd['aliases']):
-                    print("    {} ({})".format(name, ", ".join(cmd['aliases'])))
+                if len(cmd["aliases"]):
+                    print("    {} ({})".format(name, ", ".join(cmd["aliases"])))
                 else:
                     print("    %s" % name)
 
@@ -331,70 +412,99 @@ class CmdInfo(Command):
         Command.__init__(self, develop)
         description = "Lists informations about packages."
         self.parser = self.develop.parsers.add_parser(
-            "info",
-            help=description,
-            description=description)
+            "info", help=description, description=description
+        )
         self.parser.add_argument(
-            "-a", "--auto-checkout", dest="auto_checkout",
-            action="store_true", default=False,
-            help="""Only considers packages declared by auto-checkout. If you don't specify a <package-regexps> then all declared packages are processed.""")
+            "-a",
+            "--auto-checkout",
+            dest="auto_checkout",
+            action="store_true",
+            default=False,
+            help="""Only considers packages declared by auto-checkout. If you don't specify a <package-regexps> then all declared packages are processed.""",
+        )
         self.parser.add_argument(
-            "-c", "--checked-out", dest="checked_out",
-            action="store_true", default=False,
-            help="""Only considers packages currently checked out. If you don't specify a <package-regexps> then all declared packages are processed.""")
+            "-c",
+            "--checked-out",
+            dest="checked_out",
+            action="store_true",
+            default=False,
+            help="""Only considers packages currently checked out. If you don't specify a <package-regexps> then all declared packages are processed.""",
+        )
         self.parser.add_argument(
-            "-d", "--develop", dest="develop",
-            action="store_true", default=False,
-            help="""Only considers packages currently in development mode. If you don't specify a <package-regexps> then all declared packages are processed.""")
+            "-d",
+            "--develop",
+            dest="develop",
+            action="store_true",
+            default=False,
+            help="""Only considers packages currently in development mode. If you don't specify a <package-regexps> then all declared packages are processed.""",
+        )
         info_opts = self.parser.add_argument_group(
             "Output options",
-            """The following options are used to print just the info you want, the order they are specified reflects the order in which the information will be printed.""")
+            """The following options are used to print just the info you want, the order they are specified reflects the order in which the information will be printed.""",
+        )
         info_opts.add_argument(
-            "--name", dest="info",
-            action="append_const", const="name",
-            help="""Prints the name of the package.""")
+            "--name",
+            dest="info",
+            action="append_const",
+            const="name",
+            help="""Prints the name of the package.""",
+        )
         info_opts.add_argument(
-            "-p", "--path", dest="info",
-            action="append_const", const="path",
-            help="""Prints the absolute path of the package.""")
+            "-p",
+            "--path",
+            dest="info",
+            action="append_const",
+            const="path",
+            help="""Prints the absolute path of the package.""",
+        )
         info_opts.add_argument(
-            "--type", dest="info",
-            action="append_const", const="type",
-            help="""Prints the repository type of the package.""")
+            "--type",
+            dest="info",
+            action="append_const",
+            const="type",
+            help="""Prints the repository type of the package.""",
+        )
         info_opts.add_argument(
-            "--url", dest="info",
-            action="append_const", const="url",
-            help="""Prints the URL of the package.""")
+            "--url",
+            dest="info",
+            action="append_const",
+            const="url",
+            help="""Prints the URL of the package.""",
+        )
         self.parser.add_argument_group(info_opts)
         self.parser.add_argument(
-            "package-regexp", nargs="*",
-            help="A regular expression to match package names.")
+            "package-regexp",
+            nargs="*",
+            help="A regular expression to match package names.",
+        )
         self.parser.set_defaults(func=self)
 
     def __call__(self, args):
-        packages = self.get_packages(getattr(args, 'package-regexp'),
-                                     auto_checkout=args.auto_checkout,
-                                     develop=args.develop,
-                                     checked_out=args.checked_out)
+        packages = self.get_packages(
+            getattr(args, "package-regexp"),
+            auto_checkout=args.auto_checkout,
+            develop=args.develop,
+            checked_out=args.checked_out,
+        )
         for name in sorted(packages):
             source = self.develop.sources[name]
             if args.info:
                 info = []
                 for key in args.info:
-                    if key == 'name':
+                    if key == "name":
                         info.append(name)
-                    elif key == 'path':
-                        info.append(source['path'])
-                    elif key == 'type':
-                        info.append(source['kind'])
-                    elif key == 'url':
-                        info.append(source['url'])
+                    elif key == "path":
+                        info.append(source["path"])
+                    elif key == "type":
+                        info.append(source["kind"])
+                    elif key == "url":
+                        info.append(source["url"])
                 print(" ".join(info))
             else:
                 print("Name: %s" % name)
-                print("Path: %s" % source['path'])
-                print("Type: %s" % source['kind'])
-                print("URL: %s" % source['url'])
+                print("Path: %s" % source["path"])
+                print("Type: %s" % source["kind"])
+                print("URL: %s" % source["url"])
                 print()
 
 
@@ -403,31 +513,52 @@ class CmdList(Command):
         Command.__init__(self, develop)
         description = "Lists tracked packages."
         self.parser = self.develop.parsers.add_parser(
-            "list",
-            formatter_class=HelpFormatter,
-            description=description)
-        self.develop.parsers._name_parser_map["ls"] = self.develop.parsers._name_parser_map["list"]
-        self.develop.parsers._choices_actions.append(ChoicesPseudoAction(
-            "list", "ls", help=description))
+            "list", formatter_class=HelpFormatter, description=description
+        )
+        self.develop.parsers._name_parser_map["ls"] = (
+            self.develop.parsers._name_parser_map["list"]
+        )
+        self.develop.parsers._choices_actions.append(
+            ChoicesPseudoAction("list", "ls", help=description)
+        )
         self.parser.add_argument(
-            "-a", "--auto-checkout", dest="auto_checkout",
-            action="store_true", default=False,
-            help="""Only show packages in auto-checkout list.""")
+            "-a",
+            "--auto-checkout",
+            dest="auto_checkout",
+            action="store_true",
+            default=False,
+            help="""Only show packages in auto-checkout list.""",
+        )
         self.parser.add_argument(
-            "-c", "--checked-out", dest="checked_out",
-            action="store_true", default=False,
-            help="""Only considers packages currently checked out. If you don't specify a <package-regexps> then all checked out packages are processed.""")
+            "-c",
+            "--checked-out",
+            dest="checked_out",
+            action="store_true",
+            default=False,
+            help="""Only considers packages currently checked out. If you don't specify a <package-regexps> then all checked out packages are processed.""",
+        )
         self.parser.add_argument(
-            "-d", "--develop", dest="develop",
-            action="store_true", default=False,
-            help="""Only considers packages currently in development mode. If you don't specify a <package-regexps> then all develop packages are processed.""")
+            "-d",
+            "--develop",
+            dest="develop",
+            action="store_true",
+            default=False,
+            help="""Only considers packages currently in development mode. If you don't specify a <package-regexps> then all develop packages are processed.""",
+        )
         self.parser.add_argument(
-            "-l", "--long", dest="long",
-            action="store_true", default=False,
-            help="""Show URL and kind of package.""")
+            "-l",
+            "--long",
+            dest="long",
+            action="store_true",
+            default=False,
+            help="""Show URL and kind of package.""",
+        )
         self.parser.add_argument(
-            "-s", "--status", dest="status",
-            action="store_true", default=False,
+            "-s",
+            "--status",
+            dest="status",
+            action="store_true",
+            default=False,
             help=textwrap.dedent("""\
                Show checkout status.
                The first column in the output shows the checkout status:
@@ -435,18 +566,24 @@ class CmdList(Command):
                    ' ' in auto-checkout list and checked out
                    '~' not in auto-checkout list, but checked out
                    '!' in auto-checkout list, but not checked out
-                   'C' the repository URL doesn't match"""))
-        self.parser.add_argument("package-regexp", nargs="*",
-                                 help="A regular expression to match package names.")
+                   'C' the repository URL doesn't match"""),
+        )
+        self.parser.add_argument(
+            "package-regexp",
+            nargs="*",
+            help="A regular expression to match package names.",
+        )
         self.parser.set_defaults(func=self)
 
     def __call__(self, args):
         sources = self.develop.sources
         auto_checkout = self.develop.auto_checkout
-        packages = self.get_packages(getattr(args, 'package-regexp'),
-                                     auto_checkout=args.auto_checkout,
-                                     checked_out=args.checked_out,
-                                     develop=args.develop)
+        packages = self.get_packages(
+            getattr(args, "package-regexp"),
+            auto_checkout=args.auto_checkout,
+            checked_out=args.checked_out,
+            develop=args.develop,
+        )
         workingcopies = self.get_workingcopies(sources)
         for name in sorted(packages):
             source = sources[name]
@@ -466,7 +603,7 @@ class CmdList(Command):
                     else:
                         info.append("#")
             if args.long:
-                info.append("({}) {} {}".format(source['kind'], name, source['url']))
+                info.append("({}) {} {}".format(source["kind"], name, source["url"]))
             else:
                 info.append(name)
             print(" ".join(info))
@@ -476,8 +613,8 @@ class CmdPony(Command):
     def __init__(self, develop):
         Command.__init__(self, develop)
         self.parser = self.develop.parsers.add_parser(
-            "pony",
-            description="It should be easy to develop a pony!")
+            "pony", description="It should be easy to develop a pony!"
+        )
         self.parser.set_defaults(func=self)
 
     def __call__(self, args):
@@ -502,6 +639,7 @@ class CmdPony(Command):
             `""""`        `""""`     ;'
 '''
         import time
+
         logger.info("Starting to develop a pony.")
         for line in pony.split("\n"):
             time.sleep(0.25)
@@ -512,27 +650,39 @@ class CmdPony(Command):
 class CmdPurge(Command):
     def __init__(self, develop):
         Command.__init__(self, develop)
-        description = textwrap.dedent("""\
+        description = textwrap.dedent(
+            """\
             Remove checked out packages which aren't active anymore.
 
-            Only 'svn' packages can be purged, because other repositories may contain unrecoverable files even when not marked as 'dirty'.""")
+            Only 'svn' packages can be purged, because other repositories may contain unrecoverable files even when not marked as 'dirty'."""
+        )
         self.parser = self.develop.parsers.add_parser(
-            "purge",
-            formatter_class=HelpFormatter,
-            description=description)
-        self.develop.parsers._choices_actions.append(ChoicesPseudoAction(
-            "purge", help=description))
+            "purge", formatter_class=HelpFormatter, description=description
+        )
+        self.develop.parsers._choices_actions.append(
+            ChoicesPseudoAction("purge", help=description)
+        )
         self.parser.add_argument(
-            "-n", "--dry-run", dest="dry_run",
-            action="store_true", default=False,
-            help="""Don't actually remove anything, just print the paths which would be removed.""")
+            "-n",
+            "--dry-run",
+            dest="dry_run",
+            action="store_true",
+            default=False,
+            help="""Don't actually remove anything, just print the paths which would be removed.""",
+        )
         self.parser.add_argument(
-            "-f", "--force", dest="force",
-            action="store_true", default=False,
-            help="""Force purge even if the working copy is dirty or unknown (non-svn).""")
+            "-f",
+            "--force",
+            dest="force",
+            action="store_true",
+            default=False,
+            help="""Force purge even if the working copy is dirty or unknown (non-svn).""",
+        )
         self.parser.add_argument(
-            "package-regexp", nargs="*",
-            help="A regular expression to match package names.")
+            "package-regexp",
+            nargs="*",
+            help="A regular expression to match package names.",
+        )
         self.parser.set_defaults(func=self)
 
     def handle_remove_readonly(self, func, path, exc):
@@ -545,8 +695,7 @@ class CmdPurge(Command):
 
     def __call__(self, args):
         buildout_dir = self.develop.buildout_dir
-        packages = self.get_packages(getattr(args, 'package-regexp'),
-                                     checked_out=True)
+        packages = self.get_packages(getattr(args, "package-regexp"), checked_out=True)
         packages = packages - self.develop.auto_checkout
         packages = packages - set(self.develop.develeggs)
         force = args.force
@@ -556,16 +705,21 @@ class CmdPurge(Command):
             logger.info("Dry run, nothing will be removed.")
         for name in packages:
             source = self.develop.sources[name]
-            path = source['path']
+            path = source["path"]
             if path.startswith(buildout_dir):
-                path = path[len(buildout_dir) + 1:]
+                path = path[len(buildout_dir) + 1 :]
             need_force = False
-            if source['kind'] != 'svn':
+            if source["kind"] != "svn":
                 need_force = True
-                logger.warn(f"The directory of package '{name}' at '{path}' might contain unrecoverable files and will not be removed without --force.")
-            if workingcopies.status(source) != 'clean':
+                logger.warn(
+                    f"The directory of package '{name}' at '{path}' might contain unrecoverable files and will not be removed without --force."
+                )
+            if workingcopies.status(source) != "clean":
                 need_force = True
-                logger.warn("The package '%s' is dirty and will not be removed without --force." % name)
+                logger.warn(
+                    "The package '%s' is dirty and will not be removed without --force."
+                    % name
+                )
             if need_force:
                 if not force:
                     continue
@@ -573,18 +727,22 @@ class CmdPurge(Command):
                 # have actually added the --force argument on the
                 # command line.
                 if not force_all:
-                    answer = yesno("Do you want to purge it anyway?", default=False, all=True)
+                    answer = yesno(
+                        "Do you want to purge it anyway?", default=False, all=True
+                    )
                     if not answer:
                         logger.info("Skipped purge of '%s'." % name)
                         continue
-                    if answer == 'all':
+                    if answer == "all":
                         force_all = True
 
             logger.info(f"Removing package '{name}' at '{path}'.")
             if not args.dry_run:
-                shutil.rmtree(source['path'],
-                              ignore_errors=False,
-                              onerror=self.handle_remove_readonly)
+                shutil.rmtree(
+                    source["path"],
+                    ignore_errors=False,
+                    onerror=self.handle_remove_readonly,
+                )
 
 
 class CmdRebuild(Command):
@@ -592,11 +750,14 @@ class CmdRebuild(Command):
         Command.__init__(self, develop)
         description = "Run buildout with the last used arguments."
         self.parser = self.develop.parsers.add_parser(
-            "rebuild",
-            description=description)
-        self.develop.parsers._name_parser_map["rb"] = self.develop.parsers._name_parser_map["rebuild"]
-        self.develop.parsers._choices_actions.append(ChoicesPseudoAction(
-            "rebuild", "rb", help=description))
+            "rebuild", description=description
+        )
+        self.develop.parsers._name_parser_map["rb"] = (
+            self.develop.parsers._name_parser_map["rebuild"]
+        )
+        self.develop.parsers._choices_actions.append(
+            ChoicesPseudoAction("rebuild", "rb", help=description)
+        )
         self.parser.set_defaults(func=self)
 
     def __call__(self, args):
@@ -614,30 +775,47 @@ class CmdReset(Command):
         self.parser = self.develop.parsers.add_parser(
             "reset",
             help="Resets the packages develop status.",
-            description="Resets the packages develop status. This is useful when switching to a new buildout configuration.")
+            description="Resets the packages develop status. This is useful when switching to a new buildout configuration.",
+        )
         self.parser.add_argument(
-            "-a", "--auto-checkout", dest="auto_checkout",
-            action="store_true", default=False,
-            help="""Only considers packages declared by auto-checkout. If you don't specify a <package-regexps> then all declared packages are processed.""")
+            "-a",
+            "--auto-checkout",
+            dest="auto_checkout",
+            action="store_true",
+            default=False,
+            help="""Only considers packages declared by auto-checkout. If you don't specify a <package-regexps> then all declared packages are processed.""",
+        )
         self.parser.add_argument(
-            "-c", "--checked-out", dest="checked_out",
-            action="store_true", default=False,
-            help="""Only considers packages currently checked out. If you don't specify a <package-regexps> then all checked out packages are processed.""")
+            "-c",
+            "--checked-out",
+            dest="checked_out",
+            action="store_true",
+            default=False,
+            help="""Only considers packages currently checked out. If you don't specify a <package-regexps> then all checked out packages are processed.""",
+        )
         self.parser.add_argument(
-            "-d", "--develop", dest="develop",
-            action="store_true", default=False,
-            help="""Only considers packages currently in development mode. If you don't specify a <package-regexps> then all develop packages are processed.""")
+            "-d",
+            "--develop",
+            dest="develop",
+            action="store_true",
+            default=False,
+            help="""Only considers packages currently in development mode. If you don't specify a <package-regexps> then all develop packages are processed.""",
+        )
         self.parser.add_argument(
-            "package-regexp", nargs="*",
-            help="A regular expression to match package names.")
+            "package-regexp",
+            nargs="*",
+            help="A regular expression to match package names.",
+        )
         self.parser.set_defaults(func=self)
 
     def __call__(self, args):
         config = self.develop.config
-        packages = self.get_packages(getattr(args, 'package-regexp'),
-                                     auto_checkout=args.auto_checkout,
-                                     checked_out=args.checked_out,
-                                     develop=args.develop)
+        packages = self.get_packages(
+            getattr(args, "package-regexp"),
+            auto_checkout=args.auto_checkout,
+            checked_out=args.checked_out,
+            develop=args.develop,
+        )
         changed = False
         for name in sorted(packages):
             if name in config.develop:
@@ -645,7 +823,9 @@ class CmdReset(Command):
                 logger.info("Reset develop state of '%s'." % name)
                 changed = True
         if changed:
-            logger.warn("Don't forget to run buildout again, so the deactived packages are actually not used anymore.")
+            logger.warn(
+                "Don't forget to run buildout again, so the deactived packages are actually not used anymore."
+            )
         config.save()
 
 
@@ -655,7 +835,8 @@ class CmdStatus(Command):
         self.parser = self.develop.parsers.add_parser(
             "status",
             formatter_class=HelpFormatter,
-            description=textwrap.dedent("""\
+            description=textwrap.dedent(
+                """\
                 Shows the status of tracked packages, filtered if <package-regexps> is given.
                 The first column in the output shows the checkout status:
                     ' ' in auto-checkout list
@@ -672,41 +853,70 @@ class CmdStatus(Command):
                     '-' deactivated
                     '!' deactivated, but the package is in the auto-checkout list
                     'A' activated, but not in list of development packages (run buildout)
-                    'D' deactivated, but still in list of development packages (run buildout)"""))
-        self.develop.parsers._name_parser_map["stat"] = self.develop.parsers._name_parser_map["status"]
-        self.develop.parsers._name_parser_map["st"] = self.develop.parsers._name_parser_map["status"]
-        self.develop.parsers._choices_actions.append(ChoicesPseudoAction(
-            "status", "stat", "st", help="Shows the status of tracked packages."))
+                    'D' deactivated, but still in list of development packages (run buildout)"""
+            ),
+        )
+        self.develop.parsers._name_parser_map["stat"] = (
+            self.develop.parsers._name_parser_map["status"]
+        )
+        self.develop.parsers._name_parser_map["st"] = (
+            self.develop.parsers._name_parser_map["status"]
+        )
+        self.develop.parsers._choices_actions.append(
+            ChoicesPseudoAction(
+                "status", "stat", "st", help="Shows the status of tracked packages."
+            )
+        )
         self.parser.add_argument(
-            "-a", "--auto-checkout", dest="auto_checkout",
-            action="store_true", default=False,
-            help="""Only considers packages declared by auto-checkout. If you don't specify a <package-regexps> then all declared packages are processed.""")
+            "-a",
+            "--auto-checkout",
+            dest="auto_checkout",
+            action="store_true",
+            default=False,
+            help="""Only considers packages declared by auto-checkout. If you don't specify a <package-regexps> then all declared packages are processed.""",
+        )
         self.parser.add_argument(
-            "-c", "--checked-out", dest="checked_out",
-            action="store_true", default=False,
-            help="""Only considers packages currently checked out. If you don't specify a <package-regexps> then all checked out packages are processed.""")
+            "-c",
+            "--checked-out",
+            dest="checked_out",
+            action="store_true",
+            default=False,
+            help="""Only considers packages currently checked out. If you don't specify a <package-regexps> then all checked out packages are processed.""",
+        )
         self.parser.add_argument(
-            "-d", "--develop", dest="develop",
-            action="store_true", default=False,
-            help="""Only considers packages currently in development mode. If you don't specify a <package-regexps> then all develop packages are processed.""")
+            "-d",
+            "--develop",
+            dest="develop",
+            action="store_true",
+            default=False,
+            help="""Only considers packages currently in development mode. If you don't specify a <package-regexps> then all develop packages are processed.""",
+        )
         self.parser.add_argument(
-            "-v", "--verbose", dest="verbose",
-            action="store_true", default=False,
-            help="""Show output of VCS command.""")
+            "-v",
+            "--verbose",
+            dest="verbose",
+            action="store_true",
+            default=False,
+            help="""Show output of VCS command.""",
+        )
         self.parser.add_argument(
-            "package-regexp", nargs="*",
-            help="A regular expression to match package names.")
+            "package-regexp",
+            nargs="*",
+            help="A regular expression to match package names.",
+        )
         self.parser.set_defaults(func=self)
 
     def __call__(self, args):
         auto_checkout = self.develop.auto_checkout
         sources_dir = self.develop.sources_dir
         develeggs = self.develop.develeggs
-        package_regexp = getattr(args, 'package-regexp')
-        packages = self.get_packages(package_regexp,
-                                     auto_checkout=args.auto_checkout,
-                                     checked_out=args.checked_out,
-                                     develop=args.develop)
+        package_regexp = getattr(args, "package-regexp")
+        packages = self.get_packages(
+            package_regexp,
+            auto_checkout=args.auto_checkout,
+            checked_out=args.checked_out,
+            develop=args.develop,
+        )
         workingcopies = self.get_workingcopies(self.develop.sources)
         paths = []
         for name in sorted(packages):
@@ -715,7 +925,7 @@ class CmdStatus(Command):
                 if name in auto_checkout:
                     print("!     %s" % name)
                 continue
-            paths.append(source['path'])
+            paths.append(source["path"])
             info = []
             if not workingcopies.matches(source):
                 info.append("C")
@@ -728,9 +938,9 @@ class CmdStatus(Command):
                 status, output = workingcopies.status(source, verbose=True)
             else:
                 status = workingcopies.status(source)
-            if status == 'clean':
+            if status == "clean":
                 info.append(" ")
-            elif status == 'ahead':
+            elif status == "ahead":
                 info.append(">")
             else:
                 info.append("M")
@@ -738,20 +948,20 @@ class CmdStatus(Command):
                 if name in develeggs:
                     info.append(" ")
                 else:
-                    if source.get('egg', True):
+                    if source.get("egg", True):
                         info.append("A")
                     else:
                         info.append(" ")
             else:
                 if name not in develeggs:
-                    if not source.get('egg', True):
+                    if not source.get("egg", True):
                         info.append(" ")
                     elif name in auto_checkout:
                         info.append("!")
                     else:
                         info.append("-")
                 else:
-                    if source.get('egg', True):
+                    if source.get("egg", True):
                         info.append("D")
                     else:
                         info.append(" ")
@@ -759,10 +969,10 @@ class CmdStatus(Command):
             print(" ".join(info))
             if args.verbose:
                 if isinstance(output, bytes):
-                    output = output.decode('utf8')
+                    output = output.decode("utf8")
                 output = output.strip()
                 if output:
-                    for line in output.split('\n'):
+                    for line in output.split("\n"):
                         print("      %s" % line)
                     print()
 
@@ -777,42 +987,65 @@ class CmdUpdate(Command):
     def __init__(self, develop):
         Command.__init__(self, develop)
         description = "Updates all known packages currently checked out."
-        self.parser = self.develop.parsers.add_parser(
-            "update",
-            description=description)
-        self.develop.parsers._name_parser_map["up"] = self.develop.parsers._name_parser_map["update"]
-        self.develop.parsers._choices_actions.append(ChoicesPseudoAction(
-            "update", "up", help=description))
+        self.parser = self.develop.parsers.add_parser("update", description=description)
+        self.develop.parsers._name_parser_map["up"] = (
+            self.develop.parsers._name_parser_map["update"]
+        )
+        self.develop.parsers._choices_actions.append(
+            ChoicesPseudoAction("update", "up", help=description)
+        )
         self.parser.add_argument(
-            "-a", "--auto-checkout", dest="auto_checkout",
-            action="store_true", default=False,
-            help="""Only considers packages declared by auto-checkout. If you don't specify a <package-regexps> then all declared packages are processed.""")
+            "-a",
+            "--auto-checkout",
+            dest="auto_checkout",
+            action="store_true",
+            default=False,
+            help="""Only considers packages declared by auto-checkout. If you don't specify a <package-regexps> then all declared packages are processed.""",
+        )
         self.parser.add_argument(
-            "-d", "--develop", dest="develop",
-            action="store_true", default=False,
-            help="""Only considers packages currently in development mode. If you don't specify a <package-regexps> then all develop packages are processed.""")
+            "-d",
+            "--develop",
+            dest="develop",
+            action="store_true",
+            default=False,
+            help="""Only considers packages currently in development mode. If you don't specify a <package-regexps> then all develop packages are processed.""",
+        )
         self.parser.add_argument(
-            "-f", "--force", dest="force",
-            action="store_true", default=False,
-            help="""Force update even if the working copy is dirty.""")
+            "-f",
+            "--force",
+            dest="force",
+            action="store_true",
+            default=False,
+            help="""Force update even if the working copy is dirty.""",
+        )
         self.parser.add_argument(
-            "-v", "--verbose", dest="verbose",
-            action="store_true", default=False,
-            help="""Show output of VCS command.""")
+            "-v",
+            "--verbose",
+            dest="verbose",
+            action="store_true",
+            default=False,
+            help="""Show output of VCS command.""",
+        )
         self.parser.add_argument(
-            "package-regexp", nargs="*",
-            help="A regular expression to match package names.")
+            "package-regexp",
+            nargs="*",
+            help="A regular expression to match package names.",
+        )
         self.parser.set_defaults(func=self)
 
     def __call__(self, args):
-        packages = self.get_packages(getattr(args, 'package-regexp'),
-                                     auto_checkout=args.auto_checkout,
-                                     checked_out=True,
-                                     develop=args.develop)
+        packages = self.get_packages(
+            getattr(args, "package-regexp"),
+            auto_checkout=args.auto_checkout,
+            checked_out=True,
+            develop=args.develop,
+        )
         workingcopies = self.get_workingcopies(self.develop.sources)
         force = args.force or self.develop.always_checkout
-        workingcopies.update(sorted(packages),
-                             force=force,
-                             verbose=args.verbose,
-                             submodules=self.develop.update_git_submodules,
-                             always_accept_server_certificate=self.develop.always_accept_server_certificate)
+        workingcopies.update(
+            sorted(packages),
+            force=force,
+            verbose=args.verbose,
+            submodules=self.develop.update_git_submodules,
+            always_accept_server_certificate=self.develop.always_accept_server_certificate,
+        )
