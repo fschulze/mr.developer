@@ -5,7 +5,14 @@ Changelog
 2.0.5 (unreleased)
 ------------------
 
-* Add ``subpath`` option to specify a subdirectory of a repository. [mamico]
+- Allow a later source option to override an earlier one instead of raising
+  ``ValueError: Key '...' already in source info.``.  This lets a ``[sources]``
+  entry refine a shared/extended definition, e.g. ``foo += branch=my-feature``
+  overriding the ``branch`` set upstream.  Fixes `#125
+  <https://github.com/fschulze/mr.developer/issues/125>`_.
+  [janjaapdriessen]
+
+-  Add ``subpath`` option to specify a subdirectory of a repository. [mamico]
 
 
 2.0.4 (2025-07-17)
