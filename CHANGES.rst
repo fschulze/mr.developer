@@ -5,6 +5,8 @@ Changelog
 3.0.0 (unreleased)
 ------------------
 
+- Replace our use of ``pkg_resources`` with ``importlib.metadata``.  [maurits]
+
 - Require ``zc.buildout`` 3.0.0 or higher.  [maurits]
 
 - Add support for Python 3.14 and 3.15.  [maurits]

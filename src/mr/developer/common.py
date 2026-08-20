@@ -1,8 +1,8 @@
 from configparser import RawConfigParser
+from importlib.metadata import entry_points
 
 import logging
 import os
-import pkg_resources
 import platform
 import queue
 import re
@@ -190,10 +190,10 @@ def get_workingcopytypes():
     group = "mr.developer.workingcopytypes"
     _workingcopytypes = {}
     addons = {}
-    for entrypoint in pkg_resources.iter_entry_points(group=group):
+    for entrypoint in entry_points().select(group=group):
         key = entrypoint.name
         workingcopytype = entrypoint.load()
-        if entrypoint.dist.project_name == "mr.developer":
+        if entrypoint.dist.name == "mr.developer":
             _workingcopytypes[key] = workingcopytype
         else:
             if key in addons:
@@ -205,7 +205,7 @@ def get_workingcopytypes():
             logger.info(
                 "Overwriting '%s' with addon from '%s'.",
                 key,
-                entrypoint.dist.project_name,
+                entrypoint.dist.name,
             )
             addons[key] = workingcopytype
     _workingcopytypes.update(addons)
@@ -216,10 +216,10 @@ def get_commands():
     commands = {}
     group = "mr.developer.commands"
     addons = {}
-    for entrypoint in pkg_resources.iter_entry_points(group=group):
+    for entrypoint in entry_points().select(group=group):
         key = entrypoint.name
         command = entrypoint.load()
-        if entrypoint.dist.project_name == "mr.developer":
+        if entrypoint.dist.name == "mr.developer":
             commands[key] = command
         else:
             if key in addons:
@@ -230,7 +230,7 @@ def get_commands():
             logger.info(
                 'Overwriting "%s" with addon from "%s".',
                 key,
-                entrypoint.dist.project_name,
+                entrypoint.dist.name,
             )
             addons[key] = command
     commands.update(addons)
