@@ -1,0 +1,35 @@
+ci:
+    autofix_prs: false
+    autoupdate_schedule: monthly
+
+repos:
+-   repo: https://github.com/asottile/pyupgrade
+    rev: v3.21.2
+    hooks:
+    -   id: pyupgrade
+        args: [--py310-plus]
+-   repo: https://github.com/pycqa/isort
+    rev: 9.0.0b1
+    hooks:
+    -   id: isort
+-   repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 26.5.1
+    hooks:
+    -   id: black
+-   repo: https://github.com/PyCQA/flake8
+    rev: 7.3.0
+    hooks:
+    -   id: flake8
+-   repo: https://github.com/mgedmin/check-manifest
+    rev: "0.51"
+    hooks:
+    -   id: check-manifest
+-   repo: https://github.com/regebro/pyroma
+    rev: "5.1b1"
+    hooks:
+    -   id: pyroma
+-   repo: https://github.com/mgedmin/check-python-versions
+    rev: "0.24.2"
+    hooks:
+    -   id: check-python-versions
+        args: ['--only', 'setup.py,tox.ini']

@@ -12,14 +12,14 @@ class Path(str):
         os.makedirs(str(self))
 
     def create_file(self, *content):
-        f = open(self, 'w')
-        f.write('\n'.join(content))
+        f = open(self, "w")
+        f.write("\n".join(content))
         f.close()
 
 
 @pytest.fixture
 def src(tempdir):
-    base = tempdir['src']
+    base = tempdir["src"]
     os.mkdir(base)
     return base
 
@@ -54,6 +54,7 @@ def mkgitrepo(tempdir):
 @pytest.fixture
 def develop(src):
     from mr.developer.tests.utils import MockDevelop
+
     develop = MockDevelop()
     develop.sources_dir = src
     return develop
@@ -62,4 +63,5 @@ def develop(src):
 @pytest.fixture(autouse=True)
 def _patch_git_working_copy_for_tests(monkeypatch):
     from mr.developer.git import GitWorkingCopy
+
     monkeypatch.setattr(GitWorkingCopy, "_always_allow_file_protocol", True)
