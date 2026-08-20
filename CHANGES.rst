@@ -2,10 +2,12 @@ Changelog
 =========
 
 
-2.1.1 (unreleased)
+3.0.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Add support for Python 3.14 and 3.15.  [maurits]
+
+- Require Python 3.10 or higher.  [maurits]
 
 
 2.1.0 (2026-08-20)

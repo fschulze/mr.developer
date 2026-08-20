@@ -1,7 +1,7 @@
 from setuptools import setup
 
 
-version = '2.1.1.dev0'
+version = '3.0.0.dev0'
 
 
 install_requires = [
@@ -32,25 +32,19 @@ setup(name='mr.developer',
       classifiers=[
           "Development Status :: 5 - Production/Stable",
           "Programming Language :: Python",
-          "Programming Language :: Python :: 2",
-          "Programming Language :: Python :: 2.7",
           "Programming Language :: Python :: 3",
-          "Programming Language :: Python :: 3.4",
-          "Programming Language :: Python :: 3.5",
-          "Programming Language :: Python :: 3.6",
-          "Programming Language :: Python :: 3.7",
-          "Programming Language :: Python :: 3.8",
-          "Programming Language :: Python :: 3.9",
           "Programming Language :: Python :: 3.10",
           "Programming Language :: Python :: 3.11",
           "Programming Language :: Python :: 3.12",
           "Programming Language :: Python :: 3.13",
+          "Programming Language :: Python :: 3.14",
+          "Programming Language :: Python :: 3.15",
           "Framework :: Buildout",
           "Topic :: Software Development :: Libraries :: Python Modules"],
       keywords='buildout extension vcs git develop',
       author='Florian Schulze',
       author_email='florian.schulze@gmx.net',
-      url='http://github.com/fschulze/mr.developer',
+      url='https://github.com/fschulze/mr.developer',
       license='BSD',
       packages=['mr', 'mr.developer', 'mr.developer.tests'],
       package_dir={'': 'src'},
@@ -60,7 +54,7 @@ setup(name='mr.developer',
       install_requires=install_requires,
       tests_require=tests_require,
       extras_require=extras_require,
-      python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
+      python_requires=">=3.10",
       test_suite='mr.developer.tests',
       entry_points="""
       [console_scripts]
