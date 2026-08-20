@@ -394,11 +394,7 @@ def parse_buildout_args(args):
         debug=False,
     )
     options = []
-    version = pkg_resources.get_distribution("zc.buildout").version
-    if tuple(version.split(".")[:2]) <= ("1", "4"):
-        option_str = "vqhWUoOnNDA"
-    else:
-        option_str = "vqhWUoOnNDAs"
+    option_str = "vqhWUoOnNDAs"
     while args:
         if args[0][0] == "-":
             op = orig_op = args.pop(0)

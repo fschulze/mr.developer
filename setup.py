@@ -5,7 +5,7 @@ version = "3.0.0.dev0"
 
 install_requires = [
     "setuptools",
-    "zc.buildout",
+    "zc.buildout>=3.0.0",
 ]
 
 tests_require = ["mock"]

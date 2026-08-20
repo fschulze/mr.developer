@@ -5,6 +5,8 @@ Changelog
 3.0.0 (unreleased)
 ------------------
 
+- Require ``zc.buildout`` 3.0.0 or higher.  [maurits]
+
 - Add support for Python 3.14 and 3.15.  [maurits]
 
 - Require Python 3.10 or higher.  [maurits]
