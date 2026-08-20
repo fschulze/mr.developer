@@ -13,6 +13,15 @@ on:
   workflow_dispatch:
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7.0.1
+      with:
+        persist-credentials: false
+    - name: Run code quality checks
+      run: pipx run pre-commit run -a
+
   test:
     runs-on: ubuntu-latest
     strategy:
