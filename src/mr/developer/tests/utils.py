@@ -1,5 +1,4 @@
 from subprocess import Popen, PIPE
-from mr.developer.compat import s
 import os
 import sys
 import threading
@@ -22,7 +21,7 @@ def tee(process, filter_func):
         if line:
             stripped_line = line.rstrip()
             if filter_func(stripped_line):
-                sys.stdout.write(s(line))
+                sys.stdout.write(line.decode('utf-8'))
             lines.append(stripped_line)
         elif process.poll() is not None:
             break
@@ -41,7 +40,7 @@ def tee2(process, filter_func):
         if line:
             stripped_line = line.rstrip()
             if filter_func(stripped_line):
-                sys.stderr.write(s(line))
+                sys.stderr.write(line.decode('utf-8'))
         elif process.poll() is not None:
             break
 
