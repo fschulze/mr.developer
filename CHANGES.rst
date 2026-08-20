@@ -12,6 +12,8 @@ Changelog
   <https://github.com/fschulze/mr.developer/issues/125>`_.
   [janjaapdriessen]
 
+-  Add ``subpath`` option to specify a subdirectory of a repository. [mamico]
+
 
 2.0.4 (2025-07-17)
 ------------------

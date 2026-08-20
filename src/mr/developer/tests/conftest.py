@@ -8,6 +8,9 @@ class Path(str):
     def __getitem__(self, name):
         return Path(os.path.join(self, name))
 
+    def create_dir(self):
+        os.makedirs(str(self))
+
     def create_file(self, *content):
         f = open(self, 'w')
         f.write('\n'.join(content))
