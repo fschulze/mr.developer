@@ -85,7 +85,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
                     version = (int(version[0]), int(version[1]))
         if (cmd.returncode != 0) or (version is None):
             logger.error("Couldn't determine the version of 'svn' command.")
-            logger.error(f"Subversion output:\n{stdout.decode("utf-8")}\n{stderr.decode("utf-8")}")
+            logger.error(f"Subversion output:\n{stdout.decode('utf-8')}\n{stderr.decode('utf-8')}")
             sys.exit(1)
         if (version < (1, 5)) and not _svn_version_warning:
             logger.warning("The installed 'svn' command is too old. Expected 1.5 or newer, got %s." % ".".join([str(x) for x in version]))
@@ -162,7 +162,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
         args = [self.svn_executable, "checkout", url, path]
         stdout, stderr, returncode = self._svn_communicate(args, url, **kwargs)
         if returncode != 0:
-            raise SVNError(f"Subversion checkout for '{name}' failed.\n{stderr.decode("utf-8")}")
+            raise SVNError(f"Subversion checkout for '{name}' failed.\n{stderr.decode('utf-8')}")
         if kwargs.get('verbose', False):
             return stdout.decode("utf-8")
 
@@ -212,7 +212,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
                                stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            raise SVNError(f"Subversion info for '{name}' failed.\n{stderr.decode("utf-8")}")
+            raise SVNError(f"Subversion info for '{name}' failed.\n{stderr.decode('utf-8')}")
         info = etree.fromstring(stdout)
         result = {}
         entry = info.find('entry')
@@ -240,7 +240,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
             args.insert(2, '-r%s' % rev)
         stdout, stderr, returncode = self._svn_communicate(args, url, **kwargs)
         if returncode != 0:
-            raise SVNError(f"Subversion switch of '{name}' failed.\n{stderr.decode("utf-8")}")
+            raise SVNError(f"Subversion switch of '{name}' failed.\n{stderr.decode('utf-8')}")
         if kwargs.get('verbose', False):
             return stdout.decode("utf-8")
 
@@ -253,7 +253,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
             args.insert(2, '-r%s' % rev)
         stdout, stderr, returncode = self._svn_communicate(args, url, **kwargs)
         if returncode != 0:
-            raise SVNError(f"Subversion update of '{name}' failed.\n{stderr.decode("utf-8")}")
+            raise SVNError(f"Subversion update of '{name}' failed.\n{stderr.decode('utf-8')}")
         if kwargs.get('verbose', False):
             return stdout.decode("utf-8")
 
@@ -323,7 +323,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
                                stderr=subprocess.PIPE)
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
-            raise SVNError(f"Subversion status for '{name}' failed.\n{stderr.decode("utf-8")}")
+            raise SVNError(f"Subversion status for '{name}' failed.\n{stderr.decode('utf-8')}")
         info = etree.fromstring(stdout)
         clean = True
         for target in info.findall('target'):
@@ -342,7 +342,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
                                    stderr=subprocess.PIPE)
             stdout, stderr = cmd.communicate()
             if cmd.returncode != 0:
-                raise SVNError(f"Subversion status for '{name}' failed.\n{stderr.decode("utf-8")}")
+                raise SVNError(f"Subversion status for '{name}' failed.\n{stderr.decode('utf-8')}")
             return status, stdout.decode("utf-8")
         else:
             return status
