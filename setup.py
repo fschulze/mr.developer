@@ -3,15 +3,6 @@ from setuptools import setup
 version = "3.0.0.dev0"
 
 
-install_requires = [
-    "zc.buildout>=3.0.0",
-]
-
-tests_require = ["mock"]
-
-extras_require = {"test": tests_require}
-
-
 def get_text_from_file(fn):
     text = open(fn, "rb").read()
     return text.decode("utf-8")
@@ -49,11 +40,11 @@ setup(
     license="BSD",
     include_package_data=True,
     zip_safe=False,
-    install_requires=install_requires,
-    tests_require=tests_require,
-    extras_require=extras_require,
+    install_requires=[
+        "zc.buildout>=3.0.0",
+    ],
+    extras_require={"test": "mock"},
     python_requires=">=3.10",
-    test_suite="mr.developer.tests",
     entry_points="""
       [console_scripts]
       develop = mr.developer.develop:develop
