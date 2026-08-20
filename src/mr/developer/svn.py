@@ -9,12 +9,6 @@ import subprocess
 import sys
 
 
-try:
-    raw_input = raw_input
-except NameError:
-    raw_input = input
-
-
 logger = common.logger
 
 
@@ -127,7 +121,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
                     common.output_lock.release()
                     continue
                 print("Authorization needed for '{}' at '{}'".format(self.source['name'], self.source['url']))
-                user = raw_input("Username: ")
+                user = input("Username: ")
                 passwd = getpass.getpass("Password: ")
                 self._svn_auth_cache[root] = dict(
                     user=user,
@@ -149,7 +143,7 @@ class SVNWorkingCopy(common.BaseWorkingCopy):
                     continue
                 print("\n".join(lines[:-1]))
                 while 1:
-                    answer = raw_input("(R)eject or accept (t)emporarily? ")
+                    answer = input("(R)eject or accept (t)emporarily? ")
                     if answer.lower() in ['r', 't']:
                         break
                     else:

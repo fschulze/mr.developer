@@ -18,18 +18,6 @@ def print_stderr(s):
     sys.stderr.flush()
 
 
-try:
-    advance_iterator = next
-except NameError:
-    def advance_iterator(it):
-        return it.next()
-
-try:
-    raw_input = raw_input
-except NameError:
-    raw_input = input
-
-
 # shameless copy from
 # http://stackoverflow.com/questions/377017/test-if-executable-exists-in-python
 def which(name_root, default=None):
@@ -137,7 +125,7 @@ def yesno(question, default=True, all=True):
     else:
         question = "%s] " % question
     while 1:
-        answer = raw_input(question).lower()
+        answer = input(question).lower()
         for option in answers:
             if answer in answers[option]:
                 return option
@@ -481,7 +469,7 @@ class Rewrite:
             rewrites = self.rewrites.setdefault(option, [])
             if operator == '~':
                 try:
-                    substitute = advance_iterator(lines)
+                    substitute = next(lines)
                 except StopIteration:
                     raise ValueError("Missing substitution for option '{}' in rewrite:\n{}".format(option, prog))
                 rewrites.append(
