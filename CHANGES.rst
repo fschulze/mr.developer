@@ -5,7 +5,44 @@ Changelog
 3.0.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Add an ``update-strategy`` option for git sources, settable per source or
+  for the whole buildout. The default ``merge`` keeps the current behaviour.
+  ``ff-only`` refuses to update a checkout whose remote branch was rewritten,
+  and reports how to recover instead of merging the removed commits back in.
+  ``rebase`` replays the local commits on top of the rewritten branch, leaving
+  out the superseded copies of the commits the rewrite replaced, and aborts
+  without changing anything if one of them conflicts.
+  ``reset`` makes the checkout match the remote branch exactly, for checkouts
+  nobody edits by hand such as deployment hosts and CI.
+  Refs `#82 <https://github.com/fschulze/mr.developer/issues/82>`_.
+  [janwijbrand]
+
+- Report a git checkout that is both ahead of and behind its remote as
+  ``diverged`` rather than ``ahead``, and one that is only behind as
+  ``behind``. ``develop status`` shows these as ``X`` and ``<``. A rewritten
+  remote branch is the usual cause and was previously indistinguishable from
+  having local commits.
+  [janwijbrand]
+
+- Do not prompt "The package X is dirty. Do you want to update it anyway?"
+  when there is no terminal to answer it. Buildout run from a script, from CI
+  or from a container build used to fail with a bare ``EOFError`` traceback;
+  it now reports which checkout is in the way and what state it is in.
+  [janwijbrand]
+
+- Say which checkout state actually blocked an update instead of always
+  calling it "dirty": a branch that is merely ahead of its remote has a clean
+  working tree.
+  [janwijbrand]
+
+- Name the revision, not a branch, when ``git checkout`` of a ``rev`` fails.
+  The error used to mention a branch ``master`` that was never involved.
+  [janwijbrand]
+
+- Warn when a source checkout is switched away from a branch that is not the
+  configured one, instead of moving off a developer's working branch
+  silently.
+  [janwijbrand]
 
 
 3.0.0 (2026-08-20)

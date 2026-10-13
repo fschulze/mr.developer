@@ -92,6 +92,14 @@ class BaseWorkingCopy:
         self.output = self._output.append
         self.source = source
 
+    def blocks_update(self, status, **kwargs):
+        """Whether this working copy state stops an automatic update.
+
+        Overridden by backends that can reconcile some of these states on
+        their own.
+        """
+        return status != "clean"
+
     def should_update(self, **kwargs):
         offline = kwargs.get("offline", False)
         if offline:
@@ -126,7 +134,15 @@ def yesno(question, default=True, all=True):
     else:
         question = "%s] " % question
     while 1:
-        answer = input(question).lower()
+        try:
+            answer = input(question).lower()
+        except EOFError:
+            # Nothing is attached to stdin. A bare EOFError traceback says
+            # nothing about what was being asked, so name the question.
+            raise WCError(
+                f"Could not ask {question.strip()!r}: buildout is not running "
+                "interactively (no terminal on stdin)."
+            )
         for option in answers:
             if answer in answers[option]:
                 return option
@@ -303,8 +319,26 @@ class WorkingCopies:
             elif os.path.islink(source["path"]):
                 logger.info("Skipped update of linked '%s'." % name)
                 continue
-            elif update and wc.status() != "clean" and not kw.get("force", False):
-                print_stderr("The package '%s' is dirty." % name)
+            elif (
+                update
+                and not kw.get("force", False)
+                and wc.blocks_update(status := wc.status(), **kw)
+            ):
+                if not sys.stdin.isatty():
+                    # Nobody can answer the prompt below. Skipping quietly is
+                    # how a build ends up running code nobody chose, so stop
+                    # and say which checkout is in the way and why.
+                    logger.error(
+                        "The checkout of '%s' is %s and buildout is not "
+                        "running interactively, so it cannot ask whether to "
+                        "update it anyway. Resolve that checkout first "
+                        "('bin/develop status' shows the state).",
+                        name,
+                        status,
+                    )
+                    self.errors = True
+                    continue
+                print_stderr(f"The package '{name}' is {status}.")
                 answer = yesno(
                     "Do you want to update it anyway?", default=False, all=True
                 )

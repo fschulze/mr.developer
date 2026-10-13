@@ -714,7 +714,7 @@ class CmdPurge(Command):
                 logger.warn(
                     f"The directory of package '{name}' at '{path}' might contain unrecoverable files and will not be removed without --force."
                 )
-            if workingcopies.status(source) != "clean":
+            if workingcopies.status(source) not in ("clean", "behind"):
                 need_force = True
                 logger.warn(
                     "The package '%s' is dirty and will not be removed without --force."
@@ -848,6 +848,9 @@ class CmdStatus(Command):
                     ' ' no changes
                     'M' local modifications or untracked files
                     '>' your local branch is ahead of the remote one
+                    '<' your local branch is behind the remote one
+                    'X' your local branch and the remote one have diverged
+                        (usually: the remote branch was rebased and force-pushed)
                 The third column shows the development status:
                     ' ' activated
                     '-' deactivated
@@ -942,6 +945,10 @@ class CmdStatus(Command):
                 info.append(" ")
             elif status == "ahead":
                 info.append(">")
+            elif status == "behind":
+                info.append("<")
+            elif status == "diverged":
+                info.append("X")
             else:
                 info.append("M")
             if self.develop.config.develop.get(name, name in auto_checkout):

@@ -261,3 +261,242 @@ class TestGit:
 
         # Check that the expected files from the branch are there
         assert set(os.listdir(src["egg"])) == {".git", "foo", "foo2"}
+
+    # -- history rewrites (rebase + force-push of the remote branch) ----------
+
+    def _branchWorkingCopy(self, repository, src, strategy=None):
+        from mr.developer.git import GitWorkingCopy
+
+        options = {"update-strategy": strategy} if strategy else {}
+        return GitWorkingCopy(
+            Source(
+                kind="git",
+                name="egg",
+                branch="test",
+                url="%s" % repository.base,
+                path=src["egg"],
+                **options,
+            )
+        )
+
+    def _rewriteBranch(self, repository, branch="test"):
+        # Amend the tip of the branch. From a checkout that already has the
+        # old tip this is indistinguishable from a rebase and force-push:
+        # the branch is both ahead and behind its remote.
+        repository("git checkout %s" % branch, echo=False)
+        repository("git commit --amend -m rewritten --allow-empty", echo=False)
+
+    def _head(self, path):
+        lines = Process(cwd=path).check_call("git rev-parse HEAD", echo=False)
+        return lines[0].decode("utf-8").strip()
+
+    def testUpdateFfOnlyRefusesRewrittenBranch(self, mkgitrepo, src):
+        from mr.developer.common import WCError
+
+        repository = mkgitrepo("repository")
+        self.createDefaultContent(repository)
+        wc = self._branchWorkingCopy(repository, src, "ff-only")
+        wc.checkout(submodules="never")
+        before = self._head(src["egg"])
+
+        self._rewriteBranch(repository)
+        with pytest.raises(WCError) as exc:
+            wc.update(submodules="never")
+        message = str(exc.value)
+        assert "diverged" in message
+        assert "reset --hard" in message
+        # The checkout is left exactly as it was: no merge, no conflict, no
+        # half-finished state for the next run to trip over.
+        assert self._head(src["egg"]) == before
+        assert not os.path.exists(os.path.join(src["egg"], ".git", "MERGE_HEAD"))
+
+        shutil.rmtree(src["egg"])
+
+    def testUpdateResetFollowsRewrittenBranch(self, mkgitrepo, src):
+        repository = mkgitrepo("repository")
+        self.createDefaultContent(repository)
+        wc = self._branchWorkingCopy(repository, src, "reset")
+        wc.checkout(submodules="never")
+
+        self._rewriteBranch(repository)
+        wc.update(submodules="never")
+        # The checkout now matches the rewritten branch exactly.
+        remote_head = (
+            Process(cwd=repository.base)
+            .check_call("git rev-parse test", echo=False)[0]
+            .decode("utf-8")
+            .strip()
+        )
+        assert self._head(src["egg"]) == remote_head
+        assert wc.status() == "clean"
+
+        shutil.rmtree(src["egg"])
+
+    def testUpdateMergeKeepsHistoricalBehaviour(self, mkgitrepo, src):
+        repository = mkgitrepo("repository")
+        self.createDefaultContent(repository)
+        # No update-strategy given: the default stays 'merge'.
+        wc = self._branchWorkingCopy(repository, src)
+        wc.checkout(submodules="never")
+
+        self._rewriteBranch(repository)
+        wc.update(submodules="never")
+        # As before: a merge commit, so the checkout keeps the commits the
+        # rewrite removed and is now ahead of its remote.
+        parents = (
+            Process(cwd=src["egg"])
+            .check_call("git rev-list --parents -n 1 HEAD", echo=False)[0]
+            .decode("utf-8")
+            .split()
+        )
+        assert len(parents) == 3, "expected a merge commit (two parents)"
+        assert wc.status() == "ahead"
+
+        shutil.rmtree(src["egg"])
+
+    def testStatusReportsDivergedSeparatelyFromAhead(self, mkgitrepo, src):
+        repository = mkgitrepo("repository")
+        self.createDefaultContent(repository)
+        wc = self._branchWorkingCopy(repository, src, "ff-only")
+        wc.checkout(submodules="never")
+        assert wc.status() == "clean"
+
+        self._rewriteBranch(repository)
+        Process(cwd=src["egg"]).check_call("git fetch", echo=False)
+        # Not 'ahead': the branch is ahead *and* behind, which is exactly what
+        # distinguishes a rewritten remote branch from local commits.
+        assert wc.status() == "diverged"
+
+        shutil.rmtree(src["egg"])
+
+    def testUnknownUpdateStrategyIsRejected(self, mkgitrepo, src):
+        repository = mkgitrepo("repository")
+        self.createDefaultContent(repository)
+        self._branchWorkingCopy(repository, src).checkout(submodules="never")
+        wc = self._branchWorkingCopy(repository, src, "no-such-strategy")
+        with pytest.raises(SystemExit):
+            wc.update(submodules="never")
+
+        shutil.rmtree(src["egg"])
+
+    def _commitInCheckout(self, path, fname, content, msg):
+        egg = Process(cwd=path)
+        egg.check_call("git config user.email dev@example.com", echo=False)
+        egg.check_call("git config user.name dev", echo=False)
+        with open(os.path.join(path, fname), "w") as f:
+            f.write(content)
+        egg.check_call("git add %s" % fname, echo=False)
+        egg.check_call("git commit -m %s" % msg, echo=False)
+
+    def _subjects(self, path):
+        return [
+            line.decode("utf-8")
+            for line in Process(cwd=path).check_call("git log --format=%s", echo=False)
+        ]
+
+    def testUpdateRebaseKeepsLocalWorkAndDropsSupersededCommits(self, mkgitrepo, src):
+        repository = mkgitrepo("repository")
+        self.createDefaultContent(repository)
+        wc = self._branchWorkingCopy(repository, src, "rebase")
+        wc.checkout(submodules="never")
+        # Work the developer has made but not pushed.
+        self._commitInCheckout(src["egg"], "mine", "mine", "mine")
+
+        self._rewriteBranch(repository)
+        wc.update(submodules="never")
+
+        subjects = self._subjects(src["egg"])
+        # The local work survived, and sits on top of the rewritten branch.
+        assert subjects[0] == "mine"
+        assert subjects[1] == "rewritten"
+        # The pre-rewrite copy of that commit is gone instead of being kept
+        # alongside its replacement.
+        assert "foo2" not in subjects
+        assert wc.status() == "ahead"
+
+        shutil.rmtree(src["egg"])
+
+    def testUpdateRebaseWithoutLocalWorkMatchesRemote(self, mkgitrepo, src):
+        repository = mkgitrepo("repository")
+        self.createDefaultContent(repository)
+        wc = self._branchWorkingCopy(repository, src, "rebase")
+        wc.checkout(submodules="never")
+
+        self._rewriteBranch(repository)
+        wc.update(submodules="never")
+
+        # Nothing of the developer's own to keep, so the checkout ends up on
+        # the rewritten branch exactly.
+        assert wc.status() == "clean"
+        assert self._subjects(src["egg"])[0] == "rewritten"
+
+        shutil.rmtree(src["egg"])
+
+    def testUpdateRebaseAbortsOnConflict(self, mkgitrepo, src):
+        from mr.developer.common import WCError
+
+        repository = mkgitrepo("repository")
+        self.createDefaultContent(repository)
+        wc = self._branchWorkingCopy(repository, src, "rebase")
+        wc.checkout(submodules="never")
+        # Local work on the same file the rewrite changes.
+        self._commitInCheckout(src["egg"], "foo2", "mine", "mine")
+        before = self._head(src["egg"])
+
+        repository("git checkout test", echo=False)
+        with open(os.path.join("%s" % repository.base, "foo2"), "w") as f:
+            f.write("theirs")
+        repository("git add foo2", echo=False)
+        repository("git commit --amend -m rewritten --no-edit", echo=False)
+
+        with pytest.raises(WCError) as exc:
+            wc.update(submodules="never")
+        assert "conflict" in str(exc.value)
+        assert "aborted" in str(exc.value)
+        # Nothing half-finished is left behind: no rebase in progress, no
+        # conflict markers, and the checkout is where it was.
+        assert not os.path.exists(os.path.join(src["egg"], ".git", "rebase-merge"))
+        assert not os.path.exists(os.path.join(src["egg"], ".git", "rebase-apply"))
+        assert self._head(src["egg"]) == before
+        with open(os.path.join(src["egg"], "foo2")) as f:
+            assert "<<<<<<<" not in f.read()
+
+        shutil.rmtree(src["egg"])
+
+    def testUpdateResetDiscardsLocalCommitsWithoutRemoteChanges(self, mkgitrepo, src):
+        repository = mkgitrepo("repository")
+        self.createDefaultContent(repository)
+        wc = self._branchWorkingCopy(repository, src, "reset")
+        wc.checkout(submodules="never")
+        # A commit made straight in the checkout, with nothing new on the
+        # remote: the checkout is ahead but not behind. An earlier version
+        # worked out ahead/behind for every strategy at once and stopped when
+        # there was nothing to pull in, so the commit `reset` exists to
+        # discard survived a deploy.
+        self._commitInCheckout(src["egg"], "hotfix", "hotfix", "hotfix")
+        assert "hotfix" in self._subjects(src["egg"])
+
+        wc.update(submodules="never")
+
+        assert "hotfix" not in self._subjects(src["egg"])
+        assert wc.status() == "clean"
+
+        shutil.rmtree(src["egg"])
+
+    def testUpdateRebaseFastForwardsWhenOnlyBehind(self, mkgitrepo, src):
+        repository = mkgitrepo("repository")
+        self.createDefaultContent(repository)
+        wc = self._branchWorkingCopy(repository, src, "rebase")
+        wc.checkout(submodules="never")
+        # Nothing of our own, the remote branch simply moves on. `git rebase`
+        # fast-forwards this by itself, which is why the strategy hands it the
+        # whole job instead of working out ahead/behind first.
+        repository("git checkout test", echo=False)
+        repository.add_file("foo3")
+
+        wc.update(submodules="never")
+
+        assert self._subjects(src["egg"])[0] == "foo3"
+        assert wc.status() == "clean"
+
+        shutil.rmtree(src["egg"])

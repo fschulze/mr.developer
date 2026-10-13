@@ -197,6 +197,9 @@ class Extension:
     def get_update_git_submodules(self):
         return self.buildout["buildout"].get("update-git-submodules", "always")
 
+    def get_update_strategy(self):
+        return self.buildout["buildout"].get("update-strategy", "merge")
+
     def get_git_clone_depth(self):
         value = self.buildout["buildout"].get("git-clone-depth", "")
         if value:
@@ -294,6 +297,7 @@ class Extension:
         workingcopies = self.get_workingcopies()
         always_checkout = self.get_always_checkout()
         update_git_submodules = self.get_update_git_submodules()
+        update_strategy = self.get_update_strategy()
         always_accept_server_certificate = self.get_always_accept_server_certificate()
         develop, develeggs, versions = self.get_develop_info()
 
@@ -311,6 +315,7 @@ class Extension:
             verbose=verbose,
             update=always_checkout,
             submodules=update_git_submodules,
+            update_strategy=update_strategy,
             always_accept_server_certificate=always_accept_server_certificate,
             offline=offline,
         )

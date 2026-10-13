@@ -47,6 +47,36 @@ This enables additional ``[buildout]`` options:
   buildout run. If set to ``force``, then packages are updated even when
   they are dirty instead of asking interactively.
 
+``update-strategy``
+  Git only. How an existing checkout is brought in line with its remote
+  branch. Defaults to ``merge``, which runs ``git merge`` and is what
+  mr.developer has always done.
+
+  ``merge`` cannot express "the remote branch was rewritten". After a branch
+  is rebased and force-pushed, the merge either silently brings back the
+  commits the rewrite removed, or stops on a conflict and leaves the checkout
+  mid-merge.
+
+  ``ff-only`` only ever fast-forwards. A rewritten remote branch is reported
+  as diverged, with the commands to recover, and the checkout is left
+  untouched. This is the safe choice for a developer's machine.
+
+  ``rebase`` replays the local commits on top of the rewritten branch. git
+  leaves out the ones that are already upstream -- it compares the patch, not
+  the commit id -- and those are exactly the superseded copies the rewrite
+  replaced, so what gets replayed is the work that is really only here. If a
+  local commit conflicts with the rewrite, the rebase is aborted and nothing
+  is changed. This is usually the best choice for a developer's machine.
+
+  ``reset`` makes the checkout match the remote branch exactly, discarding
+  local commits. Use it for checkouts nobody edits by hand: deployment hosts,
+  continuous integration, build images.
+
+  Can also be set per source, which wins over the buildout-wide option::
+
+    [sources]
+    pkg = git https://example.com/pkg.git branch=main update-strategy=reset
+
 ``update-git-submodules``
   This defaults to ``always``. If it's ``always``, then submodules present
   in each package in develompent will be registered and updated on checkout and
